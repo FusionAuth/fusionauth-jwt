@@ -5,15 +5,16 @@
 ```java
 Signer signer = new HmacSigner(Algorithm.HS256).withSecret("secret");
 
-JWT jwt = new JWT()
+String jwt = new JWT()
     .withSigner(signer)
-    .subject("412d2f35-115e-4dd7-93f5-7bd3e06752ca");
+    .subject("412d2f35-115e-4dd7-93f5-7bd3e06752ca")
+    .get();
 
 // Verify the JWT Signature
 Verifier verifier = new Verifier()
     .withSigner(signer);
 
-verifier.verify(jwt.get());
+verifier.verify(jwt);
 ```
 
 **Note:** This project uses the Savant build tool. To compile using using Savant, follow these instructions:
