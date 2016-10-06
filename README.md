@@ -1,6 +1,6 @@
 ## Prime JWT ![semver 2.0.0 compliant](http://img.shields.io/badge/semver-2.0.0-brightgreen.svg?style=flat-square)
 
-##### Example:
+### Example Code:
 
 ```java
 Signer signer = new HmacSigner(Algorithm.HS256).withSecret("secret");
@@ -14,6 +14,15 @@ String jwt = new JWT().withSigner(signer)
 // Verify the JWT Signature
 verifier.verify(jwt);
 ```
+
+### Algorithms
+
+  - HS256 *HmacSHA256*
+  - HS512 *HmacSHA512*
+  - RS256 *SHA256withRSA*
+  - RS512 *SHA512withRSA*
+  - none *Unsecured*
+
 
 **Note:** This project uses the Savant build tool. To compile using using Savant, follow these instructions:
 
