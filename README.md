@@ -4,16 +4,14 @@
 
 ```java
 Signer signer = new HmacSigner(Algorithm.HS256).withSecret("secret");
+Verifier verifier = new Verifier().withSigner(signer);
 
-String jwt = new JWT()
-    .withSigner(signer)
+// Build the signed JWT string
+String jwt = new JWT().withSigner(signer)
     .subject("412d2f35-115e-4dd7-93f5-7bd3e06752ca")
     .get();
 
 // Verify the JWT Signature
-Verifier verifier = new Verifier()
-    .withSigner(signer);
-
 verifier.verify(jwt);
 ```
 
