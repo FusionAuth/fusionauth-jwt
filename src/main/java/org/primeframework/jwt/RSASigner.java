@@ -37,7 +37,8 @@ import java.util.Base64;
 import java.util.Objects;
 
 /**
- * This class can sign and verify a JWT using an RSA public / private key pair. An instance of this class is intended to be re-used with the {@link Verifier}.
+ * This class can sign and verify a JWT using an RSA public / private key pair. An instance of this class is
+ * intended to be re-used with the {@link Verifier}.
  *
  * @author Daniel DeGroff
  */

@@ -41,9 +41,8 @@ public class JWT {
   /**
    * Registered Claim <code>iat</code> as defined by RFC 7519 Section 4.1.6. Use of this claim is OPTIONAL.
    *
-   * @param issuedAt The issued at claim identifies the time at which the JWT was issued. The issued at time is expected to provided in
-   *                 UNIX
-   *                 time, or the number of seconds since Epoch.
+   * @param issuedAt The issued at claim identifies the time at which the JWT was issued. The issued at time
+   *                 is expected to provided in UNIX time, or the number of seconds since Epoch.
    * @return this.
    */
   public JWT IssuedAt(String issuedAt) {
@@ -67,7 +66,8 @@ public class JWT {
   }
 
   /**
-   * Add a claim to this JWT. This claim can be public or private, it is up to the caller to properly name the claim as to avoid collision.
+   * Add a claim to this JWT. This claim can be public or private, it is up to the caller to properly name the
+   * claim as to avoid collision.
    *
    * @param name  The name of the JWT claim.
    * @param value The value of the JWT claim. This value is an object and is expected to properly serialize.
@@ -81,8 +81,9 @@ public class JWT {
   /**
    * Registered Claim <code>exp</code> as defined by RFC 7519 Section 4.1.4. Use of this claim is OPTIONAL.
    *
-   * @param expiration The expiration time claim identifies the expiration time on or after which the JWT MUST NOT be accepted for
-   *                   processing. The expiration time is expected to provided in UNIX time, or the number of seconds since Epoch.
+   * @param expiration The expiration time claim identifies the expiration time on or after which the JWT MUST
+   *                   NOT be accepted for processing. The expiration time is expected to provided in UNIX
+   *                   time, or the number of seconds since Epoch.
    * @return this.
    */
   public JWT expiration(long expiration) {
@@ -138,8 +139,9 @@ public class JWT {
   /**
    * Registered Claim <code>nbf</code> as defined by RFC 7519 Section 4.1.5. Use of this claim is OPTIONAL.
    *
-   * @param notBefore The not before claim identifies the time before which the JWT MUST NOT be accepted for processing. The not before
-   *                  value is expected to provided in UNIX time, or the number of seconds since Epoch.
+   * @param notBefore The not before claim identifies the time before which the JWT MUST NOT be accepted for
+   *                  processing. The not before value is expected to provided in UNIX time, or the number of
+   *                  seconds since Epoch.
    * @return this.
    */
   public JWT notBefore(long notBefore) {
@@ -159,7 +161,8 @@ public class JWT {
   }
 
   /**
-   * Add the signer to this JWT. This is required to be added prior to calling {@link #get()} which will sign the JWT.
+   * Add the signer to this JWT. This is required to be added prior to calling {@link #get()} which will sign
+   * the JWT.
    *
    * @param signer The signer.
    * @return this

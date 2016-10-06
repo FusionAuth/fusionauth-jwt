@@ -28,7 +28,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * This class is used to verify a JWT. The provided <code>Signer</code> will perform the signature verification.
+ * This class is used to verify a JWT. The provided <code>Signer</code> will perform the signature
+ * verification.
  * <p>
  * Once a JWT has been verified the claims can be used to perform identity assertions.
  *
@@ -37,12 +38,14 @@ import java.util.Objects;
 public class Verifier {
 
   /**
-   * One or more <code>Signer</code> objects keyed by their Algorithm that can be used to verify JWT signatures.
+   * One or more <code>Signer</code> objects keyed by their Algorithm that can be used to verify JWT
+   * signatures.
    */
   private final Map<Algorithm, Signer> signers = new HashMap<>();
 
   /**
-   * The decoded claims from the JWT payload. The claims should only be used if the <code>true</code> is returned from the {@link #verify(String)} method.
+   * The decoded claims from the JWT payload. The claims should only be used if the <code>true</code> is
+   * returned from the {@link #verify(String)} method.
    */
   public Claims claims;
 
@@ -77,7 +80,8 @@ public class Verifier {
   }
 
   /**
-   * Add an additional signer to this verifier. If you add more than one signer for the same algorithm, the last one will be used.
+   * Add an additional signer to this verifier. If you add more than one signer for the same algorithm, the
+   * last one will be used.
    *
    * @param signer The signer to add.
    * @return this.

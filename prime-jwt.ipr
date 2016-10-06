@@ -182,6 +182,8 @@
     <option name="PER_PROJECT_SETTINGS">
       <value>
         <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
+        <option name="RIGHT_MARGIN" value="110" />
+        <option name="WRAP_COMMENTS" value="true" />
         <codeStyleSettings language="JAVA">
           <option name="BLANK_LINES_BEFORE_PACKAGE" value="1" />
           <option name="BLANK_LINES_AROUND_FIELD" value="1" />
