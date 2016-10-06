@@ -15,14 +15,13 @@ String jwt = new JWT().withSigner(signer)
 verifier.verify(jwt);
 ```
 
-### Algorithms
+### Supported JSON Web Algorithms (JWA) as described in RFC 7518
 
-  - HS256 *HmacSHA256*
-  - HS512 *HmacSHA512*
-  - RS256 *SHA256withRSA*
-  - RS512 *SHA512withRSA*
-  - none *Unsecured*
-
+  - HS256
+  - HS512
+  - RS256
+  - RS512
+  - none (Unsecured)
 
 **Note:** This project uses the Savant build tool. To compile using using Savant, follow these instructions:
 
