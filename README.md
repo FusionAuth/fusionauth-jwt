@@ -5,19 +5,18 @@
 ### Encode a JWT
 ```java
 Signer signer = HmacSigner.newSha256Signer("secret");
-JWT jwt = new JWT().withClaim("foo", "bar");
+JWT jwt = new JWT().with(t -> t.subject = "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 String encodedJwt = JWT.getEncoder().encode(jwt, signer);
 
-assertEquals(encodedJwt, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.dtxWM6MIcgoeMgH87tGvsNDY6cHWL6MGW4LeYvnm1JA");
 ```
 
 ### Decode a JWT
 ```java
 Verifier verifier = new HmacVerifier("secret");
-String encodedJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.dtxWM6MIcgoeMgH87tGvsNDY6cHWL6MGW4LeYvnm1JA";
+String encodedJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmMWUzM2FiMy0wMjdmLTQ3YzUtYmIwNy04ZGQ4YWIzN2EyZDMifQ.oKK8be77j05yMHSV0n7_WI-kJwX7cGA2qXNJODeS5dY";
 
 JWT jwt = JWT.getDecoder().decode(encodedJwt, verifier);
-assertEquals(jwt.getString("foo"), "bar");
+assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 ```
 
 ### Supported JSON Web Algorithms (JWA) as described in RFC 7518
