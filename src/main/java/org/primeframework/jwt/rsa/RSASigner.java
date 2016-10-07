@@ -37,9 +37,17 @@ public class RSASigner implements Signer {
 
   private PrivateKey privateKey;
 
-  public RSASigner(Algorithm algorithm, String privateKey) {
+  private RSASigner(Algorithm algorithm, String privateKey) {
     this.algorithm = algorithm;
     this.privateKey = RSAUtils.getPrivateKeyFromPEM(privateKey);
+  }
+
+  public static RSASigner newRSA256Signer(String privateKey) {
+    return new RSASigner(Algorithm.RS256, privateKey);
+  }
+
+  public static RSASigner newRSA512Signer(String privateKey) {
+    return new RSASigner(Algorithm.RS512, privateKey);
   }
 
   @Override

@@ -31,6 +31,8 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 
 /**
+ * RSA Key Helper.
+ *
  * @author Daniel DeGroff
  */
 public class RSAUtils {

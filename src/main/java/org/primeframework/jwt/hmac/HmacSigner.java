@@ -37,9 +37,17 @@ public class HmacSigner implements Signer {
 
   private byte[] secret;
 
-  public HmacSigner(Algorithm algorithm, String secret) {
+  private HmacSigner(Algorithm algorithm, String secret) {
     this.algorithm = algorithm;
     this.secret = secret.getBytes();
+  }
+
+  public static HmacSigner newSha256Signer(String secret) {
+    return new HmacSigner(Algorithm.HS256, secret);
+  }
+
+  public static HmacSigner newSha512Signer(String secret) {
+    return new HmacSigner(Algorithm.HS512, secret);
   }
 
   @Override
