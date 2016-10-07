@@ -3,16 +3,20 @@
 ### Example Code:
 
 ```java
-Signer signer = new HmacSigner(Algorithm.HS256).withSecret("secret");
-Verifier verifier = new Verifier().withSigner(signer);
+// JWT Producer, build a JWT, sign and encode
+Signer signer = HmacSigner.newSha256Signer("secret");
+JWT jwt = new JWT().with(t -> t.subject = "412d2f35-115e-4dd7-93f5-7bd3e06752ca");
 
-// Build the signed JWT string
-String jwt = new JWT().withSigner(signer)
-    .subject("412d2f35-115e-4dd7-93f5-7bd3e06752ca")
-    .get();
+String encodedJwt = JWT.getEncoder().encode(jwt, signer);
+```
 
-// Verify the JWT Signature
-verifier.verify(jwt);
+```java
+// JWT Consumer. Verify and decode the JWT claims
+Verifier verifier = new HmacVerifier("secret");
+String encodedJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhYmMifQ.eP0iQgy3kRGQrNCLumJBf_nKatW8Ydg0yAz37Vea-jk";
+
+JWT jwt = JWT.getDecoder().decode(encodedJwt, verifier);
+assertEquals(jwt.subject, "412d2f35-115e-4dd7-93f5-7bd3e06752ca");
 ```
 
 ### Supported JSON Web Algorithms (JWA) as described in RFC 7518
