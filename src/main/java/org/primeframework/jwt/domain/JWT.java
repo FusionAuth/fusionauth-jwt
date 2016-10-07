@@ -36,7 +36,7 @@ import java.util.Map;
  *
  * @author Daniel DeGroff
  */
-public class JWT implements Buildable<JWT> {
+public class JWT {
 
   /**
    * Registered Claim <code>aud</code> as defined by RFC 7519 Section 4.1.3. Use of this claim is OPTIONAL.
@@ -103,6 +103,14 @@ public class JWT implements Buildable<JWT> {
    */
   @JsonProperty("jti")
   public String uniqueId;
+
+  private JWT() {
+
+  }
+
+  public static Builder Builder() {
+    return new Builder();
+  }
 
   /**
    * Return a singleton instance of the JWT Decoder.
@@ -191,5 +199,58 @@ public class JWT implements Buildable<JWT> {
   public JWT withClaim(String name, Object value) {
     claims.put(name, value);
     return this;
+  }
+
+  public static class Builder {
+
+    private JWT jwt;
+
+    private Builder() {
+      jwt = new JWT();
+    }
+
+    public Builder audience(Object audience) {
+      jwt.audience = audience;
+      return this;
+    }
+
+    public JWT build() {
+      return jwt;
+    }
+
+    public Builder claim(String name, Object value) {
+      jwt.withClaim(name, value);
+      return this;
+    }
+
+    public Builder expiration(ZonedDateTime expiration) {
+      jwt.expiration = expiration;
+      return this;
+    }
+
+    public Builder issuedAt(ZonedDateTime issuedAt) {
+      jwt.issuedAt = issuedAt;
+      return this;
+    }
+
+    public Builder issuer(String issuer) {
+      jwt.issuer = issuer;
+      return this;
+    }
+
+    public Builder notBefore(ZonedDateTime notBefore) {
+      jwt.notBefore = notBefore;
+      return this;
+    }
+
+    public Builder subject(String subject) {
+      jwt.subject = subject;
+      return this;
+    }
+
+    public Builder uniqueId(String uniqueId) {
+      jwt.uniqueId = uniqueId;
+      return this;
+    }
   }
 }
