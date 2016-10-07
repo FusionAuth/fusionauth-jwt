@@ -1,22 +1,23 @@
 ## Prime JWT ![semver 2.0.0 compliant](http://img.shields.io/badge/semver-2.0.0-brightgreen.svg?style=flat-square)
 
-### Example Code:
+## Example Code:
 
+### Encode a JWT
 ```java
-// JWT Producer, build a JWT, sign and encode
 Signer signer = HmacSigner.newSha256Signer("secret");
-JWT jwt = new JWT().with(t -> t.subject = "412d2f35-115e-4dd7-93f5-7bd3e06752ca");
-
+JWT jwt = new JWT().withClaim("foo", "bar");
 String encodedJwt = JWT.getEncoder().encode(jwt, signer);
+
+assertEquals(encodedJwt, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.dtxWM6MIcgoeMgH87tGvsNDY6cHWL6MGW4LeYvnm1JA");
 ```
 
+### Decode a JWT
 ```java
-// JWT Consumer. Verify and decode the JWT claims
 Verifier verifier = new HmacVerifier("secret");
-String encodedJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhYmMifQ.eP0iQgy3kRGQrNCLumJBf_nKatW8Ydg0yAz37Vea-jk";
+String encodedJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.dtxWM6MIcgoeMgH87tGvsNDY6cHWL6MGW4LeYvnm1JA";
 
 JWT jwt = JWT.getDecoder().decode(encodedJwt, verifier);
-assertEquals(jwt.subject, "412d2f35-115e-4dd7-93f5-7bd3e06752ca");
+assertEquals(jwt.getString("foo"), "bar");
 ```
 
 ### Supported JSON Web Algorithms (JWA) as described in RFC 7518
