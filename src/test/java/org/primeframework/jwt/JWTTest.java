@@ -116,7 +116,7 @@ public class JWTTest {
         .withClaim("www.inversoft.com/claims/is_admin", true);
 
     Signer signer = HMACSigner.newSHA256Signer("secret");
-    Verifier verifier = new HMACVerifier("secret");
+    Verifier verifier = HMACVerifier.withSecret("secret");
 
     String encodedJWT = JWT.getEncoder().encode(expectedJWT, signer);
     JWT actualJwt = JWT.getDecoder().decode(encodedJWT, verifier);
@@ -145,7 +145,7 @@ public class JWTTest {
     JWT expectedJWT = new JWT().with(t -> t.expiration = expiration);
 
     Signer signer = HMACSigner.newSHA256Signer("secret");
-    Verifier verifier = new HMACVerifier("secret");
+    Verifier verifier = HMACVerifier.withSecret("secret");
 
     String encodedJWT1 = JWT.getEncoder().encode(expectedJWT, signer);
     JWT actualJWT1 = JWT.getDecoder().decode(encodedJWT1, verifier);

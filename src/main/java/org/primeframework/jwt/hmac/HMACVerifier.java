@@ -36,9 +36,13 @@ public class HMACVerifier implements Verifier {
 
   private final byte[] secret;
 
-  public HMACVerifier(String secret) {
+  private HMACVerifier(String secret) {
     Objects.requireNonNull(secret);
     this.secret = secret.getBytes();
+  }
+
+  public static HMACVerifier withSecret(String secret) {
+    return new HMACVerifier(secret);
   }
 
   @Override

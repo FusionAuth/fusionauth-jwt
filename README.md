@@ -20,7 +20,7 @@ Signer signer = HMACSigner.newSHA512Signer("too many secrets");
 
 ### Decode a JWT using HMAC
 ```java
-Verifier verifier = new HMACVerifier("too many secrets");
+Verifier verifier = HMACVerifier.withSecret("too many secrets");
 
 JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
 assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
@@ -42,7 +42,7 @@ Signer signer = RSASigner.newRSA512Signer(new String(Files.readAllBytes(Paths.ge
 
 ### Decode a JWT using RSA
 ```java
-Verifier verifier = new RSAVerifier(new String(Files.readAllBytes(Paths.get("public_key.pem"))));
+Verifier verifier = RSAVerifier.withPublicKey(new String(Files.readAllBytes(Paths.get("public_key.pem"))));
 
 JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
 assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");

@@ -36,9 +36,13 @@ public class RSAVerifier implements Verifier {
 
   private final PublicKey publicKey;
 
-  public RSAVerifier(String publicKey) {
+  private RSAVerifier(String publicKey) {
     Objects.requireNonNull(publicKey);
     this.publicKey = RSAUtils.getPublicKeyFromPEM(publicKey);
+  }
+
+  public static RSAVerifier withPublicKey(String publicKey) {
+    return new RSAVerifier(publicKey);
   }
 
   @Override
