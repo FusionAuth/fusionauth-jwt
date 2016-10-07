@@ -13,7 +13,7 @@ String encodedJwt = JWT.getEncoder().encode(jwt, signer);
 
 ```
 
-To use a higher strength hash, all you need to change in the above examples is the signer. The decoding step is not affected.
+A higher strength hash can be used by changing the signer. The decoding step is not affected.
 ```java
 Signer signer = HmacSigner.newSha512Signer("secret");
 ```
@@ -35,7 +35,7 @@ JWT jwt = new JWT().with(t -> t.subject = "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3"
 String encodedJwt = JWT.getEncoder().encode(jwt, signer);
 ```
 
-To use a higher strength hash, all you need to change in the above examples is the signer. The decoding step is not affected.
+A higher strength hash can be used by changing the signer. The decoding step is not affected.
 ```java
 Signer signer = RSASigner.newRSA512Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
 ```
