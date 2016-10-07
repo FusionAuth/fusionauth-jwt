@@ -4,7 +4,7 @@ This library is designed to be easy to use and thread-safe. Once you construct a
 
 ## Example Code:
 
-### Encode a JWT using Hmac
+### Encode a JWT using HMAC
 ```java
 Signer signer = HmacSigner.newSha256Signer("secret");
 
@@ -13,7 +13,7 @@ String encodedJwt = JWT.getEncoder().encode(jwt, signer);
 
 ```
 
-### Decode a JWT using Hmac
+### Decode a JWT using HMAC
 ```java
 Verifier verifier = new HmacVerifier("secret");
 
@@ -21,7 +21,7 @@ JWT jwt = JWT.getDecoder().decode(encodedJwt, verifier);
 assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 ```
 
-To use a higher strength hash, all you need to change in the above examples is the signer. The rest is taken care of for you.
+To use a higher strength hash, all you need to change in the above examples is the signer. The decoding step is not affected.
 ```java
 Signer signer = HmacSigner.newSha512Signer("secret");
 ```
@@ -44,7 +44,7 @@ JWT jwt = JWT.getDecoder().decode(encodedJwt, verifier);
 assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 ```
 
-To use a higher strength hash, all you need to change in the above examples is the signer. The rest is taken care of for you.
+To use a higher strength hash, all you need to change in the above examples is the signer. The decoding step is not affected.
 ```java
 Signer signer = RSASigner.newRSA512Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
 ```
