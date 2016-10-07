@@ -8,7 +8,7 @@ This library is designed to be easy to use and thread-safe. Once you construct a
 ```java
 Signer signer = HMACSigner.newSHA256Signer("too many secrets");
 
-JWT jwt = new JWT().with(t -> t.subject = "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
+JWT jwt = JWT.Builder().subject("f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3").build();
 String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 
 ```
@@ -31,7 +31,7 @@ assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 Signer signer = RSASigner.newRSA256Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
 
 
-JWT jwt = new JWT().with(t -> t.subject = "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
+JWT jwt = JWT.Builder().subject("f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3").build();
 String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 ```
 
