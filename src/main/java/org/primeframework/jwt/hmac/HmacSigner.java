@@ -26,8 +26,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 /**
- * This class can sign and verify a JWT that was signed using HMAC. An instance of this class is intended to
- * be re-used with the {@link HmacVerifier}.
+ * This class can sign and verify a JWT that was signed using HMAC.
  *
  * @author Daniel DeGroff
  */

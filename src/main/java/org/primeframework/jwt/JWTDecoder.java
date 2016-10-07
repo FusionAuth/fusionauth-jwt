@@ -24,6 +24,7 @@ import org.primeframework.jwt.domain.MissingVerifierException;
 import org.primeframework.jwt.json.Mapper;
 
 import java.util.Base64;
+import java.util.Objects;
 
 /**
  * @author Daniel DeGroff
@@ -41,6 +42,9 @@ public class JWTDecoder {
   }
 
   public JWT decode(String encodedJwt, Verifier... verifiers) {
+    Objects.requireNonNull(encodedJwt);
+    Objects.requireNonNull(verifiers);
+
     String[] parts = encodedJwt.split("\\.");
     if (parts.length != 3) {
       throw new InvalidJWTException("The encoded JWT is not properly formatted. Expected a three part dot separated string.");
