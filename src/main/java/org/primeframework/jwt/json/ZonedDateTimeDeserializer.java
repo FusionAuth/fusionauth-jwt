@@ -28,7 +28,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 /**
- * Jackson deserializer for the ZonedDateTime class.
+ * Jackson de-serializer for the ZonedDateTime class.
  *
  * @author Daniel DeGroff
  */

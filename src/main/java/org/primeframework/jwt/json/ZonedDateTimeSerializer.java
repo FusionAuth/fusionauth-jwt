@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 
 /**
- * Jackson serializer for the ZonedDateTime class. Serizlie to Seconds since Epoch.
+ * Jackson serializer for the ZonedDateTime class. Serialize to Seconds since Epoch.
  *
  * @author Daniel DeGroff
  */

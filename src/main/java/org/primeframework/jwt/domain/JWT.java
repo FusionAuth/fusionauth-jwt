@@ -165,7 +165,7 @@ public class JWT implements Buildable<JWT> {
     if (object instanceof String) {
       return Long.parseLong((String) object);
     } else if (object instanceof Integer) {
-      return (Long) object;
+      return ((Integer) object).longValue();
     }
 
     return (Long) object;
