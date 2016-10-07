@@ -4,7 +4,7 @@ This library is designed to be easy to use and thread-safe. Once you construct a
 
 ## Example Code:
 
-### Encode a JWT
+### Encode a JWT using Hmac
 ```java
 Signer signer = HmacSigner.newSha256Signer("secret");
 
@@ -13,7 +13,7 @@ String encodedJwt = JWT.getEncoder().encode(jwt, signer);
 
 ```
 
-### Decode a JWT
+### Decode a JWT using Hmac
 ```java
 Verifier verifier = new HmacVerifier("secret");
 
@@ -21,11 +21,12 @@ JWT jwt = JWT.getDecoder().decode(encodedJwt, verifier);
 assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 ```
 
-If you'd prefer to use Hmac SHA-512, all you need to change in the above examples is the signer. The rest is taken care of for you.
-`Signer signer = HmacSigner.newSha512Signer("secret");`
+To use a higher strength hash, all you need to change in the above examples is the signer. The rest is taken care of for you.
+```java
+Signer signer = HmacSigner.newSha512Signer("secret");
+```
 
-In order to use an RSA signature, just change the signer and the verifier.
-### Encode a JWT
+### Encode a JWT using RSA
 ```java
 Signer signer = RSASigner.newRSA256Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
 
@@ -35,7 +36,7 @@ String encodedJwt = JWT.getEncoder().encode(jwt, signer);
 
 ```
 
-### Decode a JWT
+### Decode a JWT using RSA
 ```java
 Verifier verifier = new RSAVerifier(new String(Files.readAllBytes(Paths.get("public_key.pem"))));
 
@@ -43,6 +44,10 @@ JWT jwt = JWT.getDecoder().decode(encodedJwt, verifier);
 assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 ```
 
+To use a higher strength hash, all you need to change in the above examples is the signer. The rest is taken care of for you.
+```java
+Signer signer = RSASigner.newRSA512Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
+```
 
 ### Supported JSON Web Algorithms (JWA) as described in RFC 7518
 
