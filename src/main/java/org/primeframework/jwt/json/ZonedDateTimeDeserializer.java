@@ -59,6 +59,5 @@ public class ZonedDateTimeDeserializer extends StdScalarDeserializer<ZonedDateTi
     }
 
     return Instant.ofEpochSecond(value).atZone(ZoneOffset.UTC);
-//    return ZonedDateTime.ofInstant(Instant.ofEpochSecond(value), ZoneOffset.UTC);
   }
 }
