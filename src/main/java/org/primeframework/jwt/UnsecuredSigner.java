@@ -14,46 +14,24 @@
  * language governing permissions and limitations under the License.
  */
 
-package org.primeframework.jwt.domain;
+package org.primeframework.jwt;
+
+import org.primeframework.jwt.domain.Algorithm;
 
 /**
- * Available JSON Web Algorithms (JWA) as described in RFC 7518 available for this JWT implementation.
+ * Unsecured signer.
  *
  * @author Daniel DeGroff
  */
-public enum Algorithm {
-  /**
-   * HMAC using SHA-256
-   */
-  HS256("HmacSHA256"),
+public class UnsecuredSigner implements Signer {
 
-  /**
-   * HMAC using SHA-512
-   */
-  HS512("HmacSHA512"),
-
-  /**
-   * RSASSA-PKCS1-v1_5 using SHA-256
-   */
-  RS256("SHA256withRSA"),
-
-  /**
-   * RSASSA-PKCS1-v1_5 using SHA-512
-   */
-  RS512("SHA512withRSA"),
-
-  /**
-   * No digital signature or MAC performed.
-   */
-  none("None");
-
-  public String algorithm;
-
-  Algorithm(String algorithm) {
-    this.algorithm = algorithm;
+  @Override
+  public Algorithm getAlgorithm() {
+    return Algorithm.none;
   }
 
-  public String getName() {
-    return algorithm;
+  @Override
+  public byte[] sign(String payload) {
+    return new byte[0];
   }
 }

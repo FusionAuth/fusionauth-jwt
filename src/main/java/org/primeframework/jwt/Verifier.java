@@ -17,77 +17,24 @@
 package org.primeframework.jwt;
 
 import org.primeframework.jwt.domain.Algorithm;
-import org.primeframework.jwt.domain.Claims;
-import org.primeframework.jwt.domain.Header;
-import org.primeframework.jwt.domain.InvalidJWTException;
-import org.primeframework.jwt.domain.MissingSignerException;
-
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import org.primeframework.jwt.domain.MissingVerifierException;
 
 /**
- * This class is used to verify a JWT. The provided <code>Signer</code> will perform the signature
- * verification.
- * <p>
- * Once a JWT has been verified the claims can be used to perform identity assertions.
- *
  * @author Daniel DeGroff
  */
-public class Verifier {
-
+public interface Verifier {
   /**
-   * One or more <code>Signer</code> objects keyed by their Algorithm that can be used to verify JWT
-   * signatures.
+   * @param algorithm The algorithm required to verify the signature on this JWT.
+   * @return True if this Verifier is able to verify a signature using the specified algorithm.
    */
-  private final Map<Algorithm, Signer> signers = new HashMap<>();
+  boolean canVerify(Algorithm algorithm);
 
   /**
-   * The decoded claims from the JWT payload. The claims should only be used if the <code>true</code> is
-   * returned from the {@link #verify(String)} method.
-   */
-  public Claims claims;
-
-  private byte[] base64Decode(byte[] bytes) {
-    return Base64.getUrlDecoder().decode(bytes);
-  }
-
-  /**
-   * Verify the provided JWT.
+   * Verify the signature of the encoded JWT payload.
    *
-   * @param encodedJwt The encoded dot separated JWT string.
-   * @return True if the signature of the JWT is verified successfully.
-   * @throws MissingSignerException If no Signer has been provided to verify the JWT signature.
+   * @param message   The JWT message. The header and claims, the first two segments of the dot separated JWT.
+   * @param signature The signature to verify.
+   * @throws MissingVerifierException If no Signer has been provided to verify the JWT signature.
    */
-  public boolean verify(String encodedJwt) throws MissingSignerException, InvalidJWTException {
-    Objects.requireNonNull(encodedJwt);
-
-    String[] parts = encodedJwt.split("\\.");
-    if (parts.length != 3) {
-      throw new InvalidJWTException("The encoded JWT is not properly formatted. Expected a three part dot separated string.");
-    }
-
-    Header header = Mapper.deserialize(base64Decode(parts[0].getBytes()), Header.class);
-    if (!signers.containsKey(header.algorithm)) {
-      throw new MissingSignerException("No Signer has been provided for verify a signature signed using [" + header.algorithm.algorithmName + "]");
-    }
-
-    claims = Mapper.deserialize(base64Decode(parts[1].getBytes()), Claims.class);
-
-    Signer signer = signers.get(header.algorithm);
-    return signer.verify(encodedJwt);
-  }
-
-  /**
-   * Add an additional signer to this verifier. If you add more than one signer for the same algorithm, the
-   * last one will be used.
-   *
-   * @param signer The signer to add.
-   * @return this.
-   */
-  public Verifier withSigner(Signer signer) {
-    signers.put(signer.algorithm, signer);
-    return this;
-  }
+  void verify(Algorithm algorithm, byte[] message, byte[] signature);
 }

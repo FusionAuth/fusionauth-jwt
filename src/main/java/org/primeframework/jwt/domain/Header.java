@@ -29,4 +29,11 @@ public class Header {
 
   @JsonProperty("typ")
   public Type type = Type.JWT;
+
+  public Header() {
+  }
+
+  public Header(Algorithm algorithm) {
+    this.algorithm = algorithm;
+  }
 }

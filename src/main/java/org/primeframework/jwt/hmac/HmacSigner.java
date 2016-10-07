@@ -14,68 +14,50 @@
  * language governing permissions and limitations under the License.
  */
 
-package org.primeframework.jwt;
+package org.primeframework.jwt.hmac;
 
+import org.primeframework.jwt.Signer;
 import org.primeframework.jwt.domain.Algorithm;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.Objects;
 
 /**
  * This class can sign and verify a JWT that was signed using HMAC. An instance of this class is intended to
- * be re-used with the {@link Verifier}.
+ * be re-used with the {@link HmacVerifier}.
  *
  * @author Daniel DeGroff
  */
-public class HmacSigner extends Signer {
+public class HmacSigner implements Signer {
+
+  private final Algorithm algorithm;
 
   private byte[] secret;
 
-  public HmacSigner(Algorithm algorithm) {
-    super(algorithm);
+  public HmacSigner(Algorithm algorithm, String secret) {
+    this.algorithm = algorithm;
+    this.secret = secret.getBytes();
+  }
+
+  @Override
+  public Algorithm getAlgorithm() {
+    return algorithm;
   }
 
   @Override
   public byte[] sign(String message) {
+    Objects.requireNonNull(algorithm);
     Objects.requireNonNull(secret);
 
     try {
-      Mac mac = Mac.getInstance(algorithm.algorithmName);
-      mac.init(new SecretKeySpec(secret, algorithm.algorithmName));
+      Mac mac = Mac.getInstance(algorithm.getName());
+      mac.init(new SecretKeySpec(secret, algorithm.getName()));
       return mac.doFinal(message.getBytes());
     } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  @Override
-  public boolean verify(String jwt) {
-    Objects.requireNonNull(jwt);
-
-    int index = jwt.lastIndexOf(".");
-    byte[] message = jwt.substring(0, index).getBytes();
-    byte[] jwtSignature = Base64.getUrlDecoder().decode(jwt.substring(index + 1));
-
-    Objects.requireNonNull(secret);
-
-    try {
-      Mac mac = Mac.getInstance(algorithm.algorithmName);
-      mac.init(new SecretKeySpec(secret, algorithm.algorithmName));
-      byte[] actualSignature = mac.doFinal(message);
-
-      return Arrays.equals(jwtSignature, actualSignature);
-    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public HmacSigner withSecret(String secret) {
-    this.secret = secret.getBytes();
-    return this;
   }
 }

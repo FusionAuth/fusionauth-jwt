@@ -16,44 +16,15 @@
 
 package org.primeframework.jwt.domain;
 
+import java.util.function.Consumer;
+
 /**
- * Available JSON Web Algorithms (JWA) as described in RFC 7518 available for this JWT implementation.
- *
  * @author Daniel DeGroff
  */
-public enum Algorithm {
-  /**
-   * HMAC using SHA-256
-   */
-  HS256("HmacSHA256"),
-
-  /**
-   * HMAC using SHA-512
-   */
-  HS512("HmacSHA512"),
-
-  /**
-   * RSASSA-PKCS1-v1_5 using SHA-256
-   */
-  RS256("SHA256withRSA"),
-
-  /**
-   * RSASSA-PKCS1-v1_5 using SHA-512
-   */
-  RS512("SHA512withRSA"),
-
-  /**
-   * No digital signature or MAC performed.
-   */
-  none("None");
-
-  public String algorithm;
-
-  Algorithm(String algorithm) {
-    this.algorithm = algorithm;
-  }
-
-  public String getName() {
-    return algorithm;
+@SuppressWarnings("unchecked")
+public interface Buildable<T> {
+  default T with(Consumer<T> consumer) {
+    consumer.accept((T) this);
+    return (T) this;
   }
 }

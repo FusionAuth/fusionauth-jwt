@@ -23,31 +23,20 @@ import org.primeframework.jwt.domain.Algorithm;
  *
  * @author Daniel DeGroff
  */
-public abstract class Signer {
+public interface Signer {
 
-  public final Algorithm algorithm;
-
-  protected Signer() {
-    this.algorithm = Algorithm.none;
-  }
-
-  protected Signer(Algorithm algorithm) {
-    this.algorithm = algorithm;
-  }
+  /**
+   * Return the algorithm supported by this signer.
+   *
+   * @return the algorithm.
+   */
+  Algorithm getAlgorithm();
 
   /**
    * Sign the provided message and return the signature.
    *
-   * @param message The message to sign.
+   * @param payload The JWT payload to sign.
    * @return The message signature in a byte array.
    */
-  abstract byte[] sign(String message);
-
-  /**
-   * Verify the signature of the encoded JWT.
-   *
-   * @param jwt The encoded JWT in the dot separated string format.
-   * @return True if the JWT signature is successfully validated.
-   */
-  abstract boolean verify(String jwt);
+  byte[] sign(String payload);
 }

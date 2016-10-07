@@ -17,43 +17,12 @@
 package org.primeframework.jwt.domain;
 
 /**
- * Available JSON Web Algorithms (JWA) as described in RFC 7518 available for this JWT implementation.
+ * No Verifier was found that supported the Algorithm used in the JWT.
  *
  * @author Daniel DeGroff
  */
-public enum Algorithm {
-  /**
-   * HMAC using SHA-256
-   */
-  HS256("HmacSHA256"),
-
-  /**
-   * HMAC using SHA-512
-   */
-  HS512("HmacSHA512"),
-
-  /**
-   * RSASSA-PKCS1-v1_5 using SHA-256
-   */
-  RS256("SHA256withRSA"),
-
-  /**
-   * RSASSA-PKCS1-v1_5 using SHA-512
-   */
-  RS512("SHA512withRSA"),
-
-  /**
-   * No digital signature or MAC performed.
-   */
-  none("None");
-
-  public String algorithm;
-
-  Algorithm(String algorithm) {
-    this.algorithm = algorithm;
-  }
-
-  public String getName() {
-    return algorithm;
+public class MissingVerifierException extends RuntimeException {
+  public MissingVerifierException(String message) {
+    super(message);
   }
 }

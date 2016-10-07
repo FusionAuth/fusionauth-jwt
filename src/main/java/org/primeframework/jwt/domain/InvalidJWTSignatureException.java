@@ -17,10 +17,9 @@
 package org.primeframework.jwt.domain;
 
 /**
+ * The JWT was properly constructed but the signature is invalid. This token should not be trusted.
+ *
  * @author Daniel DeGroff
  */
-public class MissingSignerException extends Exception {
-  public MissingSignerException(String message) {
-    super(message);
-  }
+public class InvalidJWTSignatureException extends RuntimeException {
 }
