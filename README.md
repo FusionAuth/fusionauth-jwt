@@ -6,23 +6,23 @@ This library is designed to be easy to use and thread-safe. Once you construct a
 
 ### Encode a JWT using HMAC
 ```java
-Signer signer = HmacSigner.newSha256Signer("secret");
+Signer signer = HMACSigner.newSHA256Signer("too many secrets");
 
 JWT jwt = new JWT().with(t -> t.subject = "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
-String encodedJwt = JWT.getEncoder().encode(jwt, signer);
+String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 
 ```
 
 A higher strength hash can be used by changing the signer. The decoding step is not affected.
 ```java
-Signer signer = HmacSigner.newSha512Signer("secret");
+Signer signer = HMACSigner.newSHA512Signer("too many secrets");
 ```
 
 ### Decode a JWT using HMAC
 ```java
-Verifier verifier = new HmacVerifier("secret");
+Verifier verifier = new HMACVerifier("too many secrets");
 
-JWT jwt = JWT.getDecoder().decode(encodedJwt, verifier);
+JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
 assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 ```
 
@@ -32,7 +32,7 @@ Signer signer = RSASigner.newRSA256Signer(new String(Files.readAllBytes(Paths.ge
 
 
 JWT jwt = new JWT().with(t -> t.subject = "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
-String encodedJwt = JWT.getEncoder().encode(jwt, signer);
+String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 ```
 
 A higher strength hash can be used by changing the signer. The decoding step is not affected.
@@ -44,7 +44,7 @@ Signer signer = RSASigner.newRSA512Signer(new String(Files.readAllBytes(Paths.ge
 ```java
 Verifier verifier = new RSAVerifier(new String(Files.readAllBytes(Paths.get("public_key.pem"))));
 
-JWT jwt = JWT.getDecoder().decode(encodedJwt, verifier);
+JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
 assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 ```
 

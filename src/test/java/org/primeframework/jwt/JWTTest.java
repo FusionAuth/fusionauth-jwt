@@ -17,8 +17,8 @@
 package org.primeframework.jwt;
 
 import org.primeframework.jwt.domain.JWT;
-import org.primeframework.jwt.hmac.HmacSigner;
-import org.primeframework.jwt.hmac.HmacVerifier;
+import org.primeframework.jwt.hmac.HMACSigner;
+import org.primeframework.jwt.hmac.HMACVerifier;
 import org.primeframework.jwt.rsa.RSASigner;
 import org.testng.annotations.Test;
 
@@ -42,8 +42,8 @@ public class JWTTest {
 
   @Test(enabled = false)
   public void encoding_performance() throws Exception {
-    Signer hmacSigner = HmacSigner.newSha256Signer("secret");
-    Signer rsaSigner = RSASigner.newRSA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096"))));
+    Signer hmacSigner = HMACSigner.newSHA256Signer("secret");
+    Signer rsaSigner = RSASigner.newRSA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
     JWT jwt = new JWT().with(t -> t.subject = "123456789");
 
     long iterationCount = 500;
@@ -66,7 +66,7 @@ public class JWTTest {
   @Test
   public void test_HS256() throws Exception {
     JWT jwt = new JWT().with(t -> t.subject = "123456789");
-    Signer signer = HmacSigner.newSha256Signer("secret");
+    Signer signer = HMACSigner.newSHA256Signer("secret");
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.qHdut1UR4-2FSAvh7U3YdeRR5r5boVqjIGQ16Ztp894");
   }
@@ -74,7 +74,7 @@ public class JWTTest {
   @Test
   public void test_HS256_manualAddedClaim() throws Exception {
     JWT jwt = new JWT().withClaim("test", "123456789");
-    Signer signer = HmacSigner.newSha256Signer("secret");
+    Signer signer = HMACSigner.newSHA256Signer("secret");
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZXN0IjoiMTIzNDU2Nzg5In0.0qgr4ztqB0mNXA8mtqaBSL6UJT3aqEyjHMrWDZmT4Bc");
   }
@@ -82,7 +82,7 @@ public class JWTTest {
   @Test
   public void test_HS512() throws Exception {
     JWT jwt = new JWT().with(t -> t.subject = "123456789");
-    Signer signer = HmacSigner.newSha512Signer("secret");
+    Signer signer = HMACSigner.newSHA512Signer("secret");
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.MgAi9gfGkep-IoFYPHMhHz6w2Kxf0u8TZ-wNeQOLPwc8emLNKOMqBU-5dJXeaY5-8wQ1CvZycWHbEilvHgN6Ug");
   }
@@ -90,7 +90,7 @@ public class JWTTest {
   @Test
   public void test_RS256() throws Exception {
     JWT jwt = new JWT().with(t -> t.subject = "123456789");
-    Signer signer = RSASigner.newRSA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096"))));
+    Signer signer = RSASigner.newRSA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.kRXJkOHC98D0LCT2oPg5fTmQJDFXkMRQJopbt7QM6prmQDHwjJL_xO-_EXRXnbvf5NLORto45By3XNn2ZzWmY3pAOxj46MlQ5elhROx2S-EnHZNLfQhoG8ZXPZ54q-Obz_6K7ZSlkAQ8jmeZUO3Ryi8jRlHQ2PT4LbBtLpaf982SGJfeTyUMw1LbvowZUTZSF-E6JARaokmmx8M2GeLuKcFhU-YsBTXUarKp0IJCy3jpMQ2zW_HGjyVWH8WwSIbSdpBn7ztoQEJYO-R5H3qVaAz2BsTuGLRxoyIu1iy2-QcDp5uTufmX1roXM8ciQMpcfwKGiyNpKVIZm-lF8aROXRL4kk4rqp6KUzJuOPljPXRU--xKSua-DeR0BEerKzI9hbwIMWiblCslAciNminoSc9G7pUyVwV5Z5IT8CGJkVgoyVGELeBmYCDy7LHwXrr0poc0hPbE3mJXhzolga4BB84nCg2Hb9tCNiHU8F-rKgZWCONaSSIdhQ49x8OiPafFh2DJBEBe5Xbm6xdCfh3KVG0qe4XL18R5s98aIP9UIC4i62UEgPy6W7Fr7QgUxpXrjRCERBV3MiNu4L8NNJb3oZleq5lQi72EfdS-Bt8ZUOVInIcAvSmu-3i8jB_2sF38XUXdl8gkW8k_b9dJkzDcivCFehvSqGmm3vBm5X4bNmk");
   }
@@ -98,14 +98,14 @@ public class JWTTest {
   @Test
   public void test_RS512() throws Exception {
     JWT jwt = new JWT().with(t -> t.subject = "123456789");
-    Signer signer = RSASigner.newRSA512Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096"))));
+    Signer signer = RSASigner.newRSA512Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.ei28WNoJdUpMlLnHr78HiTnnuKwSRLYcOpgUC3daVInT5RAc0kk2Ipx16Z-bHL_eFLSYgF3TSKdymFpNf8cnEu5T6rH0azYSZLrPmVCetDxjo-ixXK9asPOF3JuIbDjN7ow3K-CMbMCWzWp04ZAh-DNecYEd3HiGgooPVGA4HuVXZFHH8XfQ9TD-64ppBQTWgW32vkna8ILKyIXdwWXSEfCZYfLzLZnilJrz820wZJ5JMXimv2au0OwwRobUMLEBUM4iuEPXLf5wFJU6LcU0XMuovavfIXKDpvP9Yfz6UplMlFvIr9y72xExfaNt32vwneAP-Fpg2x9wYvR0W8LhXKZaFRfcYwhbj17GCAbpx34hjiqnwyFStn5Qx_QHz_Y7ck-ZXB2MGUkiYGj9y_8bQNx-LIaTQUX6sONTNdVVCfnOnMHFqVbupGho24K7885-8BxCRojvA0ggneF6dsKCQvAt2rsVRso0TrCVxwYItb9tRsyhCbWou-zh_08JlYGVXPiGY3RRQDfxCc9RHQUflWRS9CBcPtoaco4mFKZSM-9e_xoYx__DEzM3UjaI4jReLM-IARwlVPoHJa2Vcb5wngZTaxGf2ToMq7R_8KecZymb3OaA2X1e8GS2300ySwsXbOz0sJv2a7_JUncSEBPSsb2vMMurxSJ4E3RTAc4s3aU");
   }
 
   @Test
   public void test_complexPayload() throws Exception {
-    JWT expectedJwt = new JWT()
+    JWT expectedJWT = new JWT()
         .with(t -> t.audience = Arrays.asList("www.acme.com", "www.vandelayindustries.com"))
         .with(t -> t.expiration = ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS))
         .with(t -> t.issuedAt = ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS))
@@ -115,20 +115,20 @@ public class JWTTest {
         .withClaim("bar", Arrays.asList("bing", "bam", "boo"))
         .withClaim("www.inversoft.com/claims/is_admin", true);
 
-    Signer signer = HmacSigner.newSha256Signer("secret");
-    Verifier verifier = new HmacVerifier("secret");
+    Signer signer = HMACSigner.newSHA256Signer("secret");
+    Verifier verifier = new HMACVerifier("secret");
 
-    String encodedJwt = JWT.getEncoder().encode(expectedJwt, signer);
-    JWT actualJwt = JWT.getDecoder().decode(encodedJwt, verifier);
+    String encodedJWT = JWT.getEncoder().encode(expectedJWT, signer);
+    JWT actualJwt = JWT.getDecoder().decode(encodedJWT, verifier);
 
-    assertEquals(actualJwt.audience, expectedJwt.audience);
-    assertEquals(actualJwt.expiration, expectedJwt.expiration);
-    assertEquals(actualJwt.issuedAt, expectedJwt.issuedAt);
-    assertEquals(actualJwt.issuer, expectedJwt.issuer);
-    assertEquals(actualJwt.subject, expectedJwt.subject);
-    assertEquals(actualJwt.getString("foo"), expectedJwt.getString("foo"));
-    assertEquals(actualJwt.getObject("bar"), expectedJwt.getObject("bar"));
-    assertEquals(actualJwt.getBoolean("www.inversoft.com/claims/is_admin"), expectedJwt.getBoolean("www.inversoft.com/claims/is_admin"));
+    assertEquals(actualJwt.audience, expectedJWT.audience);
+    assertEquals(actualJwt.expiration, expectedJWT.expiration);
+    assertEquals(actualJwt.issuedAt, expectedJWT.issuedAt);
+    assertEquals(actualJwt.issuer, expectedJWT.issuer);
+    assertEquals(actualJwt.subject, expectedJWT.subject);
+    assertEquals(actualJwt.getString("foo"), expectedJWT.getString("foo"));
+    assertEquals(actualJwt.getObject("bar"), expectedJWT.getObject("bar"));
+    assertEquals(actualJwt.getBoolean("www.inversoft.com/claims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/claims/is_admin"));
   }
 
   @Test
@@ -142,14 +142,14 @@ public class JWTTest {
   @Test
   public void test_zonedDateTime() throws Exception {
     ZonedDateTime expiration = ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS);
-    JWT expectedJwt = new JWT().with(t -> t.expiration = expiration);
+    JWT expectedJWT = new JWT().with(t -> t.expiration = expiration);
 
-    Signer signer = HmacSigner.newSha256Signer("secret");
-    Verifier verifier = new HmacVerifier("secret");
+    Signer signer = HMACSigner.newSHA256Signer("secret");
+    Verifier verifier = new HMACVerifier("secret");
 
-    String encodedJwt1 = JWT.getEncoder().encode(expectedJwt, signer);
-    JWT actualJwt1 = JWT.getDecoder().decode(encodedJwt1, verifier);
+    String encodedJWT1 = JWT.getEncoder().encode(expectedJWT, signer);
+    JWT actualJWT1 = JWT.getDecoder().decode(encodedJWT1, verifier);
 
-    assertEquals(actualJwt1.expiration, expectedJwt.expiration);
+    assertEquals(actualJWT1.expiration, expectedJWT.expiration);
   }
 }

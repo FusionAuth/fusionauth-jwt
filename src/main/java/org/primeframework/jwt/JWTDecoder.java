@@ -41,11 +41,11 @@ public class JWTDecoder {
     return instance;
   }
 
-  public JWT decode(String encodedJwt, Verifier... verifiers) {
-    Objects.requireNonNull(encodedJwt);
+  public JWT decode(String encodedJWT, Verifier... verifiers) {
+    Objects.requireNonNull(encodedJWT);
     Objects.requireNonNull(verifiers);
 
-    String[] parts = encodedJwt.split("\\.");
+    String[] parts = encodedJWT.split("\\.");
     if (parts.length != 3) {
       throw new InvalidJWTException("The encoded JWT is not properly formatted. Expected a three part dot separated string.");
     }
@@ -66,9 +66,9 @@ public class JWTDecoder {
       throw new MissingVerifierException("No Verifier has been provided for verify a signature signed using [" + header.algorithm.getName() + "]");
     }
 
-    int index = encodedJwt.lastIndexOf(".");
+    int index = encodedJWT.lastIndexOf(".");
     // The message comprises the first two segements of the entire JWT, the signature is the last segment.
-    byte[] message = encodedJwt.substring(0, index).getBytes();
+    byte[] message = encodedJWT.substring(0, index).getBytes();
     byte[] signature = base64Decode(parts[2].getBytes());
 
     // Verify the signature before de-serializing the payload.

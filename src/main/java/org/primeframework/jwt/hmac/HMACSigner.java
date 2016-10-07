@@ -16,56 +16,53 @@
 
 package org.primeframework.jwt.hmac;
 
-import org.primeframework.jwt.Verifier;
+import org.primeframework.jwt.Signer;
 import org.primeframework.jwt.domain.Algorithm;
-import org.primeframework.jwt.domain.InvalidJWTSignatureException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * This class is used to verify a JWT signed with an HMAC algorithm.
+ * This class can sign and verify a JWT that was signed using HMAC.
  *
  * @author Daniel DeGroff
  */
-public class HmacVerifier implements Verifier {
+public class HMACSigner implements Signer {
 
-  private final byte[] secret;
+  private final Algorithm algorithm;
 
-  public HmacVerifier(String secret) {
-    Objects.requireNonNull(secret);
+  private byte[] secret;
+
+  private HMACSigner(Algorithm algorithm, String secret) {
+    this.algorithm = algorithm;
     this.secret = secret.getBytes();
   }
 
-  @Override
-  public boolean canVerify(Algorithm algorithm) {
-    switch (algorithm) {
-      case HS256:
-      case HS512:
-        return true;
-      default:
-        return false;
-    }
+  public static HMACSigner newSHA256Signer(String secret) {
+    return new HMACSigner(Algorithm.HS256, secret);
+  }
+
+  public static HMACSigner newSHA512Signer(String secret) {
+    return new HMACSigner(Algorithm.HS512, secret);
   }
 
   @Override
-  public void verify(Algorithm algorithm, byte[] payload, byte[] signature) {
+  public Algorithm getAlgorithm() {
+    return algorithm;
+  }
+
+  @Override
+  public byte[] sign(String message) {
     Objects.requireNonNull(algorithm);
-    Objects.requireNonNull(payload);
-    Objects.requireNonNull(signature);
+    Objects.requireNonNull(secret);
 
     try {
       Mac mac = Mac.getInstance(algorithm.getName());
       mac.init(new SecretKeySpec(secret, algorithm.getName()));
-      byte[] actualSignature = mac.doFinal(payload);
-
-      if (!Arrays.equals(signature, actualSignature)) {
-        throw new InvalidJWTSignatureException();
-      }
+      return mac.doFinal(message.getBytes());
     } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }
