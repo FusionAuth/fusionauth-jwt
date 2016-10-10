@@ -131,6 +131,8 @@ public class JWTTest {
         .issuer("www.inversoft.com")
         .subject("123456789")
         .claim("foo", "bar")
+        .claim("timestamp", 1476062602926L)
+        .claim("meaningOfLife", 42)
         .claim("bar", Arrays.asList("bing", "bam", "boo"))
         .claim("www.inversoft.com/claims/is_admin", true)
         .build();
@@ -147,6 +149,8 @@ public class JWTTest {
     assertEquals(actualJwt.issuer, expectedJWT.issuer);
     assertEquals(actualJwt.subject, expectedJWT.subject);
     assertEquals(actualJwt.getString("foo"), expectedJWT.getString("foo"));
+    assertEquals(actualJwt.getLong("timestamp"), expectedJWT.getLong("timestamp"));
+    assertEquals(actualJwt.getInteger("meaningOfLife"), expectedJWT.getInteger("meaningOfLife"));
     assertEquals(actualJwt.getObject("bar"), expectedJWT.getObject("bar"));
     assertEquals(actualJwt.getBoolean("www.inversoft.com/claims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/claims/is_admin"));
   }

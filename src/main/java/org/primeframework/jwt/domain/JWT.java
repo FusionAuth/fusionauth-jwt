@@ -193,6 +193,7 @@ public class JWT {
    *
    * @return true if expired, false if not.
    */
+  @JsonIgnore
   public boolean isExpired() {
     return expiration != null && expiration.isBefore(ZonedDateTime.now(ZoneOffset.UTC));
   }
