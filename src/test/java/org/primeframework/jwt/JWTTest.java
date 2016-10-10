@@ -34,6 +34,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 /**
  * @author Daniel DeGroff
@@ -61,6 +63,23 @@ public class JWTTest {
       // RSA w/ 4k Key ~ 20 iterations per second (this seems to be fairly linear)
       System.out.println("[" + signer.getAlgorithm().getName() + "] " + duration.toMillis() + " milliseconds total. [" + iterationCount + "] iterations. [" + average + "] milliseconds per iteration. Approx. [" + perSecond + "] per second.");
     }
+  }
+
+  @Test
+
+  public void expired() throws Exception {
+    // no expiration
+    assertFalse(JWT.Builder()
+        .subject("123456789").build().isExpired());
+
+    assertFalse(JWT.Builder()
+        .expiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+        .subject("123456789").build().isExpired());
+
+    assertTrue(JWT.Builder()
+        .expiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1))
+        .subject("123456789").build().isExpired());
+
   }
 
   @Test

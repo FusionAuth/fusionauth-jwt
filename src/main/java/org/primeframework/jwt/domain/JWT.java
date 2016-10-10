@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.primeframework.jwt.JWTDecoder;
 import org.primeframework.jwt.JWTEncoder;
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -185,6 +186,15 @@ public class JWT {
 
   public String getString(String key) {
     return (String) claims.get(key);
+  }
+
+  /**
+   * Return true if this JWT is expired.
+   *
+   * @return true if expired, false if not.
+   */
+  public boolean isExpired() {
+    return expiration != null && expiration.isBefore(ZonedDateTime.now(ZoneOffset.UTC));
   }
 
   /**
