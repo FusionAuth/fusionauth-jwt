@@ -17,7 +17,6 @@
 package org.primeframework.jwt.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
@@ -38,7 +37,7 @@ public class ZonedDateTimeDeserializer extends StdScalarDeserializer<ZonedDateTi
   }
 
   @Override
-  public ZonedDateTime deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+  public ZonedDateTime deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
     JsonToken t = jp.getCurrentToken();
     long value;
     if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) {

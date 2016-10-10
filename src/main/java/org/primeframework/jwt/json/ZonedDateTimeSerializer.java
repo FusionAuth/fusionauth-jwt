@@ -16,7 +16,6 @@
 
 package org.primeframework.jwt.json;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
@@ -35,7 +34,7 @@ public class ZonedDateTimeSerializer extends StdScalarSerializer<ZonedDateTime> 
   }
 
   @Override
-  public void serialize(ZonedDateTime value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+  public void serialize(ZonedDateTime value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
     if (value == null) {
       jgen.writeNull();
     } else {
