@@ -32,6 +32,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.UUID;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -129,6 +130,8 @@ public class JWTTest {
         .expiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS))
         .issuedAt(ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS))
         .issuer("www.inversoft.com")
+        .notBefore(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).truncatedTo(ChronoUnit.SECONDS))
+        .uniqueId(UUID.randomUUID().toString())
         .subject("123456789")
         .claim("foo", "bar")
         .claim("timestamp", 1476062602926L)
@@ -147,6 +150,8 @@ public class JWTTest {
     assertEquals(actualJwt.expiration, expectedJWT.expiration);
     assertEquals(actualJwt.issuedAt, expectedJWT.issuedAt);
     assertEquals(actualJwt.issuer, expectedJWT.issuer);
+    assertEquals(actualJwt.notBefore, expectedJWT.notBefore);
+    assertEquals(actualJwt.uniqueId, expectedJWT.uniqueId);
     assertEquals(actualJwt.subject, expectedJWT.subject);
     assertEquals(actualJwt.getString("foo"), expectedJWT.getString("foo"));
     assertEquals(actualJwt.getLong("timestamp"), expectedJWT.getLong("timestamp"));

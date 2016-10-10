@@ -106,7 +106,6 @@ public class JWT {
   public String uniqueId;
 
   private JWT() {
-
   }
 
   public static Builder Builder() {
@@ -214,7 +213,7 @@ public class JWT {
 
   public static class Builder {
 
-    private JWT jwt;
+    private final JWT jwt;
 
     private Builder() {
       jwt = new JWT();
