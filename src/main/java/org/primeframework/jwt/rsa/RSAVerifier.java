@@ -41,7 +41,13 @@ public class RSAVerifier implements Verifier {
     this.publicKey = RSAUtils.getPublicKeyFromPEM(publicKey);
   }
 
-  public static RSAVerifier withPublicKey(String publicKey) {
+  /**
+   * Return a new instance of the RSA Verifier with the provided public secret.
+   *
+   * @param publicKey The RSA public key PEM.
+   * @return a new instance of the RSA verifier.
+   */
+  public static RSAVerifier newVerifier(String publicKey) {
     return new RSAVerifier(publicKey);
   }
 

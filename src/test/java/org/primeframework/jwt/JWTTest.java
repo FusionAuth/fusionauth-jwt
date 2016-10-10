@@ -117,7 +117,7 @@ public class JWTTest {
         .build();
 
     Signer signer = HMACSigner.newSHA256Signer("secret");
-    Verifier verifier = HMACVerifier.withSecret("secret");
+    Verifier verifier = HMACVerifier.newVerifier("secret");
 
     String encodedJWT = JWT.getEncoder().encode(expectedJWT, signer);
     JWT actualJwt = JWT.getDecoder().decode(encodedJWT, verifier);
@@ -146,7 +146,7 @@ public class JWTTest {
     JWT expectedJWT = JWT.Builder().expiration(expiration).build();
 
     Signer signer = HMACSigner.newSHA256Signer("secret");
-    Verifier verifier = HMACVerifier.withSecret("secret");
+    Verifier verifier = HMACVerifier.newVerifier("secret");
 
     String encodedJWT1 = JWT.getEncoder().encode(expectedJWT, signer);
     JWT actualJWT1 = JWT.getDecoder().decode(encodedJWT1, verifier);

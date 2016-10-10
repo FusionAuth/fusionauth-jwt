@@ -41,7 +41,13 @@ public class HMACVerifier implements Verifier {
     this.secret = secret.getBytes();
   }
 
-  public static HMACVerifier withSecret(String secret) {
+  /**
+   * Return a new instance of the HMAC Verifier with the provided secret.
+   *
+   * @param secret The secret.
+   * @return a new instance of the HMAC verifier.
+   */
+  public static HMACVerifier newVerifier(String secret) {
     return new HMACVerifier(secret);
   }
 
