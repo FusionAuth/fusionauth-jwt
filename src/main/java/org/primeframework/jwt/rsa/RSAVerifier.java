@@ -19,12 +19,13 @@ package org.primeframework.jwt.rsa;
 import org.primeframework.jwt.Verifier;
 import org.primeframework.jwt.domain.Algorithm;
 import org.primeframework.jwt.domain.InvalidJWTSignatureException;
+import org.primeframework.jwt.domain.InvalidKeyLengthException;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Objects;
 
 /**
@@ -34,11 +35,16 @@ import java.util.Objects;
  */
 public class RSAVerifier implements Verifier {
 
-  private final PublicKey publicKey;
+  private final RSAPublicKey publicKey;
 
   private RSAVerifier(String publicKey) {
     Objects.requireNonNull(publicKey);
     this.publicKey = RSAUtils.getPublicKeyFromPEM(publicKey);
+
+    int keyLength = this.publicKey.getModulus().bitLength();
+    if (keyLength < 2048) {
+      throw new InvalidKeyLengthException("Key length of [" + keyLength + "] is less than the required key length of 2048 bits.");
+    }
   }
 
   /**

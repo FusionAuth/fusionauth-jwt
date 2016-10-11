@@ -18,12 +18,13 @@ package org.primeframework.jwt.rsa;
 
 import org.primeframework.jwt.Signer;
 import org.primeframework.jwt.domain.Algorithm;
+import org.primeframework.jwt.domain.InvalidKeyLengthException;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.Objects;
 
 /**
@@ -35,11 +36,16 @@ public class RSASigner implements Signer {
 
   private final Algorithm algorithm;
 
-  private PrivateKey privateKey;
+  private RSAPrivateKey privateKey;
 
   private RSASigner(Algorithm algorithm, String privateKey) {
     this.algorithm = algorithm;
     this.privateKey = RSAUtils.getPrivateKeyFromPEM(privateKey);
+
+    int keyLength = this.privateKey.getModulus().bitLength();
+    if (keyLength < 2048) {
+      throw new InvalidKeyLengthException("Key length of [" + keyLength + "] is less than the required key length of 2048 bits.");
+    }
   }
 
   public static RSASigner newRSA256Signer(String privateKey) {

@@ -26,6 +26,7 @@ import org.primeframework.jwt.JWTEncoder;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -162,6 +163,15 @@ public class JWT {
     }
 
     return (Integer) object;
+  }
+
+  public List<String> getList(String key) {
+    Object object = claims.get(key);
+    if (object == null) {
+      return null;
+    }
+
+    return (List<String>) object;
   }
 
   public Long getLong(String key) {

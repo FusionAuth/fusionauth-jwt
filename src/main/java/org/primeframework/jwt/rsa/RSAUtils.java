@@ -24,7 +24,8 @@ import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.KeySpec;
 import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPublicKeySpec;
@@ -52,12 +53,12 @@ public class RSAUtils {
    * Return a Private Key from the provided private key in PEM format.
    *
    * @param privateKey the private key in string format.
-   * @return a {@link PrivateKey}
+   * @return a private key
    */
-  public static PrivateKey getPrivateKeyFromPEM(String privateKey) {
+  public static RSAPrivateKey getPrivateKeyFromPEM(String privateKey) {
     try {
       KeySpec keySpec = getRSAPrivateKeySpec(privateKey);
-      return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+      return (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(keySpec);
     } catch (GeneralSecurityException | IOException e) {
       throw new RuntimeException(e);
     }
@@ -69,10 +70,10 @@ public class RSAUtils {
    * @param publicKey the public in PEM format.
    * @return the public key
    */
-  public static PublicKey getPublicKeyFromPEM(String publicKey) {
+  public static RSAPublicKey getPublicKeyFromPEM(String publicKey) {
     try {
       KeySpec keySpec = getPublicKeySpec(publicKey);
-      return KeyFactory.getInstance("RSA").generatePublic(keySpec);
+      return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(keySpec);
     } catch (GeneralSecurityException | IOException e) {
       throw new RuntimeException(e);
     }
