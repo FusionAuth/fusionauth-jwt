@@ -35,6 +35,7 @@ import java.util.Map;
  * From RFC 7519 Section 1. Introduction:
  *    The suggested pronunciation of JWT is the same as the English word "jot".
  * </pre>
+ * The JWT is not Thread-Safe and should not be re-used.
  *
  * @author Daniel DeGroff
  */
@@ -106,13 +107,6 @@ public class JWT {
   @JsonProperty("jti")
   public String uniqueId;
 
-  private JWT() {
-  }
-
-  public static Builder Builder() {
-    return new Builder();
-  }
-
   /**
    * Return a singleton instance of the JWT Decoder.
    *
@@ -137,6 +131,30 @@ public class JWT {
   @JsonAnyGetter
   public Map<String, Object> anyGetter() {
     return claims;
+  }
+
+  public JWT audience(Object audience) {
+    this.audience = audience;
+    return this;
+  }
+
+  /**
+   * Add a claim to this JWT. This claim can be public or private, it is up to the caller to properly name the
+   * claim as to avoid collision.
+   *
+   * @param name  The name of the JWT claim.
+   * @param value The value of the JWT claim. This value is an object and is expected to properly serialize.
+   * @return this.
+   */
+  @JsonAnySetter
+  public JWT claim(String name, Object value) {
+    claims.put(name, value);
+    return this;
+  }
+
+  public JWT expiration(ZonedDateTime expiration) {
+    this.expiration = expiration;
+    return this;
   }
 
   public Boolean getBoolean(String key) {
@@ -207,70 +225,28 @@ public class JWT {
     return expiration != null && expiration.isBefore(ZonedDateTime.now(ZoneOffset.UTC));
   }
 
-  /**
-   * Add a claim to this JWT. This claim can be public or private, it is up to the caller to properly name the
-   * claim as to avoid collision.
-   *
-   * @param name  The name of the JWT claim.
-   * @param value The value of the JWT claim. This value is an object and is expected to properly serialize.
-   * @return this.
-   */
-  @JsonAnySetter
-  public JWT withClaim(String name, Object value) {
-    claims.put(name, value);
+  public JWT issuedAt(ZonedDateTime issuedAt) {
+    this.issuedAt = issuedAt;
     return this;
   }
 
-  public static class Builder {
+  public JWT issuer(String issuer) {
+    this.issuer = issuer;
+    return this;
+  }
 
-    private final JWT jwt;
+  public JWT notBefore(ZonedDateTime notBefore) {
+    this.notBefore = notBefore;
+    return this;
+  }
 
-    private Builder() {
-      jwt = new JWT();
-    }
+  public JWT subject(String subject) {
+    this.subject = subject;
+    return this;
+  }
 
-    public Builder audience(Object audience) {
-      jwt.audience = audience;
-      return this;
-    }
-
-    public JWT build() {
-      return jwt;
-    }
-
-    public Builder claim(String name, Object value) {
-      jwt.withClaim(name, value);
-      return this;
-    }
-
-    public Builder expiration(ZonedDateTime expiration) {
-      jwt.expiration = expiration;
-      return this;
-    }
-
-    public Builder issuedAt(ZonedDateTime issuedAt) {
-      jwt.issuedAt = issuedAt;
-      return this;
-    }
-
-    public Builder issuer(String issuer) {
-      jwt.issuer = issuer;
-      return this;
-    }
-
-    public Builder notBefore(ZonedDateTime notBefore) {
-      jwt.notBefore = notBefore;
-      return this;
-    }
-
-    public Builder subject(String subject) {
-      jwt.subject = subject;
-      return this;
-    }
-
-    public Builder uniqueId(String uniqueId) {
-      jwt.uniqueId = uniqueId;
-      return this;
-    }
+  public JWT uniqueId(String uniqueId) {
+    this.uniqueId = uniqueId;
+    return this;
   }
 }

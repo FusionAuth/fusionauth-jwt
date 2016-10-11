@@ -48,11 +48,11 @@ public class RSASigner implements Signer {
     }
   }
 
-  public static RSASigner newRSA256Signer(String privateKey) {
+  public static RSASigner newSHA256Signer(String privateKey) {
     return new RSASigner(Algorithm.RS256, privateKey);
   }
 
-  public static RSASigner newRSA512Signer(String privateKey) {
+  public static RSASigner newSHA512Signer(String privateKey) {
     return new RSASigner(Algorithm.RS512, privateKey);
   }
 
