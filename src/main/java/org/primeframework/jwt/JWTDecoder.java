@@ -20,6 +20,8 @@ import org.primeframework.jwt.domain.Algorithm;
 import org.primeframework.jwt.domain.Header;
 import org.primeframework.jwt.domain.InvalidJWTException;
 import org.primeframework.jwt.domain.JWT;
+import org.primeframework.jwt.domain.JWTExpiredException;
+import org.primeframework.jwt.domain.JWTUnavailableForProcessingException;
 import org.primeframework.jwt.domain.MissingVerifierException;
 import org.primeframework.jwt.json.Mapper;
 
@@ -73,7 +75,20 @@ public class JWTDecoder {
 
     // Verify the signature before de-serializing the payload.
     verifier.verify(header.algorithm, message, signature);
-    return Mapper.deserialize(base64Decode(parts[1].getBytes()), JWT.class);
+
+    JWT jwt = Mapper.deserialize(base64Decode(parts[1].getBytes()), JWT.class);
+
+    // Verify expiration claim
+    if (jwt.isExpired()) {
+      throw new JWTExpiredException();
+    }
+
+    // Verify the notBefore claim
+    if (jwt.isUnavailableForProcessing()) {
+      throw new JWTUnavailableForProcessingException();
+    }
+
+    return jwt;
   }
 
   private byte[] base64Decode(byte[] bytes) {

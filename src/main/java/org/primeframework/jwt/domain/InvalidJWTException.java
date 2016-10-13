@@ -21,7 +21,7 @@ package org.primeframework.jwt.domain;
  *
  * @author Daniel DeGroff
  */
-public class InvalidJWTException extends RuntimeException {
+public class InvalidJWTException extends JWTException {
   public InvalidJWTException(String message) {
     super(message);
   }

@@ -225,6 +225,16 @@ public class JWT {
     return expiration != null && expiration.isBefore(ZonedDateTime.now(ZoneOffset.UTC));
   }
 
+  /**
+   * Return true if this JWT is un-available for processing.
+   *
+   * @return true if un-available, false if not.
+   */
+  @JsonIgnore
+  public boolean isUnavailableForProcessing() {
+    return notBefore != null && notBefore.isAfter(ZonedDateTime.now(ZoneOffset.UTC));
+  }
+
   public JWT issuedAt(ZonedDateTime issuedAt) {
     this.issuedAt = issuedAt;
     return this;

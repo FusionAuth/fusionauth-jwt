@@ -21,5 +21,5 @@ package org.primeframework.jwt.domain;
  *
  * @author Daniel DeGroff
  */
-public class InvalidJWTSignatureException extends RuntimeException {
+public class InvalidJWTSignatureException extends JWTException {
 }

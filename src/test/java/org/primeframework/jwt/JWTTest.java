@@ -18,6 +18,8 @@ package org.primeframework.jwt;
 
 import org.primeframework.jwt.domain.InvalidKeyLengthException;
 import org.primeframework.jwt.domain.JWT;
+import org.primeframework.jwt.domain.JWTExpiredException;
+import org.primeframework.jwt.domain.JWTUnavailableForProcessingException;
 import org.primeframework.jwt.hmac.HMACSigner;
 import org.primeframework.jwt.hmac.HMACVerifier;
 import org.primeframework.jwt.rsa.RSASigner;
@@ -148,7 +150,7 @@ public class JWTTest {
         .expiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS))
         .issuedAt(ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS))
         .issuer("www.inversoft.com")
-        .notBefore(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).truncatedTo(ChronoUnit.SECONDS))
+        .notBefore(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(5).truncatedTo(ChronoUnit.SECONDS))
         .uniqueId(UUID.randomUUID().toString())
         .subject("123456789")
         .claim("foo", "bar")
@@ -178,11 +180,46 @@ public class JWTTest {
   }
 
   @Test
+  public void test_expired() throws Exception {
+    JWT expectedJWT = new JWT()
+        .expiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1).truncatedTo(ChronoUnit.SECONDS));
+
+    Signer signer = HMACSigner.newSHA256Signer("secret");
+    Verifier verifier = HMACVerifier.newVerifier("secret");
+
+    String encodedJWT = JWT.getEncoder().encode(expectedJWT, signer);
+    try {
+      JWT.getDecoder().decode(encodedJWT, verifier);
+      fail("Failed to validate expiration.");
+    } catch (JWTExpiredException ignore) {
+    }
+  }
+
+  @Test
   public void test_none() throws Exception {
     JWT jwt = new JWT().subject("123456789");
     Signer signer = new UnsecuredSigner();
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkifQ.");
+  }
+
+  @Test
+  public void test_notBefore() throws Exception {
+    JWT expectedJWT = new JWT()
+        .expiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS))
+        .issuedAt(ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS))
+        .issuer("www.inversoft.com")
+        .notBefore(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).truncatedTo(ChronoUnit.SECONDS));
+
+    Signer signer = HMACSigner.newSHA256Signer("secret");
+    Verifier verifier = HMACVerifier.newVerifier("secret");
+
+    String encodedJWT = JWT.getEncoder().encode(expectedJWT, signer);
+    try {
+      JWT.getDecoder().decode(encodedJWT, verifier);
+      fail("Failed to validate notBefore.");
+    } catch (JWTUnavailableForProcessingException ignore) {
+    }
   }
 
   @Test

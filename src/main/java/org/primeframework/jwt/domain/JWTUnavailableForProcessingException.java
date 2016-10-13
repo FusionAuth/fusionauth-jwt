@@ -14,21 +14,12 @@
  * language governing permissions and limitations under the License.
  */
 
-package org.primeframework.jwt.json;
-
-import com.fasterxml.jackson.databind.module.SimpleModule;
-
-import java.time.ZonedDateTime;
+package org.primeframework.jwt.domain;
 
 /**
+ * The JWT is not yet valid. The JWT has claimed it is not valid before a time that is in the future.
+ *
  * @author Daniel DeGroff
  */
-public class JacksonModule extends SimpleModule {
-  public JacksonModule() {
-    // Deserializers
-    addDeserializer(ZonedDateTime.class, new ZonedDateTimeDeserializer());
-
-    // Serializers
-    addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer());
-  }
+public class JWTUnavailableForProcessingException extends JWTException {
 }

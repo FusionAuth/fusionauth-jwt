@@ -21,7 +21,7 @@ package org.primeframework.jwt.domain;
  *
  * @author Daniel DeGroff
  */
-public class MissingVerifierException extends RuntimeException {
+public class MissingVerifierException extends JWTException {
   public MissingVerifierException(String message) {
     super(message);
   }

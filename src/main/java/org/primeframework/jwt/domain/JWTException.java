@@ -14,21 +14,22 @@
  * language governing permissions and limitations under the License.
  */
 
-package org.primeframework.jwt.json;
-
-import com.fasterxml.jackson.databind.module.SimpleModule;
-
-import java.time.ZonedDateTime;
+package org.primeframework.jwt.domain;
 
 /**
+ * Base JWT Exception
+ *
  * @author Daniel DeGroff
  */
-public class JacksonModule extends SimpleModule {
-  public JacksonModule() {
-    // Deserializers
-    addDeserializer(ZonedDateTime.class, new ZonedDateTimeDeserializer());
+public class JWTException extends RuntimeException {
+  public JWTException() {
+  }
 
-    // Serializers
-    addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer());
+  public JWTException(String message) {
+    super(message);
+  }
+
+  public JWTException(String message, Throwable cause) {
+    super(message, cause);
   }
 }
