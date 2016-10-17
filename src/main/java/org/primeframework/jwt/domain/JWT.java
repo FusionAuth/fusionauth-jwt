@@ -28,6 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * JSON Web Token (JWT) as defined by RFC 7519.
@@ -152,6 +153,21 @@ public class JWT {
     return this;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    JWT jwt = (JWT) o;
+    return Objects.equals(audience, jwt.audience) &&
+        Objects.equals(claims, jwt.claims) &&
+        Objects.equals(expiration, jwt.expiration) &&
+        Objects.equals(issuedAt, jwt.issuedAt) &&
+        Objects.equals(issuer, jwt.issuer) &&
+        Objects.equals(notBefore, jwt.notBefore) &&
+        Objects.equals(subject, jwt.subject) &&
+        Objects.equals(uniqueId, jwt.uniqueId);
+  }
+
   public JWT expiration(ZonedDateTime expiration) {
     this.expiration = expiration;
     return this;
@@ -213,6 +229,11 @@ public class JWT {
 
   public String getString(String key) {
     return (String) claims.get(key);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(audience, claims, expiration, issuedAt, issuer, notBefore, subject, uniqueId);
   }
 
   /**

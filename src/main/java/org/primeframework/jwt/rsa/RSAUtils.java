@@ -22,7 +22,10 @@ import sun.security.util.DerValue;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
+import java.security.Key;
 import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.KeySpec;
@@ -37,16 +40,36 @@ import java.util.Base64;
  */
 public class RSAUtils {
   // RSA Private Key file (PKCS#1) End Tag
-  private static final String PKCS_1_PRIVATE_KEY_END = "-----END RSA PRIVATE KEY";
+  private static final String PKCS_1_PRIVATE_KEY_SUFFIX = "-----END RSA PRIVATE KEY-----";
 
   // RSA Private Key file (PKCS#1)  Start Tag
-  private static final String PKCS_1_PRIVATE_KEY_START = "BEGIN RSA PRIVATE KEY-----";
+  private static final String PKCS_1_PRIVATE_KEY_PREFIX = "-----BEGIN RSA PRIVATE KEY-----";
 
   // RSA Public Key file (PKCS#1)  Start Tag
-  private static final String PKCS_1_PUBLIC_KEY_START = "BEGIN RSA PUBLIC KEY-----";
+  private static final String PKCS_1_PUBLIC_KEY_PREFIX = "-----BEGIN RSA PUBLIC KEY-----";
 
   // RSA Public Key file (PKCS#1)  Start Tag
-  private static final String PKCS_1_PUBLIC_KEY_END = "-----END RSA PUBLIC KEY";
+  private static final String PKCS_1_PUBLIC_KEY_SUFFIX = "-----END RSA PUBLIC KEY-----";
+
+  /**
+   * Return the private key in a PEM formatted String.
+   *
+   * @param privateKey The private key.
+   * @return a string in PEM format.
+   */
+  public static String getPEMFromPrivateKey(PrivateKey privateKey) {
+    return getPEMFromKey(privateKey);
+  }
+
+  /**
+   * Return the public key in a PEM formatted String.
+   *
+   * @param publicKey The publicKey key.
+   * @return a string in PEM format.
+   */
+  public static String getPEMFromPublicKey(PublicKey publicKey) {
+    return getPEMFromKey(publicKey);
+  }
 
   /**
    * Return a Private Key from the provided private key in PEM format.
@@ -86,8 +109,34 @@ public class RSAUtils {
     return Base64.getDecoder().decode(base64);
   }
 
+  private static String getPEMFromKey(Key key) {
+    StringBuilder sb = new StringBuilder();
+    if (key instanceof PrivateKey) {
+      sb.append(PKCS_1_PRIVATE_KEY_PREFIX).append("\n");
+    } else {
+      sb.append(PKCS_1_PUBLIC_KEY_PREFIX).append("\n");
+    }
+
+    String encoded = new String(Base64.getEncoder().encode(key.getEncoded()));
+
+    int index = 0;
+    int lineLength = 65;
+    while (index < encoded.length()) {
+      sb.append(encoded.substring(index, Math.min(index + lineLength, encoded.length()))).append("\n");
+      index += lineLength;
+    }
+
+    if (key instanceof PrivateKey) {
+      sb.append(PKCS_1_PRIVATE_KEY_SUFFIX).append("\n");
+    } else {
+      sb.append(PKCS_1_PUBLIC_KEY_SUFFIX).append("\n");
+    }
+
+    return sb.toString();
+  }
+
   private static KeySpec getPublicKeySpec(String publicKey) throws IOException, GeneralSecurityException {
-    byte[] bytes = getKeyBytes(publicKey, PKCS_1_PUBLIC_KEY_START, PKCS_1_PUBLIC_KEY_END);
+    byte[] bytes = getKeyBytes(publicKey, PKCS_1_PUBLIC_KEY_PREFIX, PKCS_1_PUBLIC_KEY_SUFFIX);
     DerInputStream derReader = new DerInputStream(bytes);
     DerValue[] seq = derReader.getSequence(0);
 
@@ -102,7 +151,7 @@ public class RSAUtils {
   }
 
   private static KeySpec getRSAPrivateKeySpec(String privateKey) throws IOException, GeneralSecurityException {
-    byte[] bytes = getKeyBytes(privateKey, PKCS_1_PRIVATE_KEY_START, PKCS_1_PRIVATE_KEY_END);
+    byte[] bytes = getKeyBytes(privateKey, PKCS_1_PRIVATE_KEY_PREFIX, PKCS_1_PRIVATE_KEY_SUFFIX);
     DerInputStream derReader = new DerInputStream(bytes);
     DerValue[] seq = derReader.getSequence(0);
 

@@ -16,18 +16,33 @@
 
 package org.primeframework.jwt.domain;
 
-import java.security.SecureRandom;
-import java.util.Base64;
+import java.util.Objects;
 
 /**
  * @author Daniel DeGroff
  */
-public class RefreshToken {
-  public String value;
+public class RSAKeyPair {
 
-  public RefreshToken() {
-    byte[] buffer = new byte[40];
-    new SecureRandom().nextBytes(buffer);
-    value = Base64.getEncoder().withoutPadding().encodeToString(buffer).substring(0, 40);
+  public String privateKey;
+
+  public String publicKey;
+
+  public RSAKeyPair(String privateKey, String publicKey) {
+    this.privateKey = privateKey;
+    this.publicKey = publicKey;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    RSAKeyPair that = (RSAKeyPair) o;
+    return Objects.equals(privateKey, that.privateKey) &&
+        Objects.equals(publicKey, that.publicKey);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(privateKey, publicKey);
   }
 }
