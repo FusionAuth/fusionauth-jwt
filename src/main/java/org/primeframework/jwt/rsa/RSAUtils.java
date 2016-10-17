@@ -22,6 +22,7 @@ import sun.security.util.DerValue;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
+import java.security.InvalidParameterException;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
@@ -29,8 +30,10 @@ import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.KeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 /**
@@ -45,11 +48,23 @@ public class RSAUtils {
   // RSA Private Key file (PKCS#1)  Start Tag
   private static final String PKCS_1_PRIVATE_KEY_PREFIX = "-----BEGIN RSA PRIVATE KEY-----";
 
+  // RSA Private Key file (PKCS#8)  Start Tag
+  private static final String PKCS_8_PRIVATE_KEY_PREFIX = "-----BEGIN PRIVATE KEY-----";
+
+  // RSA Private Key file (PKCS#8)  Start Tag
+  private static final String PKCS_8_PRIVATE_KEY_SUFFIX = "-----END PRIVATE KEY-----";
+
   // RSA Public Key file (PKCS#1)  Start Tag
   private static final String PKCS_1_PUBLIC_KEY_PREFIX = "-----BEGIN RSA PUBLIC KEY-----";
 
   // RSA Public Key file (PKCS#1)  Start Tag
   private static final String PKCS_1_PUBLIC_KEY_SUFFIX = "-----END RSA PUBLIC KEY-----";
+
+  // RSA Public Key file (X.509)  Start Tag
+  private static final String PKCS_8_X509_PUBLIC_KEY_PREFIX = "-----BEGIN PUBLIC KEY-----";
+
+  // RSA Public Key file (X.509)  Start Tag
+  private static final String PKCS_8_X509_PUBLIC_KEY_SUFFIX = "-----END PUBLIC KEY-----";
 
   /**
    * Return the private key in a PEM formatted String.
@@ -112,9 +127,15 @@ public class RSAUtils {
   private static String getPEMFromKey(Key key) {
     StringBuilder sb = new StringBuilder();
     if (key instanceof PrivateKey) {
-      sb.append(PKCS_1_PRIVATE_KEY_PREFIX).append("\n");
+      if (key.getFormat().equals("PKCS#1")) {
+        sb.append(PKCS_1_PRIVATE_KEY_PREFIX).append("\n");
+      } else if (key.getFormat().equals("PKCS#8")) {
+        sb.append(PKCS_8_PRIVATE_KEY_PREFIX).append("\n");
+      } else {
+        throw new InvalidParameterException("Unexpected Private Key Format");
+      }
     } else {
-      sb.append(PKCS_1_PUBLIC_KEY_PREFIX).append("\n");
+      sb.append(PKCS_8_X509_PUBLIC_KEY_PREFIX).append("\n");
     }
 
     String encoded = new String(Base64.getEncoder().encode(key.getEncoded()));
@@ -127,47 +148,65 @@ public class RSAUtils {
     }
 
     if (key instanceof PrivateKey) {
-      sb.append(PKCS_1_PRIVATE_KEY_SUFFIX).append("\n");
+      if (key.getFormat().equals("PKCS#1")) {
+        sb.append(PKCS_1_PRIVATE_KEY_SUFFIX).append("\n");
+      } else if (key.getFormat().equals("PKCS#8")) {
+        sb.append(PKCS_8_PRIVATE_KEY_SUFFIX).append("\n");
+      }
     } else {
-      sb.append(PKCS_1_PUBLIC_KEY_SUFFIX).append("\n");
+      sb.append(PKCS_8_X509_PUBLIC_KEY_SUFFIX).append("\n");
     }
 
     return sb.toString();
   }
 
   private static KeySpec getPublicKeySpec(String publicKey) throws IOException, GeneralSecurityException {
-    byte[] bytes = getKeyBytes(publicKey, PKCS_1_PUBLIC_KEY_PREFIX, PKCS_1_PUBLIC_KEY_SUFFIX);
-    DerInputStream derReader = new DerInputStream(bytes);
-    DerValue[] seq = derReader.getSequence(0);
+    if (publicKey.startsWith(PKCS_1_PUBLIC_KEY_PREFIX)) {
+      byte[] bytes = getKeyBytes(publicKey, PKCS_1_PUBLIC_KEY_PREFIX, PKCS_1_PUBLIC_KEY_SUFFIX);
+      DerInputStream derReader = new DerInputStream(bytes);
+      DerValue[] seq = derReader.getSequence(0);
 
-    if (seq.length != 2) {
-      throw new GeneralSecurityException("Could not parse a PKCS1 private key.");
+      if (seq.length != 2) {
+        throw new GeneralSecurityException("Could not parse a PKCS1 private key.");
+      }
+
+      BigInteger modulus = seq[0].getBigInteger();
+      BigInteger publicExponent = seq[1].getBigInteger();
+
+      return new RSAPublicKeySpec(modulus, publicExponent);
+    } else if (publicKey.startsWith(PKCS_8_X509_PUBLIC_KEY_PREFIX)) {
+      byte[] bytes = getKeyBytes(publicKey, PKCS_8_X509_PUBLIC_KEY_PREFIX, PKCS_8_X509_PUBLIC_KEY_SUFFIX);
+      return new X509EncodedKeySpec(bytes);
+    } else {
+      throw new InvalidParameterException("Unexpected Private Key Format");
     }
-
-    BigInteger modulus = seq[0].getBigInteger();
-    BigInteger publicExponent = seq[1].getBigInteger();
-
-    return new RSAPublicKeySpec(modulus, publicExponent);
   }
 
   private static KeySpec getRSAPrivateKeySpec(String privateKey) throws IOException, GeneralSecurityException {
-    byte[] bytes = getKeyBytes(privateKey, PKCS_1_PRIVATE_KEY_PREFIX, PKCS_1_PRIVATE_KEY_SUFFIX);
-    DerInputStream derReader = new DerInputStream(bytes);
-    DerValue[] seq = derReader.getSequence(0);
+    if (privateKey.startsWith(PKCS_1_PRIVATE_KEY_PREFIX)) {
+      byte[] bytes = getKeyBytes(privateKey, PKCS_1_PRIVATE_KEY_PREFIX, PKCS_1_PRIVATE_KEY_SUFFIX);
+      DerInputStream derReader = new DerInputStream(bytes);
+      DerValue[] seq = derReader.getSequence(0);
 
-    if (seq.length < 9) {
-      throw new GeneralSecurityException("Could not parse a PKCS1 private key.");
+      if (seq.length < 9) {
+        throw new GeneralSecurityException("Could not parse a PKCS1 private key.");
+      }
+
+      // skip version seq[0];
+      BigInteger modulus = seq[1].getBigInteger();
+      BigInteger publicExponent = seq[2].getBigInteger();
+      BigInteger privateExponent = seq[3].getBigInteger();
+      BigInteger primeP = seq[4].getBigInteger();
+      BigInteger primeQ = seq[5].getBigInteger();
+      BigInteger primeExponentP = seq[6].getBigInteger();
+      BigInteger primeExponentQ = seq[7].getBigInteger();
+      BigInteger crtCoefficient = seq[8].getBigInteger();
+      return new RSAPrivateCrtKeySpec(modulus, publicExponent, privateExponent, primeP, primeQ, primeExponentP, primeExponentQ, crtCoefficient);
+    } else if (privateKey.startsWith(PKCS_8_PRIVATE_KEY_PREFIX)) {
+      byte[] bytes = getKeyBytes(privateKey, PKCS_8_PRIVATE_KEY_PREFIX, PKCS_8_PRIVATE_KEY_SUFFIX);
+      return new PKCS8EncodedKeySpec(bytes);
+    } else {
+      throw new InvalidParameterException("Unexpected Private Key Format");
     }
-
-    // skip version seq[0];
-    BigInteger modulus = seq[1].getBigInteger();
-    BigInteger publicExponent = seq[2].getBigInteger();
-    BigInteger privateExponent = seq[3].getBigInteger();
-    BigInteger primeP = seq[4].getBigInteger();
-    BigInteger primeQ = seq[5].getBigInteger();
-    BigInteger primeExponentP = seq[6].getBigInteger();
-    BigInteger primeExponentQ = seq[7].getBigInteger();
-    BigInteger crtCoefficient = seq[8].getBigInteger();
-    return new RSAPrivateCrtKeySpec(modulus, publicExponent, privateExponent, primeP, primeQ, primeExponentP, primeExponentQ, crtCoefficient);
   }
 }

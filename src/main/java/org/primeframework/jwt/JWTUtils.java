@@ -36,7 +36,7 @@ public class JWTUtils {
    * Generate a new public / private key pair using a 2048 bit RSA key. This is the minimum key length for use with an
    * RSA signing scheme for JWT.
    *
-   * @return a public and private key in PEM format.
+   * @return a public and private key PEM in PKCS#8 / X.509 key formats.
    */
   public static RSAKeyPair generate2048RSAKeyPair() {
     return generateRSAKeyPair(2048);
@@ -45,7 +45,7 @@ public class JWTUtils {
   /**
    * Generate a new public / private key pair using a 3072 bit RSA key.
    *
-   * @return a public and private key in PEM format.
+   * @return a public and private key PEM in PKCS#8 / X.509 key formats.
    */
   public static RSAKeyPair generate3072RSAKeyPair() {
     return generateRSAKeyPair(3072);
@@ -54,7 +54,7 @@ public class JWTUtils {
   /**
    * Generate a new public / private key pair using a 4096 bit RSA key.
    *
-   * @return a public and private key in PEM format.
+   * @return a public and private key PEM in PKCS#8 / X.509 key formats.
    */
   public static RSAKeyPair generate4096RSAKeyPair() {
     return generateRSAKeyPair(4096);

@@ -85,7 +85,6 @@ public class JWTTest {
     assertTrue(new JWT()
         .expiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1))
         .subject("123456789").isExpired());
-
   }
 
   @Test

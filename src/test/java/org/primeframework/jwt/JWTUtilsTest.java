@@ -17,8 +17,11 @@
 package org.primeframework.jwt;
 
 import org.primeframework.jwt.domain.RSAKeyPair;
+import org.primeframework.jwt.rsa.RSAUtils;
 import org.testng.annotations.Test;
 
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 
 import static org.testng.Assert.assertEquals;
@@ -29,7 +32,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class JWTUtilsTest {
   @Test
-  public void hmac() throws Exception {
+  public void generateHMACSecrets() throws Exception {
     String hmac256 = JWTUtils.generateSHA256HMACSecret();
     assertEquals(Base64.getDecoder().decode(hmac256.getBytes()).length, 32);
 
@@ -38,17 +41,35 @@ public class JWTUtilsTest {
   }
 
   @Test
-  public void rsa() throws Exception {
+  public void generateRSAKey() throws Exception {
     RSAKeyPair keyPair2048 = JWTUtils.generate2048RSAKeyPair();
-    assertTrue(keyPair2048.privateKey.contains("RSA PRIVATE KEY"));
-    assertTrue(keyPair2048.publicKey.contains("RSA PUBLIC KEY"));
+    RSAPrivateKey privateKey2048 = RSAUtils.getPrivateKeyFromPEM(keyPair2048.privateKey);
+    RSAPublicKey publicKey2048 = RSAUtils.getPublicKeyFromPEM(keyPair2048.publicKey);
+    assertEquals(privateKey2048.getModulus().bitLength(), 2048);
+    assertEquals(publicKey2048.getModulus().bitLength(), 2048);
+    assertTrue(keyPair2048.privateKey.contains("BEGIN PRIVATE KEY"));
+    assertTrue(keyPair2048.publicKey.contains("BEGIN PUBLIC KEY"));
+
+    // Now go backwards from the key to a PEM and assert they come out the same.
+    String actualPrivateKey2048 = RSAUtils.getPEMFromPrivateKey(privateKey2048);
+    String actualPublicKey2048 = RSAUtils.getPEMFromPublicKey(publicKey2048);
+    assertEquals(actualPrivateKey2048, keyPair2048.privateKey);
+    assertEquals(actualPublicKey2048, keyPair2048.publicKey);
 
     RSAKeyPair keyPair3072 = JWTUtils.generate3072RSAKeyPair();
-    assertTrue(keyPair3072.privateKey.contains("RSA PRIVATE KEY"));
-    assertTrue(keyPair3072.publicKey.contains("RSA PUBLIC KEY"));
+    RSAPrivateKey privateKey3072 = RSAUtils.getPrivateKeyFromPEM(keyPair3072.privateKey);
+    RSAPublicKey publicKey3072 = RSAUtils.getPublicKeyFromPEM(keyPair3072.publicKey);
+    assertEquals(privateKey3072.getModulus().bitLength(), 3072);
+    assertEquals(publicKey3072.getModulus().bitLength(), 3072);
+    assertTrue(keyPair3072.privateKey.contains("BEGIN PRIVATE KEY"));
+    assertTrue(keyPair3072.publicKey.contains("BEGIN PUBLIC KEY"));
 
     RSAKeyPair keyPair4096 = JWTUtils.generate4096RSAKeyPair();
-    assertTrue(keyPair4096.privateKey.contains("RSA PRIVATE KEY"));
-    assertTrue(keyPair4096.publicKey.contains("RSA PUBLIC KEY"));
+    RSAPrivateKey privateKey4096 = RSAUtils.getPrivateKeyFromPEM(keyPair4096.privateKey);
+    RSAPublicKey publicKey4096 = RSAUtils.getPublicKeyFromPEM(keyPair4096.publicKey);
+    assertEquals(privateKey4096.getModulus().bitLength(), 4096);
+    assertEquals(publicKey4096.getModulus().bitLength(), 4096);
+    assertTrue(keyPair4096.privateKey.contains("BEGIN PRIVATE KEY"));
+    assertTrue(keyPair4096.publicKey.contains("BEGIN PUBLIC KEY"));
   }
 }
