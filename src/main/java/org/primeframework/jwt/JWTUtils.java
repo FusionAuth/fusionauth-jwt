@@ -36,7 +36,7 @@ public class JWTUtils {
    * Generate a new public / private key pair using a 2048 bit RSA key. This is the minimum key length for use with an
    * RSA signing scheme for JWT.
    *
-   * @return a public and private key PEM in PKCS#8 / X.509 key formats.
+   * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
    */
   public static RSAKeyPair generate2048RSAKeyPair() {
     return generateRSAKeyPair(2048);
@@ -45,7 +45,7 @@ public class JWTUtils {
   /**
    * Generate a new public / private key pair using a 3072 bit RSA key.
    *
-   * @return a public and private key PEM in PKCS#8 / X.509 key formats.
+   * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
    */
   public static RSAKeyPair generate3072RSAKeyPair() {
     return generateRSAKeyPair(3072);
@@ -54,32 +54,32 @@ public class JWTUtils {
   /**
    * Generate a new public / private key pair using a 4096 bit RSA key.
    *
-   * @return a public and private key PEM in PKCS#8 / X.509 key formats.
+   * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
    */
   public static RSAKeyPair generate4096RSAKeyPair() {
     return generateRSAKeyPair(4096);
   }
 
   /**
-   * Generate the ideal length HMAC secret for use with a SHA-512 hash.
+   * Generate a 32 byte (256 bit) HMAC secret for use with a SHA-256 hash.
    *
    * @return a secret for use with an HMAC signing and verification scheme.
    */
   public static String generateSHA256HMACSecret() {
     byte[] buffer = new byte[32];
     new SecureRandom().nextBytes(buffer);
-    return Base64.getEncoder().withoutPadding().encodeToString(buffer);
+    return Base64.getEncoder().encodeToString(buffer);
   }
 
   /**
-   * Generate the ideal length HMAC secret for use with a SHA-256 hash.
+   * Generate a 64 byte (512 bit) HMAC secret for use with a SHA-512 hash.
    *
    * @return a secret for use with an HMAC signing and verification scheme.
    */
   public static String generateSHA512HMACSecret() {
     byte[] buffer = new byte[64];
     new SecureRandom().nextBytes(buffer);
-    return Base64.getEncoder().withoutPadding().encodeToString(buffer);
+    return Base64.getEncoder().encodeToString(buffer);
   }
 
   /**
