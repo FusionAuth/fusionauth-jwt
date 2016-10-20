@@ -134,13 +134,15 @@ public class JWTTest {
     try {
       RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_1024.pem"))));
       fail("Failed to validate minimum key length.");
-    } catch (InvalidKeyLengthException expected) {
+    } catch (InvalidKeyLengthException ignore) {
+      // Expected Exception
     }
 
     try {
       RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_1024.pem"))));
       fail("Failed to validate minimum key length.");
-    } catch (InvalidKeyLengthException expected) {
+    } catch (InvalidKeyLengthException ignore) {
+      // Expected Exception
     }
   }
 
