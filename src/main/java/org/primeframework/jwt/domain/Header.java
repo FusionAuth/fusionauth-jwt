@@ -16,7 +16,13 @@
 
 package org.primeframework.jwt.domain;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * JSON Object Signing and Encryption (JOSE) Header
@@ -27,6 +33,9 @@ public class Header {
   @JsonProperty("alg")
   public Algorithm algorithm;
 
+  @JsonIgnore
+  public Map<String, String> properties = new LinkedHashMap<>();
+
   @JsonProperty("typ")
   public Type type = Type.JWT;
 
@@ -35,5 +44,31 @@ public class Header {
 
   public Header(Algorithm algorithm) {
     this.algorithm = algorithm;
+  }
+
+  /**
+   * Special getter used to flatten additional header properties into top level values. Necessary to correctly serialize
+   * this object.
+   */
+  @JsonAnyGetter
+  public Map<String, String> anyGetter() {
+    return properties;
+  }
+
+  public String get(String name) {
+    return properties.get(name);
+  }
+
+  /**
+   * Add a property to the JWT header.
+   *
+   * @param name  The name of the header property.
+   * @param value The value of the header property.
+   * @return this.
+   */
+  @JsonAnySetter
+  public Header set(String name, String value) {
+    properties.put(name, value);
+    return this;
   }
 }

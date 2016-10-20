@@ -36,6 +36,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.testng.Assert.assertEquals;
@@ -179,7 +181,7 @@ public class JWTTest {
   }
 
   @Test
-  public void test_expired() throws Exception {
+  public void test_expiredThrows() throws Exception {
     JWT expectedJWT = new JWT()
         .expiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1).truncatedTo(ChronoUnit.SECONDS));
 
@@ -195,6 +197,38 @@ public class JWTTest {
   }
 
   @Test
+  public void test_multipleSignersAndVerifiers() throws Exception {
+    JWT jwt = new JWT().subject("123456789");
+
+    // Three separate signers
+    Signer signer1 = HMACSigner.newSHA512Signer("secret1");
+    Signer signer2 = HMACSigner.newSHA512Signer("secret2");
+    Signer signer3 = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048.pem"))));
+
+    // Encode the same JWT with each signer, writing the KeyId to the header
+    String encodedJWT1 = JWT.getEncoder().encode(jwt, signer1, h -> h.set("keyId", "verifier1"));
+    String encodedJWT2 = JWT.getEncoder().encode(jwt, signer2, h -> h.set("keyId", "verifier2"));
+    String encodedJWT3 = JWT.getEncoder().encode(jwt, signer3, h -> h.set("keyId", "verifier3"));
+
+    Verifier verifier1 = HMACVerifier.newVerifier("secret1");
+    Verifier verifier2 = HMACVerifier.newVerifier("secret2");
+    Verifier verifier3 = RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
+
+    Map<String, Verifier> verifiers = new HashMap<>();
+    verifiers.put("verifier1", verifier1);
+    verifiers.put("verifier2", verifier2);
+    verifiers.put("verifier3", verifier3);
+
+    // decode all of the encoded JWTs and ensure they come out the same.
+    JWT jwt1 = JWT.getDecoder().decode(encodedJWT1, verifiers);
+    JWT jwt2 = JWT.getDecoder().decode(encodedJWT2, verifiers);
+    JWT jwt3 = JWT.getDecoder().decode(encodedJWT3, verifiers);
+
+    assertEquals(jwt1.subject, jwt2.subject);
+    assertEquals(jwt2.subject, jwt3.subject);
+  }
+
+  @Test
   public void test_none() throws Exception {
     JWT jwt = new JWT().subject("123456789");
     Signer signer = new UnsecuredSigner();
@@ -203,7 +237,7 @@ public class JWTTest {
   }
 
   @Test
-  public void test_notBefore() throws Exception {
+  public void test_notBeforeThrows() throws Exception {
     JWT expectedJWT = new JWT()
         .expiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS))
         .issuedAt(ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS))

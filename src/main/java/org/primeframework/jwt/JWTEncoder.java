@@ -25,6 +25,7 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -50,11 +51,29 @@ public class JWTEncoder {
    * @return the encoded JWT string.
    */
   public String encode(JWT jwt, Signer signer) {
+    return encode(jwt, signer, null);
+  }
+
+  /**
+   * Encode the JWT to produce a dot separated encoded string that can be sent in an HTTP request header.
+   *
+   * @param jwt      The JWT.
+   * @param signer   The signer used to add a signature to the JWT.
+   * @param consumer A header consumer to optionally add header values to the encoded JWT. May be null.
+   * @return the encoded JWT string.
+   */
+  public String encode(JWT jwt, Signer signer, Consumer<Header> consumer) {
     Objects.requireNonNull(jwt);
     Objects.requireNonNull(signer);
 
     List<String> parts = new ArrayList<>(3);
-    parts.add(base64Encode(Mapper.serialize(new Header(signer.getAlgorithm()))));
+    Header header = new Header();
+    if (consumer != null) {
+      consumer.accept(header);
+    }
+    // Set this after we pass the header to the consumer to ensure it isn't tampered with.
+    header.algorithm = signer.getAlgorithm();
+    parts.add(base64Encode(Mapper.serialize(header)));
     parts.add(base64Encode(Mapper.serialize(jwt)));
 
     byte[] signature = signer.sign(join(parts));
