@@ -40,7 +40,7 @@ JWT jwt = new JWT().issuer("www.acme.com")
 String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 ```
 
-A higher strength hash can be used by changing the signer. The encoding and decoding steps is not affected.
+A higher strength hash can be used by changing the signer. The encoding and decoding steps are not affected.
 ```java
 Signer signer = RSASigner.newSHA512Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
 ```
