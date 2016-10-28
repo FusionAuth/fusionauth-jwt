@@ -60,12 +60,16 @@ public class JWTDecoder {
     Objects.requireNonNull(encodedJWT);
     Objects.requireNonNull(verifiers);
 
+    // An unsecured JWT will not contain a signature and should only have a header and a payload.
     String[] parts = getParts(encodedJWT);
     Header header = Mapper.deserialize(base64Decode(parts[0].getBytes()), Header.class);
-    if (header.algorithm == Algorithm.none) {
+
+    // Be particular about decoding an unsecured JWT. If the JWT is signed or any verifiers were provided don't do it.
+    if (header.algorithm == Algorithm.none && parts.length == 2 && verifiers.length == 0) {
       return Mapper.deserialize(base64Decode(parts[1].getBytes()), JWT.class);
     }
 
+    // If verifiers were provided, ensure it is able to verify this JWT.
     Verifier verifier = null;
     for (Verifier v : verifiers) {
       if (v.canVerify(header.algorithm)) {
@@ -110,10 +114,12 @@ public class JWTDecoder {
 
     String[] parts = getParts(encodedJWT);
     Header header = Mapper.deserialize(base64Decode(parts[0].getBytes()), Header.class);
-    if (header.algorithm == Algorithm.none) {
+    // Be particular about decoding an unsecured JWT. If the JWT is signed or any verifiers were provided don't do it.
+    if (header.algorithm == Algorithm.none && parts.length == 2 && verifiers.isEmpty()) {
       return Mapper.deserialize(base64Decode(parts[1].getBytes()), JWT.class);
     }
 
+    // If verifiers were provided, ensure it is able to verify this JWT.
     String key = keyFunction.apply(header);
     Verifier verifier = verifiers.get(key);
     if (verifier != null) {
@@ -130,17 +136,20 @@ public class JWTDecoder {
   }
 
   private JWT decode(String encodedJWT, Header header, String[] parts, Verifier verifier) {
-    if (verifier == null) {
-      throw new MissingVerifierException("No Verifier has been provided for verify a signature signed using [" + header.algorithm.getName() + "]");
-    }
-
     int index = encodedJWT.lastIndexOf(".");
     // The message comprises the first two segments of the entire JWT, the signature is the last segment.
     byte[] message = encodedJWT.substring(0, index).getBytes();
-    byte[] signature = base64Decode(parts[2].getBytes());
 
-    // Verify the signature before de-serializing the payload.
-    verifier.verify(header.algorithm, message, signature);
+    // If a signature is provided and verifier must be provided.
+    if (parts.length == 3 && verifier == null) {
+      throw new MissingVerifierException("No Verifier has been provided for verify a signature signed using [" + header.algorithm.getName() + "]");
+    }
+
+    if (parts.length == 3) {
+      // Verify the signature before de-serializing the payload.
+      byte[] signature = base64Decode(parts[2].getBytes());
+      verifier.verify(header.algorithm, message, signature);
+    }
 
     JWT jwt = Mapper.deserialize(base64Decode(parts[1].getBytes()), JWT.class);
 
@@ -159,9 +168,11 @@ public class JWTDecoder {
 
   private String[] getParts(String encodedJWT) {
     String[] parts = encodedJWT.split("\\.");
-    if (parts.length != 3) {
-      throw new InvalidJWTException("The encoded JWT is not properly formatted. Expected a three part dot separated string.");
+    // Secured JWT XXXXX.YYYYY.ZZZZZ, Unsecured JWT XXXXX.YYYYY.
+    if (parts.length == 3 || (parts.length == 2 && encodedJWT.endsWith("."))) {
+      return parts;
     }
-    return parts;
+
+    throw new InvalidJWTException("The encoded JWT is not properly formatted. Expected a three part dot separated string.");
   }
 }

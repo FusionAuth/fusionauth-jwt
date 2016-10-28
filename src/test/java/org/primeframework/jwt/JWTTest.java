@@ -16,10 +16,12 @@
 
 package org.primeframework.jwt;
 
+import org.primeframework.jwt.domain.InvalidJWTException;
 import org.primeframework.jwt.domain.InvalidKeyLengthException;
 import org.primeframework.jwt.domain.JWT;
 import org.primeframework.jwt.domain.JWTExpiredException;
 import org.primeframework.jwt.domain.JWTUnavailableForProcessingException;
+import org.primeframework.jwt.domain.MissingVerifierException;
 import org.primeframework.jwt.hmac.HMACSigner;
 import org.primeframework.jwt.hmac.HMACVerifier;
 import org.primeframework.jwt.rsa.RSASigner;
@@ -231,11 +233,45 @@ public class JWTTest {
   }
 
   @Test
+  public void test_noVerification() throws Exception {
+    // Sign a JWT and then attempt to verify it using None.
+    JWT jwt = new JWT().subject("art");
+    String encodedJWT = JWT.getEncoder().encode(jwt, HMACSigner.newSHA256Signer("secret"));
+
+    try {
+      JWT.getDecoder().decode(encodedJWT);
+      fail("Expected the decoder to fail to decode an secured JWT when no verifier was provided.");
+    } catch (MissingVerifierException e) {
+      // expected
+    }
+  }
+
+  @Test
   public void test_none() throws Exception {
     JWT jwt = new JWT().subject("123456789");
     Signer signer = new UnsecuredSigner();
 
-    assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkifQ.");
+    String encodedJWT = JWT.getEncoder().encode(jwt, signer);
+    assertEquals(encodedJWT, "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkifQ.");
+
+    JWT actual = JWT.getDecoder().decode(encodedJWT);
+    assertEquals(actual.subject, jwt.subject);
+  }
+
+  @Test
+  public void test_encodedJwtWithSignatureRemoved() throws Exception {
+    // Sign a JWT and then attempt to verify it using None.
+    JWT jwt = new JWT().subject("art");
+    String encodedJWT = JWT.getEncoder().encode(jwt, HMACSigner.newSHA256Signer("secret"));
+
+    String hackedJWT = encodedJWT.substring(0, encodedJWT.lastIndexOf("."));
+
+    try {
+      JWT.getDecoder().decode(hackedJWT, HMACVerifier.newVerifier("secret"));
+      fail("Expected the decoder to fail to decode an unsecured JWT when provided with a verifier.");
+    } catch (InvalidJWTException e) {
+      // expected
+    }
   }
 
   @Test
