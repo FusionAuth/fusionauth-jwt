@@ -59,6 +59,16 @@ public class RSASigner implements Signer {
   }
 
   /**
+   * Build a new RSA signer using a SHA-384 hash.
+   *
+   * @param privateKey The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @return a new RSA signer.
+   */
+  public static RSASigner newSHA384Signer(String privateKey) {
+    return new RSASigner(Algorithm.RS384, privateKey);
+  }
+
+  /**
    * Build a new RSA signer using a SHA-512 hash.
    *
    * @param privateKey The private key PEM expected to be in PKCS#1 or PKCS#8 format.

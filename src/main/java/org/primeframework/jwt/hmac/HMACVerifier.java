@@ -55,6 +55,7 @@ public class HMACVerifier implements Verifier {
   public boolean canVerify(Algorithm algorithm) {
     switch (algorithm) {
       case HS256:
+      case HS384:
       case HS512:
         return true;
       default:

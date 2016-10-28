@@ -45,6 +45,10 @@ public class HMACSigner implements Signer {
     return new HMACSigner(Algorithm.HS256, secret);
   }
 
+  public static HMACSigner newSHA384Signer(String secret) {
+    return new HMACSigner(Algorithm.HS384, secret);
+  }
+
   public static HMACSigner newSHA512Signer(String secret) {
     return new HMACSigner(Algorithm.HS512, secret);
   }

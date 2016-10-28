@@ -55,7 +55,7 @@ assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 
 ### Supported JSON Web Algorithms (JWA) as described in RFC 7518
 
-HS256, HS512, RS256, RS512, none (Unsecured)
+HS256, HS384, HS512, RS256, RS384, RS512, none (Unsecured)
 
 ## Building
 

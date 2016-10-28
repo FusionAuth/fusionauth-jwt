@@ -108,6 +108,17 @@ public class JWTTest {
   }
 
   @Test
+  public void test_HS384() throws Exception {
+    JWT jwt = new JWT().subject("123456789");
+    Signer signer = HMACSigner.newSHA384Signer("secret");
+
+    String encodedJWT = JWT.getEncoder().encode(jwt, signer);
+    assertEquals(encodedJWT, "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.sCHKynlQkBveA063_Z-fwcXmRYp_lKQ0fRqGNzplb14qMUj5CV3CfXwluclTF17P");
+
+    assertEquals(JWT.getDecoder().decode(encodedJWT, HMACVerifier.newVerifier("secret")).subject, jwt.subject);
+  }
+
+  @Test
   public void test_HS512() throws Exception {
     JWT jwt = new JWT().subject("123456789");
     Signer signer = HMACSigner.newSHA512Signer("secret");
@@ -121,6 +132,17 @@ public class JWTTest {
     Signer signer = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.kRXJkOHC98D0LCT2oPg5fTmQJDFXkMRQJopbt7QM6prmQDHwjJL_xO-_EXRXnbvf5NLORto45By3XNn2ZzWmY3pAOxj46MlQ5elhROx2S-EnHZNLfQhoG8ZXPZ54q-Obz_6K7ZSlkAQ8jmeZUO3Ryi8jRlHQ2PT4LbBtLpaf982SGJfeTyUMw1LbvowZUTZSF-E6JARaokmmx8M2GeLuKcFhU-YsBTXUarKp0IJCy3jpMQ2zW_HGjyVWH8WwSIbSdpBn7ztoQEJYO-R5H3qVaAz2BsTuGLRxoyIu1iy2-QcDp5uTufmX1roXM8ciQMpcfwKGiyNpKVIZm-lF8aROXRL4kk4rqp6KUzJuOPljPXRU--xKSua-DeR0BEerKzI9hbwIMWiblCslAciNminoSc9G7pUyVwV5Z5IT8CGJkVgoyVGELeBmYCDy7LHwXrr0poc0hPbE3mJXhzolga4BB84nCg2Hb9tCNiHU8F-rKgZWCONaSSIdhQ49x8OiPafFh2DJBEBe5Xbm6xdCfh3KVG0qe4XL18R5s98aIP9UIC4i62UEgPy6W7Fr7QgUxpXrjRCERBV3MiNu4L8NNJb3oZleq5lQi72EfdS-Bt8ZUOVInIcAvSmu-3i8jB_2sF38XUXdl8gkW8k_b9dJkzDcivCFehvSqGmm3vBm5X4bNmk");
+  }
+
+  @Test
+  public void test_RS384() throws Exception {
+    JWT jwt = new JWT().subject("123456789");
+    Signer signer = RSASigner.newSHA384Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
+
+    String encodedJWT = JWT.getEncoder().encode(jwt, signer);
+    assertEquals(encodedJWT, "eyJhbGciOiJSUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.OkmWXzhTm7mtfpeMVNLlFjw3fJvc7yMQ1rgI5BXBPqaLSb_fpLHYAq_q5pQDDaIGg8klg9y2f784smc7-o9czX3JnzEDvO9e_sA10YIEA6Q9qRh17EATNXFG-WzSocpxPgEOQZ8lqSqZ_0waCGaUMwK5J5BB1A_70AcNGPnI7PrX76lWNNHwdK0OjkhkxX7vHR6B-uAIzih0ntQP_afr1UIzXkllmnnb1oU9cgFFD1AGDa3V0XCgitVYZA_ozbGELGMrUl_7fB_uNVEvcreUoZIEI4cfUKI6iZ8Ll4j_iLAdlpH4GRGNiQ7gMLq35AqqxKbEG8r-S-SrlRL6PkKlaJ-viMVLxoHreZow634r8A1fxR1mnrdUnn0vGmOthyjpP_TgfAsER9EJ_UUIamsKC8s6pip2jcPB7G6huHocyKBTxsoxclQgk1jOy4lZq4Js2KKM5sGfcq5SWQTW4B44KlUU1kWWmUg21jtflna38sWFdTk845phi5ITOBZ_ElJ9MdYVAgjvDsRFs_XxFENlwpwKeLD9PsaCiJhdG7EJN5qJvVogYuUMM0wyS-SOGZ1ILsTeYsjc7TtI0JUKndlUXFPubwaaxW_06zrCJR-dvWye99fIDH-u3I74XK5MKhknlgewzsXpsiPdvsMW59WUbdIZqkvok5vdkIlm4XGIqcM");
+
+    assertEquals(JWT.getDecoder().decode(encodedJWT, RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_4096.pem"))))).subject, jwt.subject);
   }
 
   @Test
@@ -182,6 +204,22 @@ public class JWTTest {
     assertEquals(actualJwt.getInteger("meaningOfLife"), expectedJWT.getInteger("meaningOfLife"));
     assertEquals(actualJwt.getObject("bar"), expectedJWT.getObject("bar"));
     assertEquals(actualJwt.getBoolean("www.inversoft.com/claims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/claims/is_admin"));
+  }
+
+  @Test
+  public void test_encodedJwtWithSignatureRemoved() throws Exception {
+    // Sign a JWT and then attempt to verify it using None.
+    JWT jwt = new JWT().subject("art");
+    String encodedJWT = JWT.getEncoder().encode(jwt, HMACSigner.newSHA256Signer("secret"));
+
+    String hackedJWT = encodedJWT.substring(0, encodedJWT.lastIndexOf("."));
+
+    try {
+      JWT.getDecoder().decode(hackedJWT, HMACVerifier.newVerifier("secret"));
+      fail("Expected the decoder to fail to decode an unsecured JWT when provided with a verifier.");
+    } catch (InvalidJWTException e) {
+      // expected
+    }
   }
 
   @Test
@@ -256,22 +294,6 @@ public class JWTTest {
 
     JWT actual = JWT.getDecoder().decode(encodedJWT);
     assertEquals(actual.subject, jwt.subject);
-  }
-
-  @Test
-  public void test_encodedJwtWithSignatureRemoved() throws Exception {
-    // Sign a JWT and then attempt to verify it using None.
-    JWT jwt = new JWT().subject("art");
-    String encodedJWT = JWT.getEncoder().encode(jwt, HMACSigner.newSHA256Signer("secret"));
-
-    String hackedJWT = encodedJWT.substring(0, encodedJWT.lastIndexOf("."));
-
-    try {
-      JWT.getDecoder().decode(hackedJWT, HMACVerifier.newVerifier("secret"));
-      fail("Expected the decoder to fail to decode an unsecured JWT when provided with a verifier.");
-    } catch (InvalidJWTException e) {
-      // expected
-    }
   }
 
   @Test

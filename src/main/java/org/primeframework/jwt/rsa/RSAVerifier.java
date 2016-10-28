@@ -61,6 +61,7 @@ public class RSAVerifier implements Verifier {
   public boolean canVerify(Algorithm algorithm) {
     switch (algorithm) {
       case RS256:
+      case RS384:
       case RS512:
         return true;
       default:

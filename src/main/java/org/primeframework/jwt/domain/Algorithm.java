@@ -28,6 +28,11 @@ public enum Algorithm {
   HS256("HmacSHA256"),
 
   /**
+   * HMAC using SHA-384
+   */
+  HS384("HmacSHA384"),
+
+  /**
    * HMAC using SHA-512
    */
   HS512("HmacSHA512"),
@@ -36,6 +41,11 @@ public enum Algorithm {
    * RSASSA-PKCS1-v1_5 using SHA-256
    */
   RS256("SHA256withRSA"),
+
+  /**
+   * RSASSA-PKCS1-v1_5 using SHA-384
+   */
+  RS384("SHA384withRSA"),
 
   /**
    * RSASSA-PKCS1-v1_5 using SHA-512
