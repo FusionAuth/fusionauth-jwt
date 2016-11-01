@@ -36,6 +36,9 @@ public class JWTUtilsTest {
     String hmac256 = JWTUtils.generateSHA256HMACSecret();
     assertEquals(Base64.getDecoder().decode(hmac256.getBytes()).length, 32);
 
+    String hmac384 = JWTUtils.generateSHA384HMACSecret();
+    assertEquals(Base64.getDecoder().decode(hmac384.getBytes()).length, 48);
+
     String hmac512 = JWTUtils.generateSHA512HMACSecret();
     assertEquals(Base64.getDecoder().decode(hmac512.getBytes()).length, 64);
   }

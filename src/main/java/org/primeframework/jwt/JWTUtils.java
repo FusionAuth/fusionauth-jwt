@@ -72,6 +72,17 @@ public class JWTUtils {
   }
 
   /**
+   * Generate a 48 byte (384 bit) HMAC secret for use with a SHA-384 hash.
+   *
+   * @return a secret for use with an HMAC signing and verification scheme.
+   */
+  public static String generateSHA384HMACSecret() {
+    byte[] buffer = new byte[48];
+    new SecureRandom().nextBytes(buffer);
+    return Base64.getEncoder().encodeToString(buffer);
+  }
+
+  /**
    * Generate a 64 byte (512 bit) HMAC secret for use with a SHA-512 hash.
    *
    * @return a secret for use with an HMAC signing and verification scheme.
