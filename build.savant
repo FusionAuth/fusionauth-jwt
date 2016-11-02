@@ -16,7 +16,7 @@
 
 savantVersion = "1.0.0"
 
-project(group: "org.primeframework", name: "prime-jwt", version: "0.1.4", licenses: ["ApacheV2_0"]) {
+project(group: "org.primeframework", name: "prime-jwt", version: "0.1.5", licenses: ["ApacheV2_0"]) {
 
   workflow {
     standard()

@@ -1,0 +1,32 @@
+Prime JWT Changes
+
+Changes in 0.1.5
+
+ * Pending release
+
+Changes in 0.1.4
+
+ * Add helper to generate an ideal HMAC secret for SHA-384
+
+Changes in 0.1.3
+
+ * Add support for HS384 and RS384
+
+Changes in 0.1.2
+
+ * Added JavaDoc
+ * Better parsing support for PKCS#1 and PKCS#8 key formats
+ * Enforce minimum RSA key key length of 2048
+
+Changes in 0.1.1
+
+ * Added validation for JWT Expired (exp) and JWT Not Available for Processing (nbf)
+ * Added helpers to generate HMAC keys and RSA Key Pairs
+ * Add JWTException that all other exceptions extend
+ * Add tests
+
+Changes in 0.1.0
+
+ * Initial release.
+
+
