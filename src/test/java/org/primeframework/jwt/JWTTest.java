@@ -247,10 +247,10 @@ public class JWTTest {
     Signer signer2 = HMACSigner.newSHA512Signer("secret2");
     Signer signer3 = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048.pem"))));
 
-    // Encode the same JWT with each signer, writing the KeyId to the header
-    String encodedJWT1 = JWT.getEncoder().encode(jwt, signer1, h -> h.set("keyId", "verifier1"));
-    String encodedJWT2 = JWT.getEncoder().encode(jwt, signer2, h -> h.set("keyId", "verifier2"));
-    String encodedJWT3 = JWT.getEncoder().encode(jwt, signer3, h -> h.set("keyId", "verifier3"));
+    // Encode the same JWT with each signer, writing the Key ID to the header
+    String encodedJWT1 = JWT.getEncoder().encode(jwt, signer1, h -> h.set("kid", "verifier1"));
+    String encodedJWT2 = JWT.getEncoder().encode(jwt, signer2, h -> h.set("kid", "verifier2"));
+    String encodedJWT3 = JWT.getEncoder().encode(jwt, signer3, h -> h.set("kid", "verifier3"));
 
     Verifier verifier1 = HMACVerifier.newVerifier("secret1");
     Verifier verifier2 = HMACVerifier.newVerifier("secret2");

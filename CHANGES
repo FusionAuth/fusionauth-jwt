@@ -1,5 +1,9 @@
 Prime JWT Changes
 
+Changes in 0.2.0
+
+ * Change "keyId" to "kid".
+
 Changes in 0.1.6
 
  * Renamed JWT.audience --> JWT.setAudience

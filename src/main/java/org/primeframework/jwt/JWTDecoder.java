@@ -81,7 +81,7 @@ public class JWTDecoder {
   }
 
   /**
-   * Decode the JWT using one of they provided verifiers. A JWT header value named <code>keyId</code> is expected to
+   * Decode the JWT using one of they provided verifiers. A JWT header value named <code>kid</code> is expected to
    * contain the key to lookup the correct verifier.
    * <p/>
    * A JWT that is expired or not yet valid will not be decoded, instead a {@link JWTExpiredException} or {@link
@@ -92,7 +92,7 @@ public class JWTDecoder {
    * @return a decoded JWT.
    */
   public JWT decode(String encodedJWT, Map<String, Verifier> verifiers) {
-    return decode(encodedJWT, verifiers, h -> h.get("keyId"));
+    return decode(encodedJWT, verifiers, h -> h.get("kid"));
   }
 
   /**
