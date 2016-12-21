@@ -56,7 +56,7 @@ public class JWTTest {
   public void encoding_performance() throws Exception {
     Signer hmacSigner = HMACSigner.newSHA256Signer("secret");
     Signer rsaSigner = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
-    JWT jwt = new JWT().subject("123456789");
+    JWT jwt = new JWT().setSubject("123456789");
 
     long iterationCount = 500;
     for (Signer signer : Arrays.asList(hmacSigner, rsaSigner)) {
@@ -80,20 +80,20 @@ public class JWTTest {
   public void expired() throws Exception {
     // no expiration
     assertFalse(new JWT()
-        .subject("123456789").isExpired());
+        .setSubject("123456789").isExpired());
 
     assertFalse(new JWT()
-        .expiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-        .subject("123456789").isExpired());
+        .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+        .setSubject("123456789").isExpired());
 
     assertTrue(new JWT()
-        .expiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1))
-        .subject("123456789").isExpired());
+        .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1))
+        .setSubject("123456789").isExpired());
   }
 
   @Test
   public void test_HS256() throws Exception {
-    JWT jwt = new JWT().subject("123456789");
+    JWT jwt = new JWT().setSubject("123456789");
     Signer signer = HMACSigner.newSHA256Signer("secret");
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.qHdut1UR4-2FSAvh7U3YdeRR5r5boVqjIGQ16Ztp894");
@@ -101,7 +101,7 @@ public class JWTTest {
 
   @Test
   public void test_HS256_manualAddedClaim() throws Exception {
-    JWT jwt = new JWT().claim("test", "123456789");
+    JWT jwt = new JWT().addClaim("test", "123456789");
     Signer signer = HMACSigner.newSHA256Signer("secret");
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZXN0IjoiMTIzNDU2Nzg5In0.0qgr4ztqB0mNXA8mtqaBSL6UJT3aqEyjHMrWDZmT4Bc");
@@ -109,7 +109,7 @@ public class JWTTest {
 
   @Test
   public void test_HS384() throws Exception {
-    JWT jwt = new JWT().subject("123456789");
+    JWT jwt = new JWT().setSubject("123456789");
     Signer signer = HMACSigner.newSHA384Signer("secret");
 
     String encodedJWT = JWT.getEncoder().encode(jwt, signer);
@@ -120,7 +120,7 @@ public class JWTTest {
 
   @Test
   public void test_HS512() throws Exception {
-    JWT jwt = new JWT().subject("123456789");
+    JWT jwt = new JWT().setSubject("123456789");
     Signer signer = HMACSigner.newSHA512Signer("secret");
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.MgAi9gfGkep-IoFYPHMhHz6w2Kxf0u8TZ-wNeQOLPwc8emLNKOMqBU-5dJXeaY5-8wQ1CvZycWHbEilvHgN6Ug");
@@ -128,7 +128,7 @@ public class JWTTest {
 
   @Test
   public void test_RS256() throws Exception {
-    JWT jwt = new JWT().subject("123456789");
+    JWT jwt = new JWT().setSubject("123456789");
     Signer signer = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.kRXJkOHC98D0LCT2oPg5fTmQJDFXkMRQJopbt7QM6prmQDHwjJL_xO-_EXRXnbvf5NLORto45By3XNn2ZzWmY3pAOxj46MlQ5elhROx2S-EnHZNLfQhoG8ZXPZ54q-Obz_6K7ZSlkAQ8jmeZUO3Ryi8jRlHQ2PT4LbBtLpaf982SGJfeTyUMw1LbvowZUTZSF-E6JARaokmmx8M2GeLuKcFhU-YsBTXUarKp0IJCy3jpMQ2zW_HGjyVWH8WwSIbSdpBn7ztoQEJYO-R5H3qVaAz2BsTuGLRxoyIu1iy2-QcDp5uTufmX1roXM8ciQMpcfwKGiyNpKVIZm-lF8aROXRL4kk4rqp6KUzJuOPljPXRU--xKSua-DeR0BEerKzI9hbwIMWiblCslAciNminoSc9G7pUyVwV5Z5IT8CGJkVgoyVGELeBmYCDy7LHwXrr0poc0hPbE3mJXhzolga4BB84nCg2Hb9tCNiHU8F-rKgZWCONaSSIdhQ49x8OiPafFh2DJBEBe5Xbm6xdCfh3KVG0qe4XL18R5s98aIP9UIC4i62UEgPy6W7Fr7QgUxpXrjRCERBV3MiNu4L8NNJb3oZleq5lQi72EfdS-Bt8ZUOVInIcAvSmu-3i8jB_2sF38XUXdl8gkW8k_b9dJkzDcivCFehvSqGmm3vBm5X4bNmk");
@@ -136,7 +136,7 @@ public class JWTTest {
 
   @Test
   public void test_RS384() throws Exception {
-    JWT jwt = new JWT().subject("123456789");
+    JWT jwt = new JWT().setSubject("123456789");
     Signer signer = RSASigner.newSHA384Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
 
     String encodedJWT = JWT.getEncoder().encode(jwt, signer);
@@ -147,7 +147,7 @@ public class JWTTest {
 
   @Test
   public void test_RS512() throws Exception {
-    JWT jwt = new JWT().subject("123456789");
+    JWT jwt = new JWT().setSubject("123456789");
     Signer signer = RSASigner.newSHA512Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.ei28WNoJdUpMlLnHr78HiTnnuKwSRLYcOpgUC3daVInT5RAc0kk2Ipx16Z-bHL_eFLSYgF3TSKdymFpNf8cnEu5T6rH0azYSZLrPmVCetDxjo-ixXK9asPOF3JuIbDjN7ow3K-CMbMCWzWp04ZAh-DNecYEd3HiGgooPVGA4HuVXZFHH8XfQ9TD-64ppBQTWgW32vkna8ILKyIXdwWXSEfCZYfLzLZnilJrz820wZJ5JMXimv2au0OwwRobUMLEBUM4iuEPXLf5wFJU6LcU0XMuovavfIXKDpvP9Yfz6UplMlFvIr9y72xExfaNt32vwneAP-Fpg2x9wYvR0W8LhXKZaFRfcYwhbj17GCAbpx34hjiqnwyFStn5Qx_QHz_Y7ck-ZXB2MGUkiYGj9y_8bQNx-LIaTQUX6sONTNdVVCfnOnMHFqVbupGho24K7885-8BxCRojvA0ggneF6dsKCQvAt2rsVRso0TrCVxwYItb9tRsyhCbWou-zh_08JlYGVXPiGY3RRQDfxCc9RHQUflWRS9CBcPtoaco4mFKZSM-9e_xoYx__DEzM3UjaI4jReLM-IARwlVPoHJa2Vcb5wngZTaxGf2ToMq7R_8KecZymb3OaA2X1e8GS2300ySwsXbOz0sJv2a7_JUncSEBPSsb2vMMurxSJ4E3RTAc4s3aU");
@@ -173,18 +173,18 @@ public class JWTTest {
   @Test
   public void test_complexPayload() throws Exception {
     JWT expectedJWT = new JWT()
-        .audience(Arrays.asList("www.acme.com", "www.vandelayindustries.com"))
-        .expiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS))
-        .issuedAt(ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS))
-        .issuer("www.inversoft.com")
-        .notBefore(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(5).truncatedTo(ChronoUnit.SECONDS))
-        .uniqueId(UUID.randomUUID().toString())
-        .subject("123456789")
-        .claim("foo", "bar")
-        .claim("timestamp", 1476062602926L)
-        .claim("meaningOfLife", 42)
-        .claim("bar", Arrays.asList("bing", "bam", "boo"))
-        .claim("www.inversoft.com/claims/is_admin", true);
+        .setAudience(Arrays.asList("www.acme.com", "www.vandelayindustries.com"))
+        .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS))
+        .setIssuedAt(ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS))
+        .setIssuer("www.inversoft.com")
+        .setNotBefore(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(5).truncatedTo(ChronoUnit.SECONDS))
+        .setUniqueId(UUID.randomUUID().toString())
+        .setSubject("123456789")
+        .addClaim("foo", "bar")
+        .addClaim("timestamp", 1476062602926L)
+        .addClaim("meaningOfLife", 42)
+        .addClaim("bar", Arrays.asList("bing", "bam", "boo"))
+        .addClaim("www.inversoft.com/claims/is_admin", true);
 
     Signer signer = HMACSigner.newSHA256Signer("secret");
     Verifier verifier = HMACVerifier.newVerifier("secret");
@@ -209,7 +209,7 @@ public class JWTTest {
   @Test
   public void test_encodedJwtWithSignatureRemoved() throws Exception {
     // Sign a JWT and then attempt to verify it using None.
-    JWT jwt = new JWT().subject("art");
+    JWT jwt = new JWT().setSubject("art");
     String encodedJWT = JWT.getEncoder().encode(jwt, HMACSigner.newSHA256Signer("secret"));
 
     String hackedJWT = encodedJWT.substring(0, encodedJWT.lastIndexOf("."));
@@ -225,7 +225,7 @@ public class JWTTest {
   @Test
   public void test_expiredThrows() throws Exception {
     JWT expectedJWT = new JWT()
-        .expiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1).truncatedTo(ChronoUnit.SECONDS));
+        .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1).truncatedTo(ChronoUnit.SECONDS));
 
     Signer signer = HMACSigner.newSHA256Signer("secret");
     Verifier verifier = HMACVerifier.newVerifier("secret");
@@ -240,7 +240,7 @@ public class JWTTest {
 
   @Test
   public void test_multipleSignersAndVerifiers() throws Exception {
-    JWT jwt = new JWT().subject("123456789");
+    JWT jwt = new JWT().setSubject("123456789");
 
     // Three separate signers
     Signer signer1 = HMACSigner.newSHA512Signer("secret1");
@@ -273,7 +273,7 @@ public class JWTTest {
   @Test
   public void test_noVerification() throws Exception {
     // Sign a JWT and then attempt to verify it using None.
-    JWT jwt = new JWT().subject("art");
+    JWT jwt = new JWT().setSubject("art");
     String encodedJWT = JWT.getEncoder().encode(jwt, HMACSigner.newSHA256Signer("secret"));
 
     try {
@@ -286,7 +286,7 @@ public class JWTTest {
 
   @Test
   public void test_none() throws Exception {
-    JWT jwt = new JWT().subject("123456789");
+    JWT jwt = new JWT().setSubject("123456789");
     Signer signer = new UnsecuredSigner();
 
     String encodedJWT = JWT.getEncoder().encode(jwt, signer);
@@ -299,10 +299,10 @@ public class JWTTest {
   @Test
   public void test_notBeforeThrows() throws Exception {
     JWT expectedJWT = new JWT()
-        .expiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS))
-        .issuedAt(ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS))
-        .issuer("www.inversoft.com")
-        .notBefore(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).truncatedTo(ChronoUnit.SECONDS));
+        .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS))
+        .setIssuedAt(ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS))
+        .setIssuer("www.inversoft.com")
+        .setNotBefore(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).truncatedTo(ChronoUnit.SECONDS));
 
     Signer signer = HMACSigner.newSHA256Signer("secret");
     Verifier verifier = HMACVerifier.newVerifier("secret");
@@ -318,7 +318,7 @@ public class JWTTest {
   @Test
   public void test_zonedDateTime() throws Exception {
     ZonedDateTime expiration = ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS);
-    JWT expectedJWT = new JWT().expiration(expiration);
+    JWT expectedJWT = new JWT().setExpiration(expiration);
 
     Signer signer = HMACSigner.newSHA256Signer("secret");
     Verifier verifier = HMACVerifier.newVerifier("secret");

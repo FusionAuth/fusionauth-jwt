@@ -6,10 +6,10 @@
 ```java
 Signer signer = HMACSigner.newSHA256Signer("too many secrets");
 
-JWT jwt = new JWT().issuer("www.acme.com")
-                   .issuedAt(ZonedDateTime.now(ZoneOffset.UTC))
-                   .subject("f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3")
-                   .expiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60));
+JWT jwt = new JWT().setIssuer("www.acme.com")
+                   .setIssuedAt(ZonedDateTime.now(ZoneOffset.UTC))
+                   .setSubject("f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3")
+                   .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60));
                        
 String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 
@@ -32,10 +32,10 @@ assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 ```java
 Signer signer = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
 
-JWT jwt = new JWT().issuer("www.acme.com")
-                   .issuedAt(ZonedDateTime.now(ZoneOffset.UTC))
-                   .subject("f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3")
-                   .expiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60));
+JWT jwt = new JWT().setIssuer("www.acme.com")
+                   .setIssuedAt(ZonedDateTime.now(ZoneOffset.UTC))
+                   .setSubject("f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3")
+                   .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60));
         
 String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 ```

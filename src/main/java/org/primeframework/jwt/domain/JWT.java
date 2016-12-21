@@ -134,7 +134,7 @@ public class JWT {
     return claims;
   }
 
-  public JWT audience(Object audience) {
+  public JWT setAudience(Object audience) {
     this.audience = audience;
     return this;
   }
@@ -148,8 +148,10 @@ public class JWT {
    * @return this.
    */
   @JsonAnySetter
-  public JWT claim(String name, Object value) {
-    claims.put(name, value);
+  public JWT addClaim(String name, Object value) {
+    if (value != null) {
+      claims.put(name, value);
+    }
     return this;
   }
 
@@ -168,7 +170,7 @@ public class JWT {
         Objects.equals(uniqueId, jwt.uniqueId);
   }
 
-  public JWT expiration(ZonedDateTime expiration) {
+  public JWT setExpiration(ZonedDateTime expiration) {
     this.expiration = expiration;
     return this;
   }
@@ -256,27 +258,27 @@ public class JWT {
     return notBefore != null && notBefore.isAfter(ZonedDateTime.now(ZoneOffset.UTC));
   }
 
-  public JWT issuedAt(ZonedDateTime issuedAt) {
+  public JWT setIssuedAt(ZonedDateTime issuedAt) {
     this.issuedAt = issuedAt;
     return this;
   }
 
-  public JWT issuer(String issuer) {
+  public JWT setIssuer(String issuer) {
     this.issuer = issuer;
     return this;
   }
 
-  public JWT notBefore(ZonedDateTime notBefore) {
+  public JWT setNotBefore(ZonedDateTime notBefore) {
     this.notBefore = notBefore;
     return this;
   }
 
-  public JWT subject(String subject) {
+  public JWT setSubject(String subject) {
     this.subject = subject;
     return this;
   }
 
-  public JWT uniqueId(String uniqueId) {
+  public JWT setUniqueId(String uniqueId) {
     this.uniqueId = uniqueId;
     return this;
   }

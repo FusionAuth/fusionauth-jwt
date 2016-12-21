@@ -1,8 +1,19 @@
 Prime JWT Changes
 
+Changes in 0.1.6
+
+ * Renamed JWT.audience --> JWT.setAudience
+ * Renamed JWT.claim --> JWT.addClaim
+ * Renamed JWT.expiration --> JWT.setExpiration
+ * Renamed JWT.issuedAt --> JWT.setIssuedAt
+ * Renamed JWT.issuer --> JWT.setIssuer
+ * Renamed JWT.notBefore --> JWT.setNotBefore
+ * Renamed JWT.subject --> JWT.setSubject
+ * Renamed JWT.uniqueId --> JWT.setUniqueId
+
 Changes in 0.1.5
 
- * Pending release
+ * Removed RefreshToken domain object.
 
 Changes in 0.1.4
 
