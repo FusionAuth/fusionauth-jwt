@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <option name="DEFAULT_COMPILER" value="Javac" />
-    <resourceExtensions />
     <wildcardResourcePatterns>
       <entry name="!?*.java" />
       <entry name="!?*.form" />
@@ -13,11 +11,6 @@
       <entry name="!?*.kt" />
       <entry name="!?*.clj" />
     </wildcardResourcePatterns>
-    <annotationProcessing>
-      <profile default="true" name="Default" enabled="false">
-        <processorPath useClasspath="true" />
-      </profile>
-    </annotationProcessing>
   </component>
   <component name="CopyrightManager" default="">
     <copyright>
@@ -29,7 +22,6 @@
     <file url="PROJECT" charset="UTF-8" />
   </component>
   <component name="EntryPointsManager">
-    <entry_points version="2.0" />
     <list size="2">
       <item index="0" class="java.lang.String" itemvalue="com.fasterxml.jackson.annotation.JsonAnyGetter" />
       <item index="1" class="java.lang.String" itemvalue="com.fasterxml.jackson.annotation.JsonProperty" />
@@ -49,8 +41,6 @@
         <option name="SUGGEST_PRIVATE_FOR_INNERS" value="false" />
       </inspection_tool>
     </profile>
-    <option name="PROJECT_PROFILE" value="Project Default" />
-    <option name="USE_PROJECT_PROFILE" value="true" />
     <version value="1.0" />
   </component>
   <component name="MavenImportPreferences">
@@ -533,7 +523,7 @@
       <module fileurl="file://$PROJECT_DIR$/prime-jwt.iml" filepath="$PROJECT_DIR$/prime-jwt.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="Java 1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="PropertiesComponent">

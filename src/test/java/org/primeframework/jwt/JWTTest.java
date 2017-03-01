@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2016-2017, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -155,19 +155,10 @@ public class JWTTest {
 
   @Test
   public void test_RSA_1024Key() throws Exception {
-    try {
-      RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_1024.pem"))));
-      fail("Failed to validate minimum key length.");
-    } catch (InvalidKeyLengthException ignore) {
-      // Expected Exception
-    }
-
-    try {
-      RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_1024.pem"))));
-      fail("Failed to validate minimum key length.");
-    } catch (InvalidKeyLengthException ignore) {
-      // Expected Exception
-    }
+    expectException(InvalidKeyLengthException.class, ()
+        -> RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_1024.pem")))));
+    expectException(InvalidKeyLengthException.class, ()
+        -> RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_1024.pem")))));
   }
 
   @Test
@@ -214,12 +205,8 @@ public class JWTTest {
 
     String hackedJWT = encodedJWT.substring(0, encodedJWT.lastIndexOf("."));
 
-    try {
-      JWT.getDecoder().decode(hackedJWT, HMACVerifier.newVerifier("secret"));
-      fail("Expected the decoder to fail to decode an unsecured JWT when provided with a verifier.");
-    } catch (InvalidJWTException e) {
-      // expected
-    }
+    expectException(InvalidJWTException.class, ()
+        -> JWT.getDecoder().decode(hackedJWT, HMACVerifier.newVerifier("secret")));
   }
 
   @Test
@@ -231,11 +218,9 @@ public class JWTTest {
     Verifier verifier = HMACVerifier.newVerifier("secret");
 
     String encodedJWT = JWT.getEncoder().encode(expectedJWT, signer);
-    try {
-      JWT.getDecoder().decode(encodedJWT, verifier);
-      fail("Failed to validate expiration.");
-    } catch (JWTExpiredException ignore) {
-    }
+
+    expectException(JWTExpiredException.class, ()
+        -> JWT.getDecoder().decode(encodedJWT, verifier));
   }
 
   @Test
@@ -276,12 +261,8 @@ public class JWTTest {
     JWT jwt = new JWT().setSubject("art");
     String encodedJWT = JWT.getEncoder().encode(jwt, HMACSigner.newSHA256Signer("secret"));
 
-    try {
-      JWT.getDecoder().decode(encodedJWT);
-      fail("Expected the decoder to fail to decode an secured JWT when no verifier was provided.");
-    } catch (MissingVerifierException e) {
-      // expected
-    }
+    expectException(MissingVerifierException.class, ()
+        -> JWT.getDecoder().decode(encodedJWT));
   }
 
   @Test
@@ -308,11 +289,9 @@ public class JWTTest {
     Verifier verifier = HMACVerifier.newVerifier("secret");
 
     String encodedJWT = JWT.getEncoder().encode(expectedJWT, signer);
-    try {
-      JWT.getDecoder().decode(encodedJWT, verifier);
-      fail("Failed to validate notBefore.");
-    } catch (JWTUnavailableForProcessingException ignore) {
-    }
+
+    expectException(JWTUnavailableForProcessingException.class, ()
+        -> JWT.getDecoder().decode(encodedJWT, verifier));
   }
 
   @Test
@@ -327,5 +306,20 @@ public class JWTTest {
     JWT actualJWT1 = JWT.getDecoder().decode(encodedJWT1, verifier);
 
     assertEquals(actualJWT1.expiration, expectedJWT.expiration);
+  }
+
+  private void expectException(Class<? extends Exception> expected, ThrowingRunnable runnable) {
+    try {
+      runnable.run();
+      fail("Expected [" + expected.getCanonicalName() + "] to be thrown. No Exception was thrown.");
+    } catch (Exception e) {
+      if (!e.getClass().isAssignableFrom(expected)) {
+        fail("Expected [" + expected.getCanonicalName() + "] to be thrown. Caught this instead [" + e.getClass().getCanonicalName() + "]");
+      }
+    }
+  }
+
+  private interface ThrowingRunnable {
+    void run() throws Exception;
   }
 }
