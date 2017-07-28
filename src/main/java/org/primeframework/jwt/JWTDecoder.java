@@ -48,7 +48,7 @@ public class JWTDecoder {
   /**
    * Decode the JWT using one of they provided verifiers. One more verifiers may be provided, the first verifier found
    * supporting the algorithm reported by the JWT header will be utilized.
-   * <p/>
+   * <p>
    * A JWT that is expired or not yet valid will not be decoded, instead a {@link JWTExpiredException} or {@link
    * JWTUnavailableForProcessingException} exception will be thrown respectively.
    *
@@ -83,7 +83,7 @@ public class JWTDecoder {
   /**
    * Decode the JWT using one of they provided verifiers. A JWT header value named <code>kid</code> is expected to
    * contain the key to lookup the correct verifier.
-   * <p/>
+   * <p>
    * A JWT that is expired or not yet valid will not be decoded, instead a {@link JWTExpiredException} or {@link
    * JWTUnavailableForProcessingException} exception will be thrown respectively.
    *
@@ -99,7 +99,7 @@ public class JWTDecoder {
    * Decode the JWT using one of they provided verifiers. The key used to lookup the correct verifier is provided by the
    * <code>keyFunction</code>. The key function is provided the JWT header and is expected to return a string key to
    * look up the correct verifier.
-   * <p/>
+   * <p>
    * A JWT that is expired or not yet valid will not be decoded, instead a {@link JWTExpiredException} or {@link
    * JWTUnavailableForProcessingException} exception will be thrown respectively.
    *
