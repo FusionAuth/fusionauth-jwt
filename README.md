@@ -57,12 +57,16 @@ assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 
 HS256, HS384, HS512, RS256, RS384, RS512, none (Unsecured)
 
-## Downloading
-Released versions can be downloaded from the Savant Repository.
- 
- * http://savant.inversoft.org/org/primeframework/prime-jwt/
+ # Maven 
+ ```xml
+<dependency>
+  <groupId>com.inversoft</groupId>
+  <artifactId>prime-jwt</artifactId>
+  <version>0.2.1</version>
+</dependency>
+ ```
 
-## Building
+## Building with Savant
 
 **Note:** This project uses the Savant build tool. To compile using using Savant, follow these instructions:
 
