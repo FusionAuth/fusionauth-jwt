@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2016-2017, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package org.primeframework.jwt.rsa;
 
 import sun.security.util.DerInputStream;
 import sun.security.util.DerValue;
+import sun.security.x509.X509CertImpl;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
@@ -27,6 +29,7 @@ import java.security.Key;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.CertificateFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.KeySpec;
@@ -36,36 +39,23 @@ import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
+import static org.primeframework.jwt.rsa.PEMUtils.CERTIFICATE_PREFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.CERTIFICATE_SUFFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.PKCS_1_PRIVATE_KEY_PREFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.PKCS_1_PRIVATE_KEY_SUFFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.PKCS_1_PUBLIC_KEY_PREFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.PKCS_1_PUBLIC_KEY_SUFFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.PKCS_8_PRIVATE_KEY_PREFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.PKCS_8_PRIVATE_KEY_SUFFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.PKCS_8_X509_PUBLIC_KEY_PREFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.PKCS_8_X509_PUBLIC_KEY_SUFFIX;
+
 /**
  * RSA Key Helper.
  *
  * @author Daniel DeGroff
  */
 public class RSAUtils {
-  // RSA Private Key file (PKCS#1) End Tag
-  private static final String PKCS_1_PRIVATE_KEY_SUFFIX = "-----END RSA PRIVATE KEY-----";
-
-  // RSA Private Key file (PKCS#1)  Start Tag
-  private static final String PKCS_1_PRIVATE_KEY_PREFIX = "-----BEGIN RSA PRIVATE KEY-----";
-
-  // RSA Private Key file (PKCS#8)  Start Tag
-  private static final String PKCS_8_PRIVATE_KEY_PREFIX = "-----BEGIN PRIVATE KEY-----";
-
-  // RSA Private Key file (PKCS#8)  Start Tag
-  private static final String PKCS_8_PRIVATE_KEY_SUFFIX = "-----END PRIVATE KEY-----";
-
-  // RSA Public Key file (PKCS#1)  Start Tag
-  private static final String PKCS_1_PUBLIC_KEY_PREFIX = "-----BEGIN RSA PUBLIC KEY-----";
-
-  // RSA Public Key file (PKCS#1)  Start Tag
-  private static final String PKCS_1_PUBLIC_KEY_SUFFIX = "-----END RSA PUBLIC KEY-----";
-
-  // RSA Public Key file (X.509)  Start Tag
-  private static final String PKCS_8_X509_PUBLIC_KEY_PREFIX = "-----BEGIN PUBLIC KEY-----";
-
-  // RSA Public Key file (X.509)  Start Tag
-  private static final String PKCS_8_X509_PUBLIC_KEY_SUFFIX = "-----END PUBLIC KEY-----";
-
   /**
    * Return the private key in a PEM formatted String.
    *
@@ -109,10 +99,35 @@ public class RSAUtils {
    */
   public static RSAPublicKey getPublicKeyFromPEM(String publicKey) {
     try {
-      KeySpec keySpec = getPublicKeySpec(publicKey);
-      return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(keySpec);
+      return extractPublicKeyFromPEM(publicKey);
     } catch (GeneralSecurityException | IOException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  private static RSAPublicKey extractPublicKeyFromPEM(String publicKeyString) throws IOException, GeneralSecurityException {
+    if (publicKeyString.startsWith(PKCS_1_PUBLIC_KEY_PREFIX)) {
+      byte[] bytes = getKeyBytes(publicKeyString, PKCS_1_PUBLIC_KEY_PREFIX, PKCS_1_PUBLIC_KEY_SUFFIX);
+      DerInputStream derReader = new DerInputStream(bytes);
+      DerValue[] seq = derReader.getSequence(0);
+
+      if (seq.length != 2) {
+        throw new GeneralSecurityException("Could not parse a PKCS1 private key.");
+      }
+
+      BigInteger modulus = seq[0].getBigInteger();
+      BigInteger publicExponent = seq[1].getBigInteger();
+      return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
+    } else if (publicKeyString.startsWith(PKCS_8_X509_PUBLIC_KEY_PREFIX)) {
+      byte[] bytes = getKeyBytes(publicKeyString, PKCS_8_X509_PUBLIC_KEY_PREFIX, PKCS_8_X509_PUBLIC_KEY_SUFFIX);
+      return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(bytes));
+    } else if (publicKeyString.startsWith(CERTIFICATE_PREFIX)) {
+      byte[] bytes = getKeyBytes(publicKeyString, CERTIFICATE_PREFIX, CERTIFICATE_SUFFIX);
+      CertificateFactory factory = CertificateFactory.getInstance("X.509");
+      X509CertImpl certificate = (X509CertImpl) factory.generateCertificate(new ByteArrayInputStream(bytes));
+      return (RSAPublicKey) certificate.getPublicKey();
+    } else {
+      throw new InvalidParameterException("Unexpected Public Key Format");
     }
   }
 
@@ -158,28 +173,6 @@ public class RSAUtils {
     }
 
     return sb.toString();
-  }
-
-  private static KeySpec getPublicKeySpec(String publicKey) throws IOException, GeneralSecurityException {
-    if (publicKey.startsWith(PKCS_1_PUBLIC_KEY_PREFIX)) {
-      byte[] bytes = getKeyBytes(publicKey, PKCS_1_PUBLIC_KEY_PREFIX, PKCS_1_PUBLIC_KEY_SUFFIX);
-      DerInputStream derReader = new DerInputStream(bytes);
-      DerValue[] seq = derReader.getSequence(0);
-
-      if (seq.length != 2) {
-        throw new GeneralSecurityException("Could not parse a PKCS1 private key.");
-      }
-
-      BigInteger modulus = seq[0].getBigInteger();
-      BigInteger publicExponent = seq[1].getBigInteger();
-
-      return new RSAPublicKeySpec(modulus, publicExponent);
-    } else if (publicKey.startsWith(PKCS_8_X509_PUBLIC_KEY_PREFIX)) {
-      byte[] bytes = getKeyBytes(publicKey, PKCS_8_X509_PUBLIC_KEY_PREFIX, PKCS_8_X509_PUBLIC_KEY_SUFFIX);
-      return new X509EncodedKeySpec(bytes);
-    } else {
-      throw new InvalidParameterException("Unexpected Private Key Format");
-    }
   }
 
   private static KeySpec getRSAPrivateKeySpec(String privateKey) throws IOException, GeneralSecurityException {
