@@ -106,7 +106,7 @@ public class RSAUtils {
   }
 
   private static RSAPublicKey extractPublicKeyFromPEM(String publicKeyString) throws IOException, GeneralSecurityException {
-    if (publicKeyString.startsWith(PKCS_1_PUBLIC_KEY_PREFIX)) {
+    if (publicKeyString.contains(PKCS_1_PUBLIC_KEY_PREFIX)) {
       byte[] bytes = getKeyBytes(publicKeyString, PKCS_1_PUBLIC_KEY_PREFIX, PKCS_1_PUBLIC_KEY_SUFFIX);
       DerInputStream derReader = new DerInputStream(bytes);
       DerValue[] seq = derReader.getSequence(0);
@@ -118,10 +118,10 @@ public class RSAUtils {
       BigInteger modulus = seq[0].getBigInteger();
       BigInteger publicExponent = seq[1].getBigInteger();
       return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
-    } else if (publicKeyString.startsWith(PKCS_8_X509_PUBLIC_KEY_PREFIX)) {
+    } else if (publicKeyString.contains(PKCS_8_X509_PUBLIC_KEY_PREFIX)) {
       byte[] bytes = getKeyBytes(publicKeyString, PKCS_8_X509_PUBLIC_KEY_PREFIX, PKCS_8_X509_PUBLIC_KEY_SUFFIX);
       return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(bytes));
-    } else if (publicKeyString.startsWith(CERTIFICATE_PREFIX)) {
+    } else if (publicKeyString.contains(CERTIFICATE_PREFIX)) {
       byte[] bytes = getKeyBytes(publicKeyString, CERTIFICATE_PREFIX, CERTIFICATE_SUFFIX);
       CertificateFactory factory = CertificateFactory.getInstance("X.509");
       X509CertImpl certificate = (X509CertImpl) factory.generateCertificate(new ByteArrayInputStream(bytes));
@@ -176,7 +176,7 @@ public class RSAUtils {
   }
 
   private static KeySpec getRSAPrivateKeySpec(String privateKey) throws IOException, GeneralSecurityException {
-    if (privateKey.startsWith(PKCS_1_PRIVATE_KEY_PREFIX)) {
+    if (privateKey.contains(PKCS_1_PRIVATE_KEY_PREFIX)) {
       byte[] bytes = getKeyBytes(privateKey, PKCS_1_PRIVATE_KEY_PREFIX, PKCS_1_PRIVATE_KEY_SUFFIX);
       DerInputStream derReader = new DerInputStream(bytes);
       DerValue[] seq = derReader.getSequence(0);
@@ -195,7 +195,7 @@ public class RSAUtils {
       BigInteger primeExponentQ = seq[7].getBigInteger();
       BigInteger crtCoefficient = seq[8].getBigInteger();
       return new RSAPrivateCrtKeySpec(modulus, publicExponent, privateExponent, primeP, primeQ, primeExponentP, primeExponentQ, crtCoefficient);
-    } else if (privateKey.startsWith(PKCS_8_PRIVATE_KEY_PREFIX)) {
+    } else if (privateKey.contains(PKCS_8_PRIVATE_KEY_PREFIX)) {
       byte[] bytes = getKeyBytes(privateKey, PKCS_8_PRIVATE_KEY_PREFIX, PKCS_8_PRIVATE_KEY_SUFFIX);
       return new PKCS8EncodedKeySpec(bytes);
     } else {

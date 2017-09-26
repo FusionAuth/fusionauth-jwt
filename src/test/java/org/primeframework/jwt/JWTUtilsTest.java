@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2016-2017, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.primeframework.jwt;
 
 import org.primeframework.jwt.domain.RSAKeyPair;
+import org.primeframework.jwt.rsa.PEMUtils;
 import org.primeframework.jwt.rsa.RSAUtils;
 import org.testng.annotations.Test;
 
@@ -50,8 +51,10 @@ public class JWTUtilsTest {
     RSAPublicKey publicKey2048 = RSAUtils.getPublicKeyFromPEM(keyPair2048.publicKey);
     assertEquals(privateKey2048.getModulus().bitLength(), 2048);
     assertEquals(publicKey2048.getModulus().bitLength(), 2048);
-    assertTrue(keyPair2048.privateKey.contains("BEGIN PRIVATE KEY"));
-    assertTrue(keyPair2048.publicKey.contains("BEGIN PUBLIC KEY"));
+    assertPrefix(keyPair2048.privateKey, PEMUtils.PKCS_8_PRIVATE_KEY_PREFIX);
+    assertSuffix(keyPair2048.privateKey, PEMUtils.PKCS_8_PRIVATE_KEY_SUFFIX);
+    assertPrefix(keyPair2048.publicKey, PEMUtils.PKCS_8_X509_PUBLIC_KEY_PREFIX);
+    assertSuffix(keyPair2048.publicKey, PEMUtils.PKCS_8_X509_PUBLIC_KEY_SUFFIX);
 
     // Now go backwards from the key to a PEM and assert they come out the same.
     String actualPrivateKey2048 = RSAUtils.getPEMFromPrivateKey(privateKey2048);
@@ -64,15 +67,28 @@ public class JWTUtilsTest {
     RSAPublicKey publicKey3072 = RSAUtils.getPublicKeyFromPEM(keyPair3072.publicKey);
     assertEquals(privateKey3072.getModulus().bitLength(), 3072);
     assertEquals(publicKey3072.getModulus().bitLength(), 3072);
-    assertTrue(keyPair3072.privateKey.contains("BEGIN PRIVATE KEY"));
-    assertTrue(keyPair3072.publicKey.contains("BEGIN PUBLIC KEY"));
+    assertPrefix(keyPair3072.privateKey, PEMUtils.PKCS_8_PRIVATE_KEY_PREFIX);
+    assertSuffix(keyPair3072.privateKey, PEMUtils.PKCS_8_PRIVATE_KEY_SUFFIX);
+    assertPrefix(keyPair3072.publicKey, PEMUtils.PKCS_8_X509_PUBLIC_KEY_PREFIX);
+    assertSuffix(keyPair3072.publicKey, PEMUtils.PKCS_8_X509_PUBLIC_KEY_SUFFIX);
 
     RSAKeyPair keyPair4096 = JWTUtils.generate4096RSAKeyPair();
     RSAPrivateKey privateKey4096 = RSAUtils.getPrivateKeyFromPEM(keyPair4096.privateKey);
     RSAPublicKey publicKey4096 = RSAUtils.getPublicKeyFromPEM(keyPair4096.publicKey);
     assertEquals(privateKey4096.getModulus().bitLength(), 4096);
     assertEquals(publicKey4096.getModulus().bitLength(), 4096);
-    assertTrue(keyPair4096.privateKey.contains("BEGIN PRIVATE KEY"));
-    assertTrue(keyPair4096.publicKey.contains("BEGIN PUBLIC KEY"));
+    assertPrefix(keyPair4096.privateKey, PEMUtils.PKCS_8_PRIVATE_KEY_PREFIX);
+    assertSuffix(keyPair4096.privateKey, PEMUtils.PKCS_8_PRIVATE_KEY_SUFFIX);
+    assertPrefix(keyPair4096.publicKey, PEMUtils.PKCS_8_X509_PUBLIC_KEY_PREFIX);
+    assertSuffix(keyPair4096.publicKey, PEMUtils.PKCS_8_X509_PUBLIC_KEY_SUFFIX);
+  }
+
+  private void assertPrefix(String key, String prefix) {
+    assertTrue(key.startsWith(prefix));
+  }
+
+  private void assertSuffix(String key, String suffix) {
+    String trimmed = key.trim();
+    assertTrue(trimmed.endsWith(suffix));
   }
 }

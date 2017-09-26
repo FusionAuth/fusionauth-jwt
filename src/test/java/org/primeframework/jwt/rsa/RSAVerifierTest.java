@@ -16,13 +16,13 @@
 
 package org.primeframework.jwt.rsa;
 
+import org.primeframework.jwt.BaseTest;
 import org.primeframework.jwt.Verifier;
 import org.primeframework.jwt.domain.Algorithm;
 import org.primeframework.jwt.domain.InvalidKeyLengthException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.InvalidParameterException;
@@ -35,22 +35,29 @@ import static org.testng.Assert.assertTrue;
 /**
  * @author Daniel DeGroff
  */
-public class RSAVerifierTest {
-
+public class RSAVerifierTest extends BaseTest {
   @Test
-  public void test_pem_parsing() throws Exception {
-    Arrays.asList(
-        "rsa_public_certificate_2048.pem",
-        "rsa_public_key_2048.pem",
-        "rsa_public_key_3072.pem",
-        "rsa_public_key_4096.pem")
-        .forEach(fileName -> assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName))));
+  public void test_private_pem_parsing() throws Exception {
+    RSASigner.newSHA256Signer(readFile("rsa_private_key_2048.pem"));
+    RSASigner.newSHA256Signer(readFile("rsa_private_key_2048_with_meta.pem"));
+    RSASigner.newSHA256Signer(readFile("rsa_private_key_3072.pem"));
+    RSASigner.newSHA256Signer(readFile("rsa_private_key_4096.pem"));
   }
 
   @Test
-  public void test_private_key_parsing() throws Exception {
+  public void test_public_pem_parsing() throws Exception {
+    Arrays.asList(
+        "rsa_public_certificate_2048.pem",
+        "rsa_public_key_2048.pem",
+        "rsa_public_key_2048_with_meta.pem",
+        "rsa_public_key_3072.pem",
+        "rsa_public_key_4096.pem")
+        .forEach(fileName -> assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName))));
+
+    // Public key parsing fails with private keys
     Arrays.asList(
         "rsa_private_key_2048.pem",
+        "rsa_private_key_2048_with_meta.pem",
         "rsa_private_key_3072.pem",
         "rsa_private_key_4096.pem")
         .forEach(this::assertFailed);
@@ -72,9 +79,9 @@ public class RSAVerifierTest {
       RSAVerifier.newVerifier(readFile(fileName));
       Assert.fail("Expected [InvalidParameterException] exception");
     } catch (InvalidParameterException e) {
-      assertEquals(e.getMessage(), "Unexpected Public Key Format");
+      assertEquals(e.getMessage(), "Unexpected Public Key Format", "[" + fileName + "]");
     } catch (Exception e) {
-      Assert.fail("Unexpected exception", e);
+      Assert.fail("Unexpected exception when parsing file [" + fileName + "]", e);
     }
   }
 
@@ -85,14 +92,5 @@ public class RSAVerifierTest {
     assertFalse(verifier.canVerify(Algorithm.HS256));
     assertFalse(verifier.canVerify(Algorithm.HS384));
     assertFalse(verifier.canVerify(Algorithm.HS512));
-  }
-
-  private String readFile(String fileName) {
-    try {
-      return new String(Files.readAllBytes(Paths.get("src/test/resources/" + fileName)));
-    } catch (IOException e) {
-      Assert.fail("Unexpected file I/O exception.", e);
-      return null;
-    }
   }
 }
