@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2016-2017, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,8 @@ public class RSASigner implements Signer {
   private RSAPrivateKey privateKey;
 
   private RSASigner(Algorithm algorithm, String privateKey) {
+    Objects.requireNonNull(algorithm);
+    Objects.requireNonNull(privateKey);
     this.algorithm = algorithm;
     this.privateKey = RSAUtils.getPrivateKeyFromPEM(privateKey);
 
@@ -84,9 +86,6 @@ public class RSASigner implements Signer {
   }
 
   public byte[] sign(String message) {
-    Objects.requireNonNull(algorithm);
-    Objects.requireNonNull(privateKey);
-
     try {
       Signature signature = Signature.getInstance(algorithm.getName());
       signature.initSign(privateKey);
