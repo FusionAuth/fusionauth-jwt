@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2016-2017, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,9 +45,8 @@ public class JWT {
   /**
    * Registered Claim <code>aud</code> as defined by RFC 7519 Section 4.1.3. Use of this claim is OPTIONAL.
    * <p>
-   * The subject claim identifies the principal that is the subject of the JWT. This may be an array of
-   * strings or a single string, in either case if the string value contains a <code>:</code> it must be
-   * a URI.
+   * The audience claim identifies the recipients that the JWT is intended for. This may be an array of strings or a
+   * single string, in either case if the string value contains a <code>:</code> it must be a URI.
    */
   @JsonProperty("aud")
   public Object audience;
@@ -127,21 +126,8 @@ public class JWT {
   }
 
   /**
-   * Special getter used to flatten the claims into top level properties. Necessary to correctly serialize this object.
-   */
-  @JsonAnyGetter
-  public Map<String, Object> anyGetter() {
-    return claims;
-  }
-
-  public JWT setAudience(Object audience) {
-    this.audience = audience;
-    return this;
-  }
-
-  /**
-   * Add a claim to this JWT. This claim can be public or private, it is up to the caller to properly name the
-   * claim as to avoid collision.
+   * Add a claim to this JWT. This claim can be public or private, it is up to the caller to properly name the claim as
+   * to avoid collision.
    *
    * @param name  The name of the JWT claim.
    * @param value The value of the JWT claim. This value is an object and is expected to properly serialize.
@@ -153,6 +139,14 @@ public class JWT {
       claims.put(name, value);
     }
     return this;
+  }
+
+  /**
+   * Special getter used to flatten the claims into top level properties. Necessary to correctly serialize this object.
+   */
+  @JsonAnyGetter
+  public Map<String, Object> anyGetter() {
+    return claims;
   }
 
   @Override
@@ -168,11 +162,6 @@ public class JWT {
         Objects.equals(notBefore, jwt.notBefore) &&
         Objects.equals(subject, jwt.subject) &&
         Objects.equals(uniqueId, jwt.uniqueId);
-  }
-
-  public JWT setExpiration(ZonedDateTime expiration) {
-    this.expiration = expiration;
-    return this;
   }
 
   public Boolean getBoolean(String key) {
@@ -226,10 +215,28 @@ public class JWT {
   }
 
   public Object getObject(String key) {
+    if (key == null) {
+      return null;
+    }
+
+    if (key.equals("aud")) {
+      return audience;
+    }
     return claims.get(key);
   }
 
   public String getString(String key) {
+    if (key == null) {
+      return null;
+    }
+
+    if (key.equals("sub")) {
+      return subject;
+    } else if (key.equals("jti")) {
+      return uniqueId;
+    } else if (key.equals("iss")) {
+      return issuer;
+    }
     return (String) claims.get(key);
   }
 
@@ -256,6 +263,16 @@ public class JWT {
   @JsonIgnore
   public boolean isUnavailableForProcessing() {
     return notBefore != null && notBefore.isAfter(ZonedDateTime.now(ZoneOffset.UTC));
+  }
+
+  public JWT setAudience(Object audience) {
+    this.audience = audience;
+    return this;
+  }
+
+  public JWT setExpiration(ZonedDateTime expiration) {
+    this.expiration = expiration;
+    return this;
   }
 
   public JWT setIssuedAt(ZonedDateTime issuedAt) {
