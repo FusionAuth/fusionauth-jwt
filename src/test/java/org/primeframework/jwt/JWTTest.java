@@ -76,7 +76,6 @@ public class JWTTest {
   }
 
   @Test
-
   public void expired() throws Exception {
     // no expiration
     assertFalse(new JWT()

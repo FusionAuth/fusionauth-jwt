@@ -26,8 +26,8 @@ import java.util.Base64;
 
 import static org.primeframework.jwt.rsa.PEMUtils.PKCS_8_PRIVATE_KEY_PREFIX;
 import static org.primeframework.jwt.rsa.PEMUtils.PKCS_8_PRIVATE_KEY_SUFFIX;
-import static org.primeframework.jwt.rsa.PEMUtils.PKCS_8_X509_PUBLIC_KEY_PREFIX;
-import static org.primeframework.jwt.rsa.PEMUtils.PKCS_8_X509_PUBLIC_KEY_SUFFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.X509_PUBLIC_KEY_PREFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.X509_PUBLIC_KEY_SUFFIX;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -44,8 +44,8 @@ public class JWTUtilsTest {
     assertEquals(publicKey2048.getModulus().bitLength(), 2048);
     assertPrefix(keyPair2048.privateKey, PKCS_8_PRIVATE_KEY_PREFIX);
     assertSuffix(keyPair2048.privateKey, PKCS_8_PRIVATE_KEY_SUFFIX);
-    assertPrefix(keyPair2048.publicKey, PKCS_8_X509_PUBLIC_KEY_PREFIX);
-    assertSuffix(keyPair2048.publicKey, PKCS_8_X509_PUBLIC_KEY_SUFFIX);
+    assertPrefix(keyPair2048.publicKey, X509_PUBLIC_KEY_PREFIX);
+    assertSuffix(keyPair2048.publicKey, X509_PUBLIC_KEY_SUFFIX);
 
     // Now go backwards from the key to a PEM and assert they come out the same.
     String actualPrivateKey2048 = RSAUtils.getPEMFromPrivateKey(privateKey2048);
@@ -60,8 +60,8 @@ public class JWTUtilsTest {
     assertEquals(publicKey3072.getModulus().bitLength(), 3072);
     assertPrefix(keyPair3072.privateKey, PKCS_8_PRIVATE_KEY_PREFIX);
     assertSuffix(keyPair3072.privateKey, PKCS_8_PRIVATE_KEY_SUFFIX);
-    assertPrefix(keyPair3072.publicKey, PKCS_8_X509_PUBLIC_KEY_PREFIX);
-    assertSuffix(keyPair3072.publicKey, PKCS_8_X509_PUBLIC_KEY_SUFFIX);
+    assertPrefix(keyPair3072.publicKey, X509_PUBLIC_KEY_PREFIX);
+    assertSuffix(keyPair3072.publicKey, X509_PUBLIC_KEY_SUFFIX);
 
     RSAKeyPair keyPair4096 = JWTUtils.generate4096RSAKeyPair();
     RSAPrivateKey privateKey4096 = RSAUtils.getPrivateKeyFromPEM(keyPair4096.privateKey);
@@ -70,8 +70,8 @@ public class JWTUtilsTest {
     assertEquals(publicKey4096.getModulus().bitLength(), 4096);
     assertPrefix(keyPair4096.privateKey, PKCS_8_PRIVATE_KEY_PREFIX);
     assertSuffix(keyPair4096.privateKey, PKCS_8_PRIVATE_KEY_SUFFIX);
-    assertPrefix(keyPair4096.publicKey, PKCS_8_X509_PUBLIC_KEY_PREFIX);
-    assertSuffix(keyPair4096.publicKey, PKCS_8_X509_PUBLIC_KEY_SUFFIX);
+    assertPrefix(keyPair4096.publicKey, X509_PUBLIC_KEY_PREFIX);
+    assertSuffix(keyPair4096.publicKey, X509_PUBLIC_KEY_SUFFIX);
   }
 
   @Test
@@ -114,8 +114,8 @@ public class JWTUtilsTest {
   }
 
   private String trimPublicKey(String publicKey) {
-    int begin = publicKey.indexOf(PKCS_8_X509_PUBLIC_KEY_PREFIX);
-    int end = publicKey.indexOf(PKCS_8_X509_PUBLIC_KEY_SUFFIX);
-    return publicKey.substring(begin + PKCS_8_X509_PUBLIC_KEY_PREFIX.length(), end).replaceAll("\\s", "");
+    int begin = publicKey.indexOf(X509_PUBLIC_KEY_PREFIX);
+    int end = publicKey.indexOf(X509_PUBLIC_KEY_SUFFIX);
+    return publicKey.substring(begin + X509_PUBLIC_KEY_PREFIX.length(), end).replaceAll("\\s", "");
   }
 }

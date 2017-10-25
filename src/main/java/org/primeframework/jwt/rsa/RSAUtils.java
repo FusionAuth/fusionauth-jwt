@@ -23,10 +23,13 @@ import sun.security.x509.X509CertImpl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
 import java.security.Key;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
@@ -39,16 +42,16 @@ import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
-import static org.primeframework.jwt.rsa.PEMUtils.CERTIFICATE_PREFIX;
-import static org.primeframework.jwt.rsa.PEMUtils.CERTIFICATE_SUFFIX;
 import static org.primeframework.jwt.rsa.PEMUtils.PKCS_1_PRIVATE_KEY_PREFIX;
 import static org.primeframework.jwt.rsa.PEMUtils.PKCS_1_PRIVATE_KEY_SUFFIX;
 import static org.primeframework.jwt.rsa.PEMUtils.PKCS_1_PUBLIC_KEY_PREFIX;
 import static org.primeframework.jwt.rsa.PEMUtils.PKCS_1_PUBLIC_KEY_SUFFIX;
 import static org.primeframework.jwt.rsa.PEMUtils.PKCS_8_PRIVATE_KEY_PREFIX;
 import static org.primeframework.jwt.rsa.PEMUtils.PKCS_8_PRIVATE_KEY_SUFFIX;
-import static org.primeframework.jwt.rsa.PEMUtils.PKCS_8_X509_PUBLIC_KEY_PREFIX;
-import static org.primeframework.jwt.rsa.PEMUtils.PKCS_8_X509_PUBLIC_KEY_SUFFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.X509_CERTIFICATE_PREFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.X509_CERTIFICATE_SUFFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.X509_PUBLIC_KEY_PREFIX;
+import static org.primeframework.jwt.rsa.PEMUtils.X509_PUBLIC_KEY_SUFFIX;
 
 /**
  * RSA Key Helper.
@@ -56,6 +59,49 @@ import static org.primeframework.jwt.rsa.PEMUtils.PKCS_8_X509_PUBLIC_KEY_SUFFIX;
  * @author Daniel DeGroff
  */
 public class RSAUtils {
+  /**
+   * Generate the <code>x5t</code> - the X.509 certificate thumbprint to be used in JWT header.
+   *
+   * @param algorithm          the algorithm used to calculate the hash, generally SHA-1 or SHA-256.
+   * @param encodedCertificate the Base64 encoded certificate
+   * @return an x5t hash.
+   */
+  public static String generateJWS_x5t(String algorithm, String encodedCertificate) {
+    byte[] bytes = Base64.getDecoder().decode(encodedCertificate.getBytes(Charset.forName("UTF-8")));
+    return digest(algorithm, bytes);
+  }
+
+  /**
+   * Generate the <code>x5t</code> - the X.509 certificate thumbprint to be used in JWT header.
+   *
+   * @param encodedCertificate the Base64 encoded certificate
+   * @return an x5t hash.
+   */
+  public static String generateJWS_x5t(String encodedCertificate) {
+    return generateJWS_x5t("SHA-1", encodedCertificate);
+  }
+
+  /**
+   * Generate the <code>x5t</code> - the X.509 certificate thumbprint to be used in JWT header.
+   *
+   * @param algorithm             the algorithm used to calculate the hash, generally SHA-1 or SHA-256.
+   * @param derEncodedCertificate the DER encoded certificate
+   * @return an x5t hash.
+   */
+  public static String generateJWS_x5t(String algorithm, byte[] derEncodedCertificate) {
+    return digest(algorithm, derEncodedCertificate);
+  }
+
+  /**
+   * Generate the <code>x5t</code> - the X.509 certificate thumbprint to be used in JWT header.
+   *
+   * @param derEncodedCertificate the DER encoded certificate
+   * @return an x5t hash.
+   */
+  public static String generateJWS_x5t(byte[] derEncodedCertificate) {
+    return digest("SHA-1", derEncodedCertificate);
+  }
+
   /**
    * Return the private key in a PEM formatted String.
    *
@@ -105,6 +151,18 @@ public class RSAUtils {
     }
   }
 
+  private static String digest(String algorithm, byte[] bytes) {
+    MessageDigest messageDigest;
+    try {
+      messageDigest = MessageDigest.getInstance(algorithm);
+    } catch (NoSuchAlgorithmException e) {
+      throw new IllegalArgumentException("No such algorithm [" + algorithm + "]");
+    }
+
+    byte[] digest = messageDigest.digest(bytes);
+    return new String(Base64.getUrlEncoder().withoutPadding().encode(digest));
+  }
+
   private static RSAPublicKey extractPublicKeyFromPEM(String publicKeyString) throws IOException, GeneralSecurityException {
     if (publicKeyString.contains(PKCS_1_PUBLIC_KEY_PREFIX)) {
       byte[] bytes = getKeyBytes(publicKeyString, PKCS_1_PUBLIC_KEY_PREFIX, PKCS_1_PUBLIC_KEY_SUFFIX);
@@ -118,11 +176,11 @@ public class RSAUtils {
       BigInteger modulus = seq[0].getBigInteger();
       BigInteger publicExponent = seq[1].getBigInteger();
       return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
-    } else if (publicKeyString.contains(PKCS_8_X509_PUBLIC_KEY_PREFIX)) {
-      byte[] bytes = getKeyBytes(publicKeyString, PKCS_8_X509_PUBLIC_KEY_PREFIX, PKCS_8_X509_PUBLIC_KEY_SUFFIX);
+    } else if (publicKeyString.contains(X509_PUBLIC_KEY_PREFIX)) {
+      byte[] bytes = getKeyBytes(publicKeyString, X509_PUBLIC_KEY_PREFIX, X509_PUBLIC_KEY_SUFFIX);
       return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(bytes));
-    } else if (publicKeyString.contains(CERTIFICATE_PREFIX)) {
-      byte[] bytes = getKeyBytes(publicKeyString, CERTIFICATE_PREFIX, CERTIFICATE_SUFFIX);
+    } else if (publicKeyString.contains(X509_CERTIFICATE_PREFIX)) {
+      byte[] bytes = getKeyBytes(publicKeyString, X509_CERTIFICATE_PREFIX, X509_CERTIFICATE_SUFFIX);
       CertificateFactory factory = CertificateFactory.getInstance("X.509");
       X509CertImpl certificate = (X509CertImpl) factory.generateCertificate(new ByteArrayInputStream(bytes));
       return (RSAPublicKey) certificate.getPublicKey();
@@ -150,7 +208,7 @@ public class RSAUtils {
         throw new InvalidParameterException("Unexpected Private Key Format");
       }
     } else {
-      sb.append(PKCS_8_X509_PUBLIC_KEY_PREFIX).append("\n");
+      sb.append(X509_PUBLIC_KEY_PREFIX).append("\n");
     }
 
     String encoded = new String(Base64.getEncoder().encode(key.getEncoded()));
@@ -169,7 +227,7 @@ public class RSAUtils {
         sb.append(PKCS_8_PRIVATE_KEY_SUFFIX).append("\n");
       }
     } else {
-      sb.append(PKCS_8_X509_PUBLIC_KEY_SUFFIX).append("\n");
+      sb.append(X509_PUBLIC_KEY_SUFFIX).append("\n");
     }
 
     return sb.toString();
