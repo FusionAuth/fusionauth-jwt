@@ -44,7 +44,7 @@ public class Mapper {
     try {
       return OBJECT_MAPPER.writeValueAsBytes(object);
     } catch (JsonProcessingException e) {
-      throw new InvalidJWTException("The JWT could not be serialized..", e);
+      throw new InvalidJWTException("The JWT could not be serialized.", e);
     }
   }
 

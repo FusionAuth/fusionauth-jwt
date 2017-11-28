@@ -37,6 +37,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,14 +53,76 @@ import static org.testng.Assert.fail;
  */
 public class JWTTest {
 
-  @Test(enabled = false)
-  public void encoding_performance() throws Exception {
-    Signer hmacSigner = HMACSigner.newSHA256Signer("secret");
-    Signer rsaSigner = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
-    JWT jwt = new JWT().setSubject("123456789");
+  /**
+   * Performance
+   * <pre>
+   *   Performance Summary:
+   *   - HMAC is dramatically faster
+   *   - SHA length does not dramatically affect the results
+   *   - Size of JWT will negatively affect the performance of encoding and decoding
+   *   - Verifying an RSA signature is much faster than generating the signature
+   *
+   *   Performance Recommendations:
+   *   - Keep the JWT as small as possible
+   *   - Use HMAC when you can safely share the HMAC secret or performance is paramount
+   * </pre>
+   */
+  @Test(enabled = true)
+  public void decoding_performance() throws Exception {
+    String secret = JWTUtils.generateSHA256HMACSecret();
+    Signer hmacSigner = HMACSigner.newSHA256Signer(secret);
+    Signer rsaSigner = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048.pem"))));
 
-    long iterationCount = 500;
+    Verifier hmacVerifier = HMACVerifier.newVerifier(secret);
+    Verifier rsaVerifier = RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
+
+    JWT jwt = new JWT().setSubject(UUID.randomUUID().toString())
+        .addClaim("exp", ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).toInstant().toEpochMilli())
+        .setAudience(UUID.randomUUID().toString())
+        .addClaim("roles", new ArrayList<>(Arrays.asList("admin", "user")))
+        .addClaim("iat", ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli())
+        .setIssuer("inversoft.com");
+
+    long iterationCount = 250_000;
+    for (Verifier verifier : Arrays.asList(hmacVerifier, rsaVerifier)) {
+      Instant start = Instant.now();
+      Signer signer = verifier instanceof HMACVerifier ? hmacSigner : rsaSigner;
+// Uncomment the following line to run without a signer, no signature, no verification is very fast.
+//      Signer signer = new UnsecuredSigner();
+      String encodedJWT = JWT.getEncoder().encode(jwt, signer);
+
+      for (int i = 0; i < iterationCount; i++) {
+        JWT.getDecoder().decode(encodedJWT, verifier);
+// Uncomment the following line to run without a signer, no signature, no verification is very fast.
+//        JWT.getDecoder().decode(encodedJWT); // no verifier, no signature
+      }
+
+      Duration duration = Duration.between(start, Instant.now());
+      BigDecimal durationInMillis = BigDecimal.valueOf(duration.toMillis());
+      BigDecimal average = durationInMillis.divide(BigDecimal.valueOf(iterationCount), RoundingMode.HALF_DOWN);
+      long perSecond = iterationCount / (duration.toMillis() / 1000);
+
+      System.out.println("[" + signer.getAlgorithm().getName() + "] " + duration.toMillis() + " milliseconds total. [" + iterationCount + "] iterations. [" + average + "] milliseconds per iteration. Approx. [" + perSecond + "] per second.");
+
+    }
+  }
+
+  @Test(enabled = true)
+  public void encoding_performance() throws Exception {
+    Signer hmacSigner = HMACSigner.newSHA256Signer(JWTUtils.generateSHA256HMACSecret());
+    Signer rsaSigner = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048.pem"))));
+
+    JWT jwt = new JWT().setSubject(UUID.randomUUID().toString())
+        .addClaim("exp", ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).toInstant().toEpochMilli())
+        .setAudience(UUID.randomUUID().toString())
+        .addClaim("roles", new ArrayList<>(Arrays.asList("admin", "user")))
+        .addClaim("iat", ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli())
+        .setIssuer("inversoft.com");
+
+    long iterationCount = 10_000;
     for (Signer signer : Arrays.asList(hmacSigner, rsaSigner)) {
+// Uncomment the following line to run without a signer, no signature, no verification is very fast.
+//      signer = new UnsecuredSigner();
       Instant start = Instant.now();
       for (int i = 0; i < iterationCount; i++) {
         JWT.getEncoder().encode(jwt, signer);
@@ -67,10 +130,8 @@ public class JWTTest {
       Duration duration = Duration.between(start, Instant.now());
       BigDecimal durationInMillis = BigDecimal.valueOf(duration.toMillis());
       BigDecimal average = durationInMillis.divide(BigDecimal.valueOf(iterationCount), RoundingMode.HALF_DOWN);
-      float perSecond = 1000F / average.floatValue();
+      long perSecond = iterationCount / (duration.toMillis() / 1000);
 
-      // HMAC 256 ~ 100,000+ per iterations per second (once the VM warms up, this is very fast)
-      // RSA w/ 4k Key ~ 20 iterations per second (this seems to be fairly linear)
       System.out.println("[" + signer.getAlgorithm().getName() + "] " + duration.toMillis() + " milliseconds total. [" + iterationCount + "] iterations. [" + average + "] milliseconds per iteration. Approx. [" + perSecond + "] per second.");
     }
   }
