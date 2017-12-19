@@ -67,7 +67,7 @@ public class JWTTest {
    *   - Use HMAC when you can safely share the HMAC secret or performance is paramount
    * </pre>
    */
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void decoding_performance() throws Exception {
     String secret = JWTUtils.generateSHA256HMACSecret();
     Signer hmacSigner = HMACSigner.newSHA256Signer(secret);
@@ -107,7 +107,7 @@ public class JWTTest {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void encoding_performance() throws Exception {
     Signer hmacSigner = HMACSigner.newSHA256Signer(JWTUtils.generateSHA256HMACSecret());
     Signer rsaSigner = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048.pem"))));
@@ -255,6 +255,21 @@ public class JWTTest {
     assertEquals(actualJwt.getInteger("meaningOfLife"), expectedJWT.getInteger("meaningOfLife"));
     assertEquals(actualJwt.getObject("bar"), expectedJWT.getObject("bar"));
     assertEquals(actualJwt.getBoolean("www.inversoft.com/claims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/claims/is_admin"));
+
+    // validate raw claims
+    Map<String, Object> rawClaims = actualJwt.getRawClaims();
+    assertEquals(rawClaims.get("aud"), expectedJWT.audience);
+    assertEquals(rawClaims.get("exp"), expectedJWT.expiration.toEpochSecond());
+    assertEquals(rawClaims.get("iat"), expectedJWT.issuedAt.toEpochSecond());
+    assertEquals(rawClaims.get("iss"), expectedJWT.issuer);
+    assertEquals(rawClaims.get("nbf"), expectedJWT.notBefore.toEpochSecond());
+    assertEquals(rawClaims.get("jti"), expectedJWT.uniqueId);
+    assertEquals(rawClaims.get("sub"), expectedJWT.subject);
+    assertEquals(rawClaims.get("foo"), expectedJWT.getString("foo"));
+    assertEquals(rawClaims.get("timestamp"), expectedJWT.getLong("timestamp"));
+    assertEquals(rawClaims.get("meaningOfLife"), expectedJWT.getInteger("meaningOfLife"));
+    assertEquals(rawClaims.get("bar"), expectedJWT.getObject("bar"));
+    assertEquals(rawClaims.get("www.inversoft.com/claims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/claims/is_admin"));
   }
 
   @Test

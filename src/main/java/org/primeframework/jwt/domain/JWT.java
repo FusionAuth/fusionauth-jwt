@@ -25,6 +25,7 @@ import org.primeframework.jwt.JWTEncoder;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -223,6 +224,41 @@ public class JWT {
       return audience;
     }
     return claims.get(key);
+  }
+
+  @JsonIgnore
+  public Map<String, Object> getRawClaims() {
+    Map<String, Object> rawClaims = new HashMap<>(claims);
+
+    if (audience != null) {
+      rawClaims.put("aud", audience);
+    }
+
+    if (expiration != null) {
+      rawClaims.put("exp", expiration.toEpochSecond());
+    }
+
+    if (issuedAt != null) {
+      rawClaims.put("iat", issuedAt.toEpochSecond());
+    }
+
+    if (issuer != null) {
+      rawClaims.put("iss", issuer);
+    }
+
+    if (notBefore != null) {
+      rawClaims.put("nbf", notBefore.toEpochSecond());
+    }
+
+    if (subject != null) {
+      rawClaims.put("sub", subject);
+    }
+
+    if (uniqueId != null) {
+      rawClaims.put("jti", uniqueId);
+    }
+
+    return rawClaims;
   }
 
   public String getString(String key) {
