@@ -1,5 +1,22 @@
 Prime JWT Changes
 
+Changes in 1.2.0
+
+ * Added JWT.getRawClaims()
+
+Changes in 1.1.0
+
+ * Support for x5t (X.509 thumbprints)
+ * Additional helper methods in PEMUtils and RSAUtils
+
+Changes in 1.0.0
+
+ * Add support for X.509 certificates
+
+Changes in 0.2.1
+
+ * Add POM to release to maven as well as savent
+
 Changes in 0.2.0
 
  * Change "keyId" to "kid".
