@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2016-2017, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,7 +132,11 @@ public class JWTDecoder {
   }
 
   private byte[] base64Decode(byte[] bytes) {
-    return Base64.getUrlDecoder().decode(bytes);
+    try {
+      return Base64.getUrlDecoder().decode(bytes);
+    } catch (IllegalArgumentException e) {
+      throw new InvalidJWTException("The encoded JWT is not properly Base64 encoded.", e);
+    }
   }
 
   private JWT decode(String encodedJWT, Header header, String[] parts, Verifier verifier) {

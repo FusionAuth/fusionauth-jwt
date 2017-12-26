@@ -195,6 +195,14 @@ public class JWTTest {
   }
 
   @Test
+  public void test_badEncoding() throws Exception {
+    Verifier verifier = RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
+    // add a space to the header, invalid Base64 character point 20 (space)
+    expectException(InvalidJWTException.class, ()
+        -> JWT.getDecoder().decode("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9 .foo.bar", verifier));
+  }
+
+  @Test
   public void test_RS384() throws Exception {
     JWT jwt = new JWT().setSubject("123456789");
     Signer signer = RSASigner.newSHA384Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
