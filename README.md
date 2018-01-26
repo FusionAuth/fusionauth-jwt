@@ -1,8 +1,6 @@
 ## Prime JWT ![semver 2.0.0 compliant](http://img.shields.io/badge/semver-2.0.0-brightgreen.svg?style=flat-square)
 
-Prime JWT is a JWT library written in Java8. This library is intended to be fast, simple and make it easier to 
-deploy by limiting external dependencies. The only external dependency of this project is [Jackson](https://github.com/FasterXML/jackson).
-  
+Prime JWT is intended to be fast and easy to use. Prime JWT has a single external dependency on Jackson.
 ## Example Code:
 
 ### Encode a JWT using HMAC
