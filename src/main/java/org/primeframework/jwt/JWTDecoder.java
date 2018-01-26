@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2016-2018, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.primeframework.jwt.domain.JWTUnavailableForProcessingException;
 import org.primeframework.jwt.domain.MissingVerifierException;
 import org.primeframework.jwt.json.Mapper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
@@ -62,11 +63,11 @@ public class JWTDecoder {
 
     // An unsecured JWT will not contain a signature and should only have a header and a payload.
     String[] parts = getParts(encodedJWT);
-    Header header = Mapper.deserialize(base64Decode(parts[0].getBytes()), Header.class);
+    Header header = Mapper.deserialize(base64Decode(parts[0].getBytes(StandardCharsets.UTF_8)), Header.class);
 
     // Be particular about decoding an unsecured JWT. If the JWT is signed or any verifiers were provided don't do it.
     if (header.algorithm == Algorithm.none && parts.length == 2 && verifiers.length == 0) {
-      return Mapper.deserialize(base64Decode(parts[1].getBytes()), JWT.class);
+      return Mapper.deserialize(base64Decode(parts[1].getBytes(StandardCharsets.UTF_8)), JWT.class);
     }
 
     // If verifiers were provided, ensure it is able to verify this JWT.
@@ -113,10 +114,10 @@ public class JWTDecoder {
     Objects.requireNonNull(verifiers);
 
     String[] parts = getParts(encodedJWT);
-    Header header = Mapper.deserialize(base64Decode(parts[0].getBytes()), Header.class);
+    Header header = Mapper.deserialize(base64Decode(parts[0].getBytes(StandardCharsets.UTF_8)), Header.class);
     // Be particular about decoding an unsecured JWT. If the JWT is signed or any verifiers were provided don't do it.
     if (header.algorithm == Algorithm.none && parts.length == 2 && verifiers.isEmpty()) {
-      return Mapper.deserialize(base64Decode(parts[1].getBytes()), JWT.class);
+      return Mapper.deserialize(base64Decode(parts[1].getBytes(StandardCharsets.UTF_8)), JWT.class);
     }
 
     // If verifiers were provided, ensure it is able to verify this JWT.
@@ -142,7 +143,7 @@ public class JWTDecoder {
   private JWT decode(String encodedJWT, Header header, String[] parts, Verifier verifier) {
     int index = encodedJWT.lastIndexOf(".");
     // The message comprises the first two segments of the entire JWT, the signature is the last segment.
-    byte[] message = encodedJWT.substring(0, index).getBytes();
+    byte[] message = encodedJWT.substring(0, index).getBytes(StandardCharsets.UTF_8);
 
     // If a signature is provided and verifier must be provided.
     if (parts.length == 3 && verifier == null) {
@@ -151,11 +152,11 @@ public class JWTDecoder {
 
     if (parts.length == 3) {
       // Verify the signature before de-serializing the payload.
-      byte[] signature = base64Decode(parts[2].getBytes());
+      byte[] signature = base64Decode(parts[2].getBytes(StandardCharsets.UTF_8));
       verifier.verify(header.algorithm, message, signature);
     }
 
-    JWT jwt = Mapper.deserialize(base64Decode(parts[1].getBytes()), JWT.class);
+    JWT jwt = Mapper.deserialize(base64Decode(parts[1].getBytes(StandardCharsets.UTF_8)), JWT.class);
 
     // Verify expiration claim
     if (jwt.isExpired()) {

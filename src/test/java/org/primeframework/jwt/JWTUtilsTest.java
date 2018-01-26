@@ -20,6 +20,7 @@ import org.primeframework.jwt.domain.RSAKeyPair;
 import org.primeframework.jwt.rsa.RSAUtils;
 import org.testng.annotations.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
@@ -78,15 +79,15 @@ public class JWTUtilsTest {
   public void hmacSecretLengths() throws Exception {
     String hmac256 = JWTUtils.generateSHA256HMACSecret();
     assertEquals(hmac256.length(), 44);
-    assertEquals(Base64.getDecoder().decode(hmac256.getBytes()).length, 32);
+    assertEquals(Base64.getDecoder().decode(hmac256.getBytes(StandardCharsets.UTF_8)).length, 32);
 
     String hmac384 = JWTUtils.generateSHA384HMACSecret();
     assertEquals(hmac384.length(), 64);
-    assertEquals(Base64.getDecoder().decode(hmac384.getBytes()).length, 48);
+    assertEquals(Base64.getDecoder().decode(hmac384.getBytes(StandardCharsets.UTF_8)).length, 48);
 
     String hmac512 = JWTUtils.generateSHA512HMACSecret();
     assertEquals(hmac512.length(), 88);
-    assertEquals(Base64.getDecoder().decode(hmac512.getBytes()).length, 64);
+    assertEquals(Base64.getDecoder().decode(hmac512.getBytes(StandardCharsets.UTF_8)).length, 64);
   }
 
   @Test

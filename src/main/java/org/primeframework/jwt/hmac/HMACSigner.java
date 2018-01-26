@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2016-2018, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.primeframework.jwt.domain.Algorithm;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
@@ -38,7 +39,7 @@ public class HMACSigner implements Signer {
 
   private HMACSigner(Algorithm algorithm, String secret) {
     this.algorithm = algorithm;
-    this.secret = secret.getBytes();
+    this.secret = secret.getBytes(StandardCharsets.UTF_8);
   }
 
   public static HMACSigner newSHA256Signer(String secret) {
@@ -66,7 +67,7 @@ public class HMACSigner implements Signer {
     try {
       Mac mac = Mac.getInstance(algorithm.getName());
       mac.init(new SecretKeySpec(secret, algorithm.getName()));
-      return mac.doFinal(message.getBytes());
+      return mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
     } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }

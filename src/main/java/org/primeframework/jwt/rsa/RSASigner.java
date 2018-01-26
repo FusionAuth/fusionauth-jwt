@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2016-2018, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.primeframework.jwt.Signer;
 import org.primeframework.jwt.domain.Algorithm;
 import org.primeframework.jwt.domain.InvalidKeyLengthException;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
@@ -89,7 +90,7 @@ public class RSASigner implements Signer {
     try {
       Signature signature = Signature.getInstance(algorithm.getName());
       signature.initSign(privateKey);
-      signature.update(message.getBytes());
+      signature.update(message.getBytes(StandardCharsets.UTF_8));
       return signature.sign();
     } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
       throw new RuntimeException(e);
