@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2016-2018, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.primeframework.jwt;
 
 import org.primeframework.jwt.domain.InvalidJWTException;
+import org.primeframework.jwt.domain.InvalidJWTSignatureException;
 import org.primeframework.jwt.domain.InvalidKeyLengthException;
 import org.primeframework.jwt.domain.JWT;
 import org.primeframework.jwt.domain.JWTExpiredException;
@@ -195,14 +196,6 @@ public class JWTTest {
   }
 
   @Test
-  public void test_badEncoding() throws Exception {
-    Verifier verifier = RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
-    // add a space to the header, invalid Base64 character point 20 (space)
-    expectException(InvalidJWTException.class, ()
-        -> JWT.getDecoder().decode("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9 .foo.bar", verifier));
-  }
-
-  @Test
   public void test_RS384() throws Exception {
     JWT jwt = new JWT().setSubject("123456789");
     Signer signer = RSASigner.newSHA384Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
@@ -227,6 +220,30 @@ public class JWTTest {
         -> RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_1024.pem")))));
     expectException(InvalidKeyLengthException.class, ()
         -> RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_1024.pem")))));
+  }
+
+  @Test
+  public void test_SingedWithoutSignature() throws Exception {
+    JWT inputJwt = new JWT()
+        .setSubject("123456789")
+        .setIssuedAt(ZonedDateTime.now(ZoneOffset.UTC))
+        .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusHours(2));
+
+    String encodedJWT = JWT.getEncoder().encode(inputJwt, HMACSigner.newSHA256Signer("secret"));
+    String encodedJWTNoSignature = encodedJWT.substring(0, encodedJWT.lastIndexOf('.') + 1);
+
+    expectException(InvalidJWTSignatureException.class, () -> JWT.getDecoder().decode(encodedJWTNoSignature, HMACVerifier.newVerifier("secret")));
+
+    // Also cannot be decoded even if the caller calls decode w/out a signature because the header still indicates a signature algorithm.
+    expectException(InvalidJWTSignatureException.class, () -> JWT.getDecoder().decode(encodedJWTNoSignature));
+  }
+
+  @Test
+  public void test_badEncoding() throws Exception {
+    Verifier verifier = RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
+    // add a space to the header, invalid Base64 character point 20 (space)
+    expectException(InvalidJWTException.class, ()
+        -> JWT.getDecoder().decode("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9 .foo.bar", verifier));
   }
 
   @Test

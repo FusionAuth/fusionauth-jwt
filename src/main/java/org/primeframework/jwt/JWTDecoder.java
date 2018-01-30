@@ -19,6 +19,7 @@ package org.primeframework.jwt;
 import org.primeframework.jwt.domain.Algorithm;
 import org.primeframework.jwt.domain.Header;
 import org.primeframework.jwt.domain.InvalidJWTException;
+import org.primeframework.jwt.domain.InvalidJWTSignatureException;
 import org.primeframework.jwt.domain.JWT;
 import org.primeframework.jwt.domain.JWTExpiredException;
 import org.primeframework.jwt.domain.JWTUnavailableForProcessingException;
@@ -65,9 +66,13 @@ public class JWTDecoder {
     String[] parts = getParts(encodedJWT);
     Header header = Mapper.deserialize(base64Decode(parts[0].getBytes(StandardCharsets.UTF_8)), Header.class);
 
-    // Be particular about decoding an unsecured JWT. If the JWT is signed or any verifiers were provided don't do it.
-    if (header.algorithm == Algorithm.none && parts.length == 2 && verifiers.length == 0) {
-      return Mapper.deserialize(base64Decode(parts[1].getBytes(StandardCharsets.UTF_8)), JWT.class);
+    // If parts.length == 2 we have no signature, if no verifiers were provided, decode if header says 'none', else throw an exception
+    if (parts.length == 2 && verifiers.length == 0) {
+      if (header.algorithm == Algorithm.none) {
+        return Mapper.deserialize(base64Decode(parts[1].getBytes(StandardCharsets.UTF_8)), JWT.class);
+      } else {
+        throw new InvalidJWTSignatureException();
+      }
     }
 
     // If verifiers were provided, ensure it is able to verify this JWT.
@@ -115,9 +120,13 @@ public class JWTDecoder {
 
     String[] parts = getParts(encodedJWT);
     Header header = Mapper.deserialize(base64Decode(parts[0].getBytes(StandardCharsets.UTF_8)), Header.class);
-    // Be particular about decoding an unsecured JWT. If the JWT is signed or any verifiers were provided don't do it.
-    if (header.algorithm == Algorithm.none && parts.length == 2 && verifiers.isEmpty()) {
-      return Mapper.deserialize(base64Decode(parts[1].getBytes(StandardCharsets.UTF_8)), JWT.class);
+    // If parts.length == 2 we have no signature, if no verifiers were provided, decode if header says 'none', else throw an exception
+    if (parts.length == 2 && verifiers.isEmpty()) {
+      if (header.algorithm == Algorithm.none) {
+        return Mapper.deserialize(base64Decode(parts[1].getBytes(StandardCharsets.UTF_8)), JWT.class);
+      } else {
+        throw new InvalidJWTSignatureException();
+      }
     }
 
     // If verifiers were provided, ensure it is able to verify this JWT.
@@ -148,6 +157,11 @@ public class JWTDecoder {
     // If a signature is provided and verifier must be provided.
     if (parts.length == 3 && verifier == null) {
       throw new MissingVerifierException("No Verifier has been provided for verify a signature signed using [" + header.algorithm.getName() + "]");
+    }
+
+    // A verifier was provided but no signature exists, this is treated as an invalid signature.
+    if (parts.length == 2 && verifier != null) {
+      throw new InvalidJWTSignatureException();
     }
 
     if (parts.length == 3) {
