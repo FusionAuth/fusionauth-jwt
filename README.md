@@ -63,7 +63,7 @@ HS256, HS384, HS512, RS256, RS384, RS512, none (Unsecured)
 <dependency>
   <groupId>com.inversoft</groupId>
   <artifactId>prime-jwt</artifactId>
-  <version>1.2.1</version>
+  <version>1.3.0</version>
 </dependency>
  ```
  
