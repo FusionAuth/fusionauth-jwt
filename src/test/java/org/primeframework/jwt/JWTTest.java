@@ -223,7 +223,7 @@ public class JWTTest {
   }
 
   @Test
-  public void test_SingedWithoutSignature() throws Exception {
+  public void test_SignedWithoutSignature() throws Exception {
     JWT inputJwt = new JWT()
         .setSubject("123456789")
         .setIssuedAt(ZonedDateTime.now(ZoneOffset.UTC))
