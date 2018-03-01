@@ -117,6 +117,7 @@ public class JWTDecoder {
   public JWT decode(String encodedJWT, Map<String, Verifier> verifiers, Function<Header, String> keyFunction) {
     Objects.requireNonNull(encodedJWT);
     Objects.requireNonNull(verifiers);
+    Objects.requireNonNull(keyFunction);
 
     String[] parts = getParts(encodedJWT);
     Header header = Mapper.deserialize(base64Decode(parts[0].getBytes(StandardCharsets.UTF_8)), Header.class);

@@ -38,6 +38,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -147,6 +148,13 @@ public class JWTTest extends BaseTest {
     assertTrue(new JWT()
         .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1))
         .setSubject("123456789").isExpired());
+  }
+
+  @Test
+  public void test_nullFailFast() throws Exception {
+    expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode(null, null, null));
+    expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode("foo", null, null));
+    expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode("foo", Collections.emptyMap(), null));
   }
 
   @Test
@@ -334,6 +342,9 @@ public class JWTTest extends BaseTest {
 
     JWT actual = JWT.getDecoder().decode(encodedJWT);
     assertEquals(actual.subject, jwt.subject);
+
+    // Remove the last '.' (dot) and try again - this will fail, invalid JWT. All three parts are required, even for 'none'
+    expectException(InvalidJWTException.class, () -> JWT.getDecoder().decode("eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkifQ"));
   }
 
   @Test

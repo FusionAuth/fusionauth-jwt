@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2016-2018, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public class JWTEncoder {
     if (consumer != null) {
       consumer.accept(header);
     }
-    // Set this after we pass the header to the consumer to ensure it isn't tampered with.
+    // Set this after we pass the header to the consumer to ensure it isn't tampered with, only the signer can set the algorithm.
     header.algorithm = signer.getAlgorithm();
     parts.add(base64Encode(Mapper.serialize(header)));
     parts.add(base64Encode(Mapper.serialize(jwt)));
