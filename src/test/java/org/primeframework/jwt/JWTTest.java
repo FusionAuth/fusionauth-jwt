@@ -17,12 +17,10 @@
 package org.primeframework.jwt;
 
 import org.primeframework.jwt.domain.InvalidJWTException;
-import org.primeframework.jwt.domain.InvalidJWTSignatureException;
 import org.primeframework.jwt.domain.InvalidKeyLengthException;
 import org.primeframework.jwt.domain.JWT;
 import org.primeframework.jwt.domain.JWTExpiredException;
 import org.primeframework.jwt.domain.JWTUnavailableForProcessingException;
-import org.primeframework.jwt.domain.MissingVerifierException;
 import org.primeframework.jwt.hmac.HMACSigner;
 import org.primeframework.jwt.hmac.HMACVerifier;
 import org.primeframework.jwt.rsa.RSASigner;
@@ -47,12 +45,11 @@ import java.util.UUID;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
 
 /**
  * @author Daniel DeGroff
  */
-public class JWTTest {
+public class JWTTest extends BaseTest {
 
   /**
    * Performance
@@ -223,22 +220,6 @@ public class JWTTest {
   }
 
   @Test
-  public void test_SignedWithoutSignature() throws Exception {
-    JWT inputJwt = new JWT()
-        .setSubject("123456789")
-        .setIssuedAt(ZonedDateTime.now(ZoneOffset.UTC))
-        .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusHours(2));
-
-    String encodedJWT = JWT.getEncoder().encode(inputJwt, HMACSigner.newSHA256Signer("secret"));
-    String encodedJWTNoSignature = encodedJWT.substring(0, encodedJWT.lastIndexOf('.') + 1);
-
-    expectException(InvalidJWTSignatureException.class, () -> JWT.getDecoder().decode(encodedJWTNoSignature, HMACVerifier.newVerifier("secret")));
-
-    // Also cannot be decoded even if the caller calls decode w/out a signature because the header still indicates a signature algorithm.
-    expectException(InvalidJWTSignatureException.class, () -> JWT.getDecoder().decode(encodedJWTNoSignature));
-  }
-
-  @Test
   public void test_badEncoding() throws Exception {
     Verifier verifier = RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
     // add a space to the header, invalid Base64 character point 20 (space)
@@ -298,18 +279,6 @@ public class JWTTest {
   }
 
   @Test
-  public void test_encodedJwtWithSignatureRemoved() throws Exception {
-    // Sign a JWT and then attempt to verify it using None.
-    JWT jwt = new JWT().setSubject("art");
-    String encodedJWT = JWT.getEncoder().encode(jwt, HMACSigner.newSHA256Signer("secret"));
-
-    String hackedJWT = encodedJWT.substring(0, encodedJWT.lastIndexOf("."));
-
-    expectException(InvalidJWTException.class, ()
-        -> JWT.getDecoder().decode(hackedJWT, HMACVerifier.newVerifier("secret")));
-  }
-
-  @Test
   public void test_expiredThrows() throws Exception {
     JWT expectedJWT = new JWT()
         .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1).truncatedTo(ChronoUnit.SECONDS));
@@ -356,16 +325,6 @@ public class JWTTest {
   }
 
   @Test
-  public void test_noVerification() throws Exception {
-    // Sign a JWT and then attempt to verify it using None.
-    JWT jwt = new JWT().setSubject("art");
-    String encodedJWT = JWT.getEncoder().encode(jwt, HMACSigner.newSHA256Signer("secret"));
-
-    expectException(MissingVerifierException.class, ()
-        -> JWT.getDecoder().decode(encodedJWT));
-  }
-
-  @Test
   public void test_none() throws Exception {
     JWT jwt = new JWT().setSubject("123456789");
     Signer signer = new UnsecuredSigner();
@@ -395,47 +354,6 @@ public class JWTTest {
   }
 
   @Test
-  public void test_vulnerability_HMAC_forgery() throws Exception {
-    // Generate a JWT using HMAC with an RSA public key to attempt to trick the library into verifying the JWT
-
-    // Testing for the vulnerability described by Tim McLean
-    // https://threatpost.com/critical-vulnerabilities-affect-json-web-token-libraries/111943/
-    // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
-
-    JWT jwt = new JWT().setSubject("123456789");
-    // Hacked signer, obtain a publicly available RSA Public Key in use by the JWT issuer
-    Signer hackedSigner = HMACSigner.newSHA512Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
-
-    // Forged a JWT - sign your own token using the hacked Signer
-    String hmacSignedJWT = JWTEncoder.getInstance().encode(jwt, hackedSigner, h -> h.set("kid", "abc"));
-
-    // Server side Verifiers used to validate JWTs they have issued
-    Verifier rsaVerifier = RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
-    Verifier hmacVerifier = HMACVerifier.newVerifier("secret");
-
-    // Attempt to decode using var-args call to decode, no kid. This correctly fails because we only ask the HMAC verifier to decode an HMAC signed JWT.
-    // And the server has built an HMAC verifier using their shared secret.
-    expectException(InvalidJWTSignatureException.class, () -> JWTDecoder.getInstance().decode(hmacSignedJWT, rsaVerifier, hmacVerifier));
-
-    Map<String, Verifier> verifierMap = new HashMap<>();
-    verifierMap.put("abc", rsaVerifier);
-    verifierMap.put("def", hmacVerifier);
-
-    // Attempt to decode using a map of verifiers. This correctly fails because the verifier for the kid does not support the algorithm in the header
-    // The kid in this case causes us to look up the verifier built by the server which is an RSA verifier.
-    expectException(MissingVerifierException.class, () -> JWTDecoder.getInstance().decode(hmacSignedJWT, verifierMap));
-
-    // Forge another JWT - but assume we know ahead of time all of the kids and which one maps to the hmac verifier
-    String hmacSignedJWTTakeTwo = JWTEncoder.getInstance().encode(jwt, hackedSigner, h -> h.set("kid", "def"));
-
-    // This call fails because we ask the HMAC verifier to validate a signature built using a public key.
-    expectException(InvalidJWTSignatureException.class, () -> JWTDecoder.getInstance().decode(hmacSignedJWTTakeTwo, rsaVerifier, hmacVerifier));
-    // This call fails because in this case we have the correct kid 'def' which is the hmac verifier - but again the verifier was not built with the public key.
-    // The kid in this case causes us to look up the HMAC verifier which is what the hacker wants, but it again is alread built using the correct shared secret.
-    expectException(InvalidJWTSignatureException.class, () -> JWTDecoder.getInstance().decode(hmacSignedJWTTakeTwo, verifierMap));
-  }
-
-  @Test
   public void test_zonedDateTime() throws Exception {
     ZonedDateTime expiration = ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS);
     JWT expectedJWT = new JWT().setExpiration(expiration);
@@ -449,18 +367,4 @@ public class JWTTest {
     assertEquals(actualJWT1.expiration, expectedJWT.expiration);
   }
 
-  private void expectException(Class<? extends Exception> expected, ThrowingRunnable runnable) {
-    try {
-      runnable.run();
-      fail("Expected [" + expected.getCanonicalName() + "] to be thrown. No Exception was thrown.");
-    } catch (Exception e) {
-      if (!e.getClass().isAssignableFrom(expected)) {
-        fail("Expected [" + expected.getCanonicalName() + "] to be thrown. Caught this instead [" + e.getClass().getCanonicalName() + "]");
-      }
-    }
-  }
-
-  private interface ThrowingRunnable {
-    void run() throws Exception;
-  }
 }
