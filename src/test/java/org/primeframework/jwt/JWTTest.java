@@ -395,6 +395,47 @@ public class JWTTest {
   }
 
   @Test
+  public void test_vulnerability_HMAC_forgery() throws Exception {
+    // Generate a JWT using HMAC with an RSA public key to attempt to trick the library into verifying the JWT
+
+    // Testing for the vulnerability described by Tim McLean
+    // https://threatpost.com/critical-vulnerabilities-affect-json-web-token-libraries/111943/
+    // https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
+
+    JWT jwt = new JWT().setSubject("123456789");
+    // Hacked signer, obtain a publicly available RSA Public Key in use by the JWT issuer
+    Signer hackedSigner = HMACSigner.newSHA512Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
+
+    // Forged a JWT - sign your own token using the hacked Signer
+    String hmacSignedJWT = JWTEncoder.getInstance().encode(jwt, hackedSigner, h -> h.set("kid", "abc"));
+
+    // Server side Verifiers used to validate JWTs they have issued
+    Verifier rsaVerifier = RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
+    Verifier hmacVerifier = HMACVerifier.newVerifier("secret");
+
+    // Attempt to decode using var-args call to decode, no kid. This correctly fails because we only ask the HMAC verifier to decode an HMAC signed JWT.
+    // And the server has built an HMAC verifier using their shared secret.
+    expectException(InvalidJWTSignatureException.class, () -> JWTDecoder.getInstance().decode(hmacSignedJWT, rsaVerifier, hmacVerifier));
+
+    Map<String, Verifier> verifierMap = new HashMap<>();
+    verifierMap.put("abc", rsaVerifier);
+    verifierMap.put("def", hmacVerifier);
+
+    // Attempt to decode using a map of verifiers. This correctly fails because the verifier for the kid does not support the algorithm in the header
+    // The kid in this case causes us to look up the verifier built by the server which is an RSA verifier.
+    expectException(MissingVerifierException.class, () -> JWTDecoder.getInstance().decode(hmacSignedJWT, verifierMap));
+
+    // Forge another JWT - but assume we know ahead of time all of the kids and which one maps to the hmac verifier
+    String hmacSignedJWTTakeTwo = JWTEncoder.getInstance().encode(jwt, hackedSigner, h -> h.set("kid", "def"));
+
+    // This call fails because we ask the HMAC verifier to validate a signature built using a public key.
+    expectException(InvalidJWTSignatureException.class, () -> JWTDecoder.getInstance().decode(hmacSignedJWTTakeTwo, rsaVerifier, hmacVerifier));
+    // This call fails because in this case we have the correct kid 'def' which is the hmac verifier - but again the verifier was not built with the public key.
+    // The kid in this case causes us to look up the HMAC verifier which is what the hacker wants, but it again is alread built using the correct shared secret.
+    expectException(InvalidJWTSignatureException.class, () -> JWTDecoder.getInstance().decode(hmacSignedJWTTakeTwo, verifierMap));
+  }
+
+  @Test
   public void test_zonedDateTime() throws Exception {
     ZonedDateTime expiration = ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS);
     JWT expectedJWT = new JWT().setExpiration(expiration);
