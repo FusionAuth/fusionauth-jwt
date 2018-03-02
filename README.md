@@ -1,10 +1,11 @@
 ## Prime JWT ![semver 2.0.0 compliant](http://img.shields.io/badge/semver-2.0.0-brightgreen.svg?style=flat-square)
 
+Prime JWT is intended to be fast and easy to use. Prime JWT has a single external dependency on Jackson.
+
 ## Security Notice
 Please upgrade to version >= 1.3.0 or any build after commit 0d94dcef0133d699f21d217e922564adbb83a227. A vulnerability was reported
 that may allow the library to incorrectly validate a JWT. The issue has been resolved.
 
-Prime JWT is intended to be fast and easy to use. Prime JWT has a single external dependency on Jackson.
 ## Example Code:
 
 ### Encode a JWT using HMAC
