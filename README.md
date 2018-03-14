@@ -3,7 +3,7 @@
 Prime JWT is intended to be fast and easy to use. Prime JWT has a single external dependency on Jackson.
 
 ## Security Notice
-Please upgrade to version >= 1.3.0. A vulnerability was reported that may allow the library to incorrectly validate a JWT.
+Please upgrade to version >= 1.3.0. A vulnerability was reported that may allow the library to incorrectly validate a JWT. See [CVE-2018-1000125](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1000125).
 
 ## Example Code:
 
