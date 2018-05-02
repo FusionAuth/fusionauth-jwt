@@ -38,6 +38,7 @@ public class OpenIDConnect {
    * @param accessToken the ASCII form of the access token
    * @param algorithm   the algorithm to be used when encoding the Id Token
    * @return a hash to be used as the <code>at_hash</code> claim in the Id Token claim payload
+   * @throws NoSuchAlgorithmException Thrown when no provider supports an implementation of the specified algorithm
    */
   public static String at_hash(String accessToken, Algorithm algorithm) throws NoSuchAlgorithmException {
     return generate_hash(accessToken, algorithm, 128);
@@ -49,6 +50,7 @@ public class OpenIDConnect {
    * @param authorizationCode the ASCII form of the authorization code
    * @param algorithm         the algorithm to be used when encoding the Id Token
    * @return a hash to be used as the <code>c_hash</code> claim in the Id Token claim payload
+   * @throws NoSuchAlgorithmException Thrown when no provider supports an implementation of the specified algorithm
    */
   public static String c_hash(String authorizationCode, Algorithm algorithm) throws NoSuchAlgorithmException {
     return generate_hash(authorizationCode, algorithm, 256);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2016-2018, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,6 +144,8 @@ public class JWT {
 
   /**
    * Special getter used to flatten the claims into top level properties. Necessary to correctly serialize this object.
+   *
+   * @return a map of properties to be serialized as if they were actual properties of this class.
    */
   @JsonAnyGetter
   public Map<String, Object> anyGetter() {
@@ -197,6 +199,7 @@ public class JWT {
       return null;
     }
 
+    //noinspection unchecked
     return (List<String>) object;
   }
 
@@ -266,12 +269,13 @@ public class JWT {
       return null;
     }
 
-    if (key.equals("sub")) {
-      return subject;
-    } else if (key.equals("jti")) {
-      return uniqueId;
-    } else if (key.equals("iss")) {
-      return issuer;
+    switch (key) {
+      case "sub":
+        return subject;
+      case "jti":
+        return uniqueId;
+      case "iss":
+        return issuer;
     }
     return (String) claims.get(key);
   }
