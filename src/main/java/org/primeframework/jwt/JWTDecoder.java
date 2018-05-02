@@ -151,9 +151,11 @@ public class JWTDecoder {
   }
 
   private JWT decode(String encodedJWT, Header header, String[] parts, Verifier verifier) {
-    int index = encodedJWT.lastIndexOf(".");
-    // The message comprises the first two segments of the entire JWT, the signature is the last segment.
-    byte[] message = encodedJWT.substring(0, index).getBytes(StandardCharsets.UTF_8);
+    // The callers of this decode will have already handled 'none' if it was deemed to be valid based upon
+    // the provided verifiers. At this point, if we have a 'none' algorithm specified in the header, it is invalid.
+    if (header.algorithm == Algorithm.none) {
+      throw new MissingVerifierException("No Verifier has been provided for verify a signature signed using [" + header.algorithm.getName() + "]");
+    }
 
     // If a signature is provided and verifier must be provided.
     if (parts.length == 3 && verifier == null) {
@@ -164,6 +166,10 @@ public class JWTDecoder {
     if (parts.length == 2 && verifier != null) {
       throw new InvalidJWTSignatureException();
     }
+
+    int index = encodedJWT.lastIndexOf(".");
+    // The message comprises the first two segments of the entire JWT, the signature is the last segment.
+    byte[] message = encodedJWT.substring(0, index).getBytes(StandardCharsets.UTF_8);
 
     if (parts.length == 3) {
       // Verify the signature before de-serializing the payload.
