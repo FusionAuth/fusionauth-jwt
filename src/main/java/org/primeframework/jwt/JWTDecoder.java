@@ -23,10 +23,13 @@ import org.primeframework.jwt.domain.InvalidJWTSignatureException;
 import org.primeframework.jwt.domain.JWT;
 import org.primeframework.jwt.domain.JWTExpiredException;
 import org.primeframework.jwt.domain.JWTUnavailableForProcessingException;
+import org.primeframework.jwt.domain.MissingSignatureException;
 import org.primeframework.jwt.domain.MissingVerifierException;
+import org.primeframework.jwt.domain.NoneNotAllowedException;
 import org.primeframework.jwt.json.Mapper;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
@@ -62,28 +65,15 @@ public class JWTDecoder {
     Objects.requireNonNull(encodedJWT);
     Objects.requireNonNull(verifiers);
 
-    // An unsecured JWT will not contain a signature and should only have a header and a payload.
     String[] parts = getParts(encodedJWT);
-    Header header = Mapper.deserialize(base64Decode(parts[0].getBytes(StandardCharsets.UTF_8)), Header.class);
 
-    // If parts.length == 2 we have no signature, if no verifiers were provided, decode if header says 'none', else throw an exception
-    if (parts.length == 2 && verifiers.length == 0) {
-      if (header.algorithm == Algorithm.none) {
-        return Mapper.deserialize(base64Decode(parts[1].getBytes(StandardCharsets.UTF_8)), JWT.class);
-      } else {
-        throw new InvalidJWTSignatureException();
-      }
-    }
+    Header header = Mapper.deserialize(base64Decode(parts[0]), Header.class);
+    Verifier verifier = Arrays.stream(verifiers).filter(v -> v.canVerify(header.algorithm)).findFirst().orElse(null);
 
-    // If verifiers were provided, ensure it is able to verify this JWT.
-    Verifier verifier = null;
-    for (Verifier v : verifiers) {
-      if (v.canVerify(header.algorithm)) {
-        verifier = v;
-      }
-    }
+    // The 'none' algorithm is only allowed when no verifiers are provided.
+    boolean allowNoneAlgorithm = verifiers.length == 0;
 
-    return decode(encodedJWT, header, parts, verifier);
+    return validate(encodedJWT, parts, header, verifier, allowNoneAlgorithm);
   }
 
   /**
@@ -120,64 +110,96 @@ public class JWTDecoder {
     Objects.requireNonNull(keyFunction);
 
     String[] parts = getParts(encodedJWT);
-    Header header = Mapper.deserialize(base64Decode(parts[0].getBytes(StandardCharsets.UTF_8)), Header.class);
-    // If parts.length == 2 we have no signature, if no verifiers were provided, decode if header says 'none', else throw an exception
-    if (parts.length == 2 && verifiers.isEmpty()) {
-      if (header.algorithm == Algorithm.none) {
-        return Mapper.deserialize(base64Decode(parts[1].getBytes(StandardCharsets.UTF_8)), JWT.class);
-      } else {
-        throw new InvalidJWTSignatureException();
-      }
-    }
 
-    // If verifiers were provided, ensure it is able to verify this JWT.
+    Header header = Mapper.deserialize(base64Decode(parts[0]), Header.class);
     String key = keyFunction.apply(header);
     Verifier verifier = verifiers.get(key);
-    if (verifier != null) {
-      if (!verifier.canVerify(header.algorithm)) {
-        verifier = null;
-      }
-    }
 
-    return decode(encodedJWT, header, parts, verifier);
+    // The 'none' algorithm is only allowed when no verifiers are provided.
+    boolean allowNoneAlgorithm = verifiers.isEmpty();
+
+    return validate(encodedJWT, parts, header, verifier, allowNoneAlgorithm);
   }
 
-  private byte[] base64Decode(byte[] bytes) {
+  /**
+   * Decode the provided base64 encoded string.
+   *
+   * @param string the input string to decode, it is expected to be a valid base64 encoded string.
+   * @return a decoded byte array
+   */
+  private byte[] base64Decode(String string) {
     try {
-      return Base64.getUrlDecoder().decode(bytes);
+      // Equal to calling : .decode(string.getBytes(StandardCharsets.ISO_8859_1))
+      // If this is a properly base64 encoded string, decoding using ISO_8859_1 should be fine.
+      return Base64.getUrlDecoder().decode(string);
     } catch (IllegalArgumentException e) {
       throw new InvalidJWTException("The encoded JWT is not properly Base64 encoded.", e);
     }
   }
 
-  private JWT decode(String encodedJWT, Header header, String[] parts, Verifier verifier) {
-    // The callers of this decode will have already handled 'none' if it was deemed to be valid based upon
-    // the provided verifiers. At this point, if we have a 'none' algorithm specified in the header, it is invalid.
-    if (header.algorithm == Algorithm.none) {
-      throw new MissingVerifierException("No Verifier has been provided for verify a signature signed using [" + header.algorithm.getName() + "]");
+  /**
+   * Split the encoded JWT on a period (.), and return the parts.
+   * <p>
+   * A secured JWT will be in the format : <code>XXXXX.YYYYY.ZZZZZ</code> and an un-secured JWT (no signature) will be in the format <code>XXXXX.YYYYY</code>.
+   *
+   * @param encodedJWT the encoded form of the JWT
+   * @return an array of parts, 2 for an un-secured JWT, and 3 parts for a secured JWT.
+   */
+  private String[] getParts(String encodedJWT) {
+    String[] parts = encodedJWT.split("\\.");
+    if (parts.length == 3 || (parts.length == 2 && encodedJWT.endsWith("."))) {
+      return parts;
     }
 
-    // If a signature is provided and verifier must be provided.
-    if (parts.length == 3 && verifier == null) {
-      throw new MissingVerifierException("No Verifier has been provided for verify a signature signed using [" + header.algorithm.getName() + "]");
+    throw new InvalidJWTException("The encoded JWT is not properly formatted. Expected a three part dot separated string.");
+  }
+
+  /**
+   * Validate the encoded JWT and return the constructed JWT object if valid.
+   *
+   * @param encodedJWT         the encoded JWT
+   * @param parts              the parts of the encoded JWT
+   * @param header             the JWT header
+   * @param verifier           the selected JWT verifier
+   * @param allowNoneAlgorithm true if un-secured JWTs may be decoded, i.e. 'none' algorithm is allowed
+   * @return the constructed JWT object containing identity claims
+   */
+  private JWT validate(String encodedJWT, String[] parts, Header header, Verifier verifier, boolean allowNoneAlgorithm) {
+    // When parts.length == 2, we have no signature.
+    //  - Case 1: If one or more verifiers are provided, we will not decode an un-secured JWT. Throw NoneNotAllowedException
+    //  - Case 2: If no verifiers are provided, we will decode an un-secured JWT, the algorithm must be 'none'.
+    if (parts.length == 2) {
+      if (!allowNoneAlgorithm) {
+        throw new NoneNotAllowedException();
+      }
+
+      if (header.algorithm != Algorithm.none) {
+        throw new MissingSignatureException("Your provided a JWT with the algorithm [" + header.algorithm.getName() + "] but it is missing a signature");
+      }
+    } else {
+      // When parts.length == 3, we have a signature.
+      // - Case 1: The algorithm in the header is 'none', we do not expect a signature.
+      // - Case 2: No verifier was provided that can verify the algorithm in the header, or no verifier found by the kid in the header
+      // - Case 3: The requested verifier cannot verify the signature based upon the algorithm value in the header
+      if (header.algorithm == Algorithm.none) {
+        throw new InvalidJWTException("You provided a JWT with a signature and an algorithm of none");
+      }
+
+      if (verifier == null) {
+        throw new MissingVerifierException("No Verifier has been provided for verify a signature signed using [" + header.algorithm.getName() + "]");
+      }
+
+      // When the verifier has been selected based upon the 'kid' or other identifier in the header, we must verify it can verify the algorithm.
+      // - When multiple verifiers are provided to .decode w/out a kid, we may have already called 'canVerify', this is ok.
+      if (!verifier.canVerify(header.algorithm)) {
+        throw new MissingVerifierException("No Verifier has been provided for verify a signature signed using [" + header.algorithm.getName() + "]");
+      }
+
+      verifySignature(verifier, header, parts[2], encodedJWT);
     }
 
-    // A verifier was provided but no signature exists, this is treated as an invalid signature.
-    if (parts.length == 2 && verifier != null) {
-      throw new InvalidJWTSignatureException();
-    }
-
-    int index = encodedJWT.lastIndexOf(".");
-    // The message comprises the first two segments of the entire JWT, the signature is the last segment.
-    byte[] message = encodedJWT.substring(0, index).getBytes(StandardCharsets.UTF_8);
-
-    if (parts.length == 3) {
-      // Verify the signature before de-serializing the payload.
-      byte[] signature = base64Decode(parts[2].getBytes(StandardCharsets.UTF_8));
-      verifier.verify(header.algorithm, message, signature);
-    }
-
-    JWT jwt = Mapper.deserialize(base64Decode(parts[1].getBytes(StandardCharsets.UTF_8)), JWT.class);
+    // Signature is valid or there is no signature to validate for an un-secured JWT, verify time based JWT claims
+    JWT jwt = Mapper.deserialize(base64Decode(parts[1]), JWT.class);
 
     // Verify expiration claim
     if (jwt.isExpired()) {
@@ -192,13 +214,21 @@ public class JWTDecoder {
     return jwt;
   }
 
-  private String[] getParts(String encodedJWT) {
-    String[] parts = encodedJWT.split("\\.");
-    // Secured JWT XXXXX.YYYYY.ZZZZZ, Unsecured JWT XXXXX.YYYYY.
-    if (parts.length == 3 || (parts.length == 2 && encodedJWT.endsWith("."))) {
-      return parts;
-    }
+  /**
+   * Verify the signature of the encoded JWT. If the signature is invalid a {@link InvalidJWTSignatureException} will be thrown.
+   *
+   * @param verifier   the verifier
+   * @param header     the JWT header
+   * @param signature  the JWT signature
+   * @param encodedJWT the encoded JWT
+   * @throws InvalidJWTSignatureException if the JWT signature is invalid.
+   */
+  private void verifySignature(Verifier verifier, Header header, String signature, String encodedJWT) {
+    // The message comprises the first two segments of the entire JWT, the signature is the last segment.
+    int index = encodedJWT.lastIndexOf(".");
+    byte[] message = encodedJWT.substring(0, index).getBytes(StandardCharsets.UTF_8);
 
-    throw new InvalidJWTException("The encoded JWT is not properly formatted. Expected a three part dot separated string.");
+    byte[] signatureBytes = base64Decode(signature);
+    verifier.verify(header.algorithm, message, signatureBytes);
   }
 }

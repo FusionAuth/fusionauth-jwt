@@ -17,7 +17,7 @@
 package org.primeframework.jwt;
 
 import org.primeframework.jwt.domain.Algorithm;
-import org.primeframework.jwt.domain.MissingVerifierException;
+import org.primeframework.jwt.domain.InvalidJWTSignatureException;
 
 /**
  * @author Daniel DeGroff
@@ -35,7 +35,7 @@ public interface Verifier {
    * @param algorithm The algorithm used to verify the JWT signature.
    * @param message   The JWT message. The header and claims, the first two segments of the dot separated JWT.
    * @param signature The signature to verify.
-   * @throws MissingVerifierException If no Signer has been provided to verify the JWT signature.
+   * @throws InvalidJWTSignatureException If the signature is not valid.
    */
   void verify(Algorithm algorithm, byte[] message, byte[] signature);
 }
