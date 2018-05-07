@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2016-2018, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -216,7 +216,7 @@ public class RSAUtils {
     int index = 0;
     int lineLength = 65;
     while (index < encoded.length()) {
-      sb.append(encoded.substring(index, Math.min(index + lineLength, encoded.length()))).append("\n");
+      sb.append(encoded, index, Math.min(index + lineLength, encoded.length())).append("\n");
       index += lineLength;
     }
 
