@@ -9,6 +9,7 @@ Changes in 1.3.0
  * Added OpenIDConnect.at_hash
  * Added OpenIDConnect.c_hash
  * Fixed potential security issue that may allow a JWT to be decoded without a valid signature. Thanks to @dmak.
+   See CVE-2018-1000125 https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1000125
 
 Changes in 1.2.1
 
