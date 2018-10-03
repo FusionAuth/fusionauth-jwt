@@ -15,8 +15,9 @@
  */
 
 savantVersion = "1.0.0"
+jacksonVersion = "2.9.6"
 
-project(group: "com.inversoft", name: "prime-jwt", version: "1.3.1", licenses: ["ApacheV2_0"]) {
+project(group: "com.inversoft", name: "prime-jwt", version: "2.0.0", licenses: ["ApacheV2_0"]) {
 
   workflow {
     standard()
@@ -28,9 +29,9 @@ project(group: "com.inversoft", name: "prime-jwt", version: "1.3.1", licenses: [
 
   dependencies {
     group(name: "compile") {
-      dependency(id: "com.fasterxml.jackson.core:jackson-core:2.8.8")
-      dependency(id: "com.fasterxml.jackson.core:jackson-databind:2.8.8")
-      dependency(id: "com.fasterxml.jackson.core:jackson-annotations:2.8.8")
+      dependency(id: "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
+      dependency(id: "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+      dependency(id: "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
     }
     group(name: "test-compile", export: false) {
       dependency(id: "org.testng:testng:6.8.7")
@@ -45,9 +46,9 @@ project(group: "com.inversoft", name: "prime-jwt", version: "1.3.1", licenses: [
 /*
  * Define Plugins
  */
-dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:${savantVersion}")
-java = loadPlugin(id: "org.savantbuild.plugin:java:${savantVersion}")
-javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:${savantVersion}")
+dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:1.0.2")
+java = loadPlugin(id: "org.savantbuild.plugin:java:1.0.2")
+javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.2")
 groovy = loadPlugin(id: "org.savantbuild.plugin:groovy:${savantVersion}")
 idea = loadPlugin(id: "org.savantbuild.plugin:idea:${savantVersion}")
 release = loadPlugin(id: "org.savantbuild.plugin:release-git:${savantVersion}")

@@ -18,6 +18,7 @@ package org.primeframework.jwt.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.primeframework.jwt.domain.InvalidJWTException;
@@ -52,6 +53,8 @@ public class Mapper {
     OBJECT_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL)
         .configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false)
         .configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
+        .configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true)
+        .configure(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS, true)
         .registerModule(new JacksonModule());
   }
 }

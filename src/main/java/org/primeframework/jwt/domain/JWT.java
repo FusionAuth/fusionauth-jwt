@@ -23,6 +23,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.primeframework.jwt.JWTDecoder;
 import org.primeframework.jwt.JWTEncoder;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -51,9 +54,6 @@ public class JWT {
    */
   @JsonProperty("aud")
   public Object audience;
-
-  @JsonIgnore
-  public Map<String, Object> claims = new LinkedHashMap<>();
 
   /**
    * Registered Claim <code>exp</code> as defined by RFC 7519 Section 4.1.4. Use of this claim is OPTIONAL.
@@ -90,6 +90,13 @@ public class JWT {
    */
   @JsonProperty("nbf")
   public ZonedDateTime notBefore;
+
+  /**
+   * This Map will contain all the claims that aren't specifically defined in the specification. These still might be
+   * IANA registered claims, but are not known JWT specification claims.
+   */
+  @JsonAnySetter
+  public Map<String, Object> otherClaims = new LinkedHashMap<>();
 
   /**
    * Registered Claim <code>sub</code> as defined by RFC 7519 Section 4.1.2. Use of this claim is OPTIONAL.
@@ -134,22 +141,39 @@ public class JWT {
    * @param value The value of the JWT claim. This value is an object and is expected to properly serialize.
    * @return this.
    */
-  @JsonAnySetter
   public JWT addClaim(String name, Object value) {
-    if (value != null) {
-      claims.put(name, value);
+    switch (name) {
+      case "aud":
+        this.audience = value;
+        break;
+      case "exp":
+        this.expiration = toZonedDateTime("exp", value);
+        break;
+      case "iat":
+        this.issuedAt = toZonedDateTime("iat", value);
+        break;
+      case "iss":
+        this.issuer = (String) value;
+        break;
+      case "jti":
+        this.uniqueId = (String) value;
+        break;
+      case "nbf":
+        this.notBefore = toZonedDateTime("nbf", value);
+        break;
+      case "sub":
+        this.subject = (String) value;
+        break;
+      default:
+        if (value instanceof Double || value instanceof Float) {
+          value = BigDecimal.valueOf(((Number) value).doubleValue());
+        } else if (value instanceof Integer || value instanceof Long) {
+          value = BigInteger.valueOf(((Number) value).longValue());
+        }
+        otherClaims.put(name, value);
+        break;
     }
     return this;
-  }
-
-  /**
-   * Special getter used to flatten the claims into top level properties. Necessary to correctly serialize this object.
-   *
-   * @return a map of properties to be serialized as if they were actual properties of this class.
-   */
-  @JsonAnyGetter
-  public Map<String, Object> anyGetter() {
-    return claims;
   }
 
   @Override
@@ -158,7 +182,7 @@ public class JWT {
     if (o == null || getClass() != o.getClass()) return false;
     JWT jwt = (JWT) o;
     return Objects.equals(audience, jwt.audience) &&
-        Objects.equals(claims, jwt.claims) &&
+        Objects.equals(otherClaims, jwt.otherClaims) &&
         Objects.equals(expiration, jwt.expiration) &&
         Objects.equals(issuedAt, jwt.issuedAt) &&
         Objects.equals(issuer, jwt.issuer) &&
@@ -167,71 +191,121 @@ public class JWT {
         Objects.equals(uniqueId, jwt.uniqueId);
   }
 
+  /**
+   * @return Returns all the claims as cool Java types like ZonedDateTime (where appropriate of course). This will
+   * contain the otherClaims and the known JWT claims.
+   */
+  @JsonIgnore
+  public Map<String, Object> getAllClaims() {
+    Map<String, Object> rawClaims = new HashMap<>(otherClaims);
+
+    if (audience != null) {
+      rawClaims.put("aud", audience);
+    }
+
+    if (expiration != null) {
+      rawClaims.put("exp", expiration);
+    }
+
+    if (issuedAt != null) {
+      rawClaims.put("iat", issuedAt);
+    }
+
+    if (issuer != null) {
+      rawClaims.put("iss", issuer);
+    }
+
+    if (notBefore != null) {
+      rawClaims.put("nbf", notBefore);
+    }
+
+    if (subject != null) {
+      rawClaims.put("sub", subject);
+    }
+
+    if (uniqueId != null) {
+      rawClaims.put("jti", uniqueId);
+    }
+
+    return rawClaims;
+  }
+
+  public BigDecimal getBigDecimal(String key) {
+    return (BigDecimal) lookupClaim(key);
+  }
+
+  public BigInteger getBigInteger(String key) {
+    return (BigInteger) lookupClaim(key);
+  }
+
   public Boolean getBoolean(String key) {
-    Object object = claims.get(key);
-    if (object == null) {
+    return (Boolean) lookupClaim(key);
+  }
+
+  public Double getDouble(String key) {
+    BigDecimal value = (BigDecimal) lookupClaim(key);
+    if (value == null) {
       return null;
     }
 
-    if (object instanceof String) {
-      return Boolean.valueOf((String) object);
+    return value.doubleValue();
+  }
+
+  public Float getFloat(String key) {
+    BigDecimal value = (BigDecimal) lookupClaim(key);
+    if (value == null) {
+      return null;
     }
 
-    return (Boolean) object;
+    return value.floatValue();
   }
 
   public Integer getInteger(String key) {
-    Object object = claims.get(key);
-    if (object == null) {
+    BigInteger value = (BigInteger) lookupClaim(key);
+    if (value == null) {
       return null;
     }
 
-    if (object instanceof String) {
-      return Integer.parseInt((String) object);
-    }
-
-    return (Integer) object;
+    return value.intValue();
   }
 
-  public List<String> getList(String key) {
-    Object object = claims.get(key);
-    if (object == null) {
-      return null;
-    }
-
-    //noinspection unchecked
-    return (List<String>) object;
+  public List<Object> getList(String key) {
+    return (List<Object>) otherClaims.get(key);
   }
 
   public Long getLong(String key) {
-    Object object = claims.get(key);
-    if (object == null) {
+    BigInteger value = (BigInteger) lookupClaim(key);
+    if (value == null) {
       return null;
     }
 
-    if (object instanceof String) {
-      return Long.parseLong((String) object);
-    } else if (object instanceof Integer) {
-      return ((Integer) object).longValue();
-    }
+    return value.longValue();
+  }
 
-    return (Long) object;
+  public Map<String, Object> getMap(String key) {
+    return (Map<String, Object>) lookupClaim(key);
+  }
+
+  public Number getNumber(String key) {
+    return (Number) lookupClaim(key);
   }
 
   public Object getObject(String key) {
-    if (key == null) {
-      return null;
-    }
-
-    if (key.equals("aud")) {
-      return audience;
-    }
-    return claims.get(key);
+    return lookupClaim(key);
   }
 
+  @JsonAnyGetter
+  public Map<String, Object> getOtherClaims() {
+    return otherClaims;
+  }
+
+  /**
+   * @return Returns the original claims from the JWT without any Java data types like ZonedDateTime. This will contain
+   * the otherClaims and the known JWT claims.
+   */
   @JsonIgnore
   public Map<String, Object> getRawClaims() {
-    Map<String, Object> rawClaims = new HashMap<>(claims);
+    Map<String, Object> rawClaims = new HashMap<>(otherClaims);
 
     if (audience != null) {
       rawClaims.put("aud", audience);
@@ -265,24 +339,12 @@ public class JWT {
   }
 
   public String getString(String key) {
-    if (key == null) {
-      return null;
-    }
-
-    switch (key) {
-      case "sub":
-        return subject;
-      case "jti":
-        return uniqueId;
-      case "iss":
-        return issuer;
-    }
-    return (String) claims.get(key);
+    return (String) lookupClaim(key);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(audience, claims, expiration, issuedAt, issuer, notBefore, subject, uniqueId);
+    return Objects.hash(audience, otherClaims, expiration, issuedAt, issuer, notBefore, subject, uniqueId);
   }
 
   /**
@@ -338,5 +400,36 @@ public class JWT {
   public JWT setUniqueId(String uniqueId) {
     this.uniqueId = uniqueId;
     return this;
+  }
+
+  private Object lookupClaim(String key) {
+    switch (key) {
+      case "aud":
+        return audience;
+      case "exp":
+        return expiration;
+      case "iat":
+        return issuedAt;
+      case "iss":
+        return issuer;
+      case "jti":
+        return uniqueId;
+      case "nbf":
+        return notBefore;
+      case "sub":
+        return subject;
+      default:
+        return otherClaims.get(key);
+    }
+  }
+
+  private ZonedDateTime toZonedDateTime(String claim, Object value) {
+    if (value instanceof ZonedDateTime) {
+      return (ZonedDateTime) value;
+    } else if (value instanceof Number) {
+      return Instant.ofEpochSecond(((Number) value).longValue()).atZone(ZoneOffset.UTC);
+    } else {
+      throw new IllegalArgumentException("Invalid numeric value for [" + claim + "] claim");
+    }
   }
 }

@@ -33,7 +33,7 @@ public interface Verifier {
    * Verify the signature of the encoded JWT payload.
    *
    * @param algorithm The algorithm used to verify the JWT signature.
-   * @param message   The JWT message. The header and claims, the first two segments of the dot separated JWT.
+   * @param message   The JWT message. The header and otherClaims, the first two segments of the dot separated JWT.
    * @param signature The signature to verify.
    * @throws InvalidJWTSignatureException If the signature is not valid.
    */

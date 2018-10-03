@@ -28,6 +28,7 @@ import org.primeframework.jwt.rsa.RSAVerifier;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -151,13 +152,6 @@ public class JWTTest extends BaseTest {
   }
 
   @Test
-  public void test_nullFailFast() throws Exception {
-    expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode(null, null, null));
-    expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode("foo", null, null));
-    expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode("foo", Collections.emptyMap(), null));
-  }
-
-  @Test
   public void test_HS256() throws Exception {
     JWT jwt = new JWT().setSubject("123456789");
     Signer signer = HMACSigner.newSHA256Signer("secret");
@@ -247,9 +241,14 @@ public class JWTTest extends BaseTest {
         .setSubject("123456789")
         .addClaim("foo", "bar")
         .addClaim("timestamp", 1476062602926L)
+        .addClaim("bigInteger", new BigInteger("100000000000000000000000000000000000000000000000000000000000000000000000000000000"))
+        .addClaim("bigDecimal", new BigDecimal("11.2398732934908570987534209857423098743209857"))
+        .addClaim("double", 3.14d)
+        .addClaim("float", 3.14f)
         .addClaim("meaningOfLife", 42)
         .addClaim("bar", Arrays.asList("bing", "bam", "boo"))
-        .addClaim("www.inversoft.com/claims/is_admin", true);
+        .addClaim("object", Collections.singletonMap("nested", Collections.singletonMap("foo", "bar")))
+        .addClaim("www.inversoft.com/otherClaims/is_admin", true);
 
     Signer signer = HMACSigner.newSHA256Signer("secret");
     Verifier verifier = HMACVerifier.newVerifier("secret");
@@ -265,12 +264,28 @@ public class JWTTest extends BaseTest {
     assertEquals(actualJwt.uniqueId, expectedJWT.uniqueId);
     assertEquals(actualJwt.subject, expectedJWT.subject);
     assertEquals(actualJwt.getString("foo"), expectedJWT.getString("foo"));
+    assertEquals(actualJwt.getBigInteger("timestamp"), expectedJWT.getBigInteger("timestamp"));
     assertEquals(actualJwt.getLong("timestamp"), expectedJWT.getLong("timestamp"));
+    assertEquals(actualJwt.getNumber("timestamp"), expectedJWT.getNumber("timestamp"));
+    assertEquals(actualJwt.getBigInteger("meaningOfLife"), expectedJWT.getBigInteger("meaningOfLife"));
     assertEquals(actualJwt.getInteger("meaningOfLife"), expectedJWT.getInteger("meaningOfLife"));
+    assertEquals(actualJwt.getNumber("meaningOfLife"), expectedJWT.getNumber("meaningOfLife"));
+    assertEquals(actualJwt.getBigDecimal("double"), expectedJWT.getBigDecimal("double"));
+    assertEquals(actualJwt.getDouble("double"), expectedJWT.getDouble("double"));
+    assertEquals(actualJwt.getNumber("double"), expectedJWT.getNumber("double"));
+    assertEquals(actualJwt.getBigDecimal("float"), expectedJWT.getBigDecimal("float"));
+    assertEquals(actualJwt.getFloat("float"), expectedJWT.getFloat("float"));
+    assertEquals(actualJwt.getNumber("float"), expectedJWT.getNumber("float"));
+    assertEquals(actualJwt.getBigInteger("bigInteger"), expectedJWT.getBigInteger("bigInteger"));
+    assertEquals(actualJwt.getNumber("bigInteger"), expectedJWT.getNumber("bigInteger"));
+    assertEquals(actualJwt.getBigDecimal("bigDecimal"), expectedJWT.getBigDecimal("bigDecimal"));
+    assertEquals(actualJwt.getNumber("bigDecimal"), expectedJWT.getNumber("bigDecimal"));
     assertEquals(actualJwt.getObject("bar"), expectedJWT.getObject("bar"));
-    assertEquals(actualJwt.getBoolean("www.inversoft.com/claims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/claims/is_admin"));
+    assertEquals(actualJwt.getList("bar"), expectedJWT.getList("bar"));
+    assertEquals(actualJwt.getMap("object"), expectedJWT.getObject("object"));
+    assertEquals(actualJwt.getBoolean("www.inversoft.com/otherClaims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/otherClaims/is_admin"));
 
-    // validate raw claims
+    // validate raw otherClaims
     Map<String, Object> rawClaims = actualJwt.getRawClaims();
     assertEquals(rawClaims.get("aud"), expectedJWT.audience);
     assertEquals(rawClaims.get("exp"), expectedJWT.expiration.toEpochSecond());
@@ -280,10 +295,27 @@ public class JWTTest extends BaseTest {
     assertEquals(rawClaims.get("jti"), expectedJWT.uniqueId);
     assertEquals(rawClaims.get("sub"), expectedJWT.subject);
     assertEquals(rawClaims.get("foo"), expectedJWT.getString("foo"));
-    assertEquals(rawClaims.get("timestamp"), expectedJWT.getLong("timestamp"));
-    assertEquals(rawClaims.get("meaningOfLife"), expectedJWT.getInteger("meaningOfLife"));
+    assertEquals(rawClaims.get("timestamp"), expectedJWT.getBigInteger("timestamp"));
+    assertEquals(rawClaims.get("meaningOfLife"), expectedJWT.getBigInteger("meaningOfLife"));
     assertEquals(rawClaims.get("bar"), expectedJWT.getObject("bar"));
-    assertEquals(rawClaims.get("www.inversoft.com/claims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/claims/is_admin"));
+    assertEquals(rawClaims.get("object"), expectedJWT.getObject("object"));
+    assertEquals(rawClaims.get("www.inversoft.com/otherClaims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/otherClaims/is_admin"));
+
+    // validate raw otherClaims
+    Map<String, Object> allClaims = actualJwt.getAllClaims();
+    assertEquals(allClaims.get("aud"), expectedJWT.audience);
+    assertEquals(allClaims.get("exp"), expectedJWT.expiration);
+    assertEquals(allClaims.get("iat"), expectedJWT.issuedAt);
+    assertEquals(allClaims.get("iss"), expectedJWT.issuer);
+    assertEquals(allClaims.get("nbf"), expectedJWT.notBefore);
+    assertEquals(allClaims.get("jti"), expectedJWT.uniqueId);
+    assertEquals(allClaims.get("sub"), expectedJWT.subject);
+    assertEquals(allClaims.get("foo"), expectedJWT.getString("foo"));
+    assertEquals(allClaims.get("timestamp"), expectedJWT.getBigInteger("timestamp"));
+    assertEquals(allClaims.get("meaningOfLife"), expectedJWT.getBigInteger("meaningOfLife"));
+    assertEquals(allClaims.get("bar"), expectedJWT.getObject("bar"));
+    assertEquals(allClaims.get("object"), expectedJWT.getObject("object"));
+    assertEquals(allClaims.get("www.inversoft.com/otherClaims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/otherClaims/is_admin"));
   }
 
   @Test
@@ -362,6 +394,13 @@ public class JWTTest extends BaseTest {
 
     expectException(JWTUnavailableForProcessingException.class, ()
         -> JWT.getDecoder().decode(encodedJWT, verifier));
+  }
+
+  @Test
+  public void test_nullFailFast() throws Exception {
+    expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode(null, null, null));
+    expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode("foo", null, null));
+    expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode("foo", Collections.emptyMap(), null));
   }
 
   @Test
