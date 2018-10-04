@@ -4,6 +4,9 @@ Changes in 2.0.0
 
  This major version of prime-jwt contains breaking changes to the JWT class to make the behavior more consistent and predictable.
 
+ * JWT parsing now uses BigDecimal and BigInteger for all numeric values. There are helper methods to convert these to Integer, Long, Double and Float.
+ * JWT object stores all known claims as top level properties and all other claims in a Map
+ * Added helper methods to JWT to get all claims in a Map (including known claims). One is the original JWT values and one provides rich Java types (i.e. ZonedDateTime)
  * Added RSAUtils.convertFingerprintToThumbprint
  * Added RSAUtils.convertThumbprintToFingerprint
  * Added HEXUtils.fromBytes
