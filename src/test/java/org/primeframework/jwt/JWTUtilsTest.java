@@ -37,7 +37,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class JWTUtilsTest {
   @Test
-  public void generateRSAKey() throws Exception {
+  public void generateRSAKey() {
     RSAKeyPair keyPair2048 = JWTUtils.generate2048RSAKeyPair();
     RSAPrivateKey privateKey2048 = RSAUtils.getPrivateKeyFromPEM(keyPair2048.privateKey);
     RSAPublicKey publicKey2048 = RSAUtils.getPublicKeyFromPEM(keyPair2048.publicKey);
@@ -76,7 +76,7 @@ public class JWTUtilsTest {
   }
 
   @Test
-  public void hmacSecretLengths() throws Exception {
+  public void hmacSecretLengths() {
     String hmac256 = JWTUtils.generateSHA256HMACSecret();
     assertEquals(hmac256.length(), 44);
     assertEquals(Base64.getDecoder().decode(hmac256.getBytes(StandardCharsets.UTF_8)).length, 32);
@@ -91,7 +91,7 @@ public class JWTUtilsTest {
   }
 
   @Test
-  public void rsaKeyLengths() throws Exception {
+  public void rsaKeyLengths() {
     RSAKeyPair keyPair2048 = JWTUtils.generate2048RSAKeyPair();
     String publicKey2048 = trimPublicKey(keyPair2048.publicKey);
     assertEquals(publicKey2048.length(), 392);

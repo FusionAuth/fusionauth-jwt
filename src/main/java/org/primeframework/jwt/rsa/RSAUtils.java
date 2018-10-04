@@ -16,6 +16,7 @@
 
 package org.primeframework.jwt.rsa;
 
+import org.primeframework.jwt.HexUtils;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerValue;
 import sun.security.x509.X509CertImpl;
@@ -59,6 +60,33 @@ import static org.primeframework.jwt.rsa.PEMUtils.X509_PUBLIC_KEY_SUFFIX;
  * @author Daniel DeGroff
  */
 public class RSAUtils {
+  /**
+   * Convert a HEX <code>SHA-1</code> or <code>SHA-256</code> X.509 certificate fingerprint to an <code>x5t</code>
+   * or <code>x5t#256</code> thumbprint respectively.
+   *
+   * @param fingerprint the SHA-1 or SHA-256 fingerprint
+   * @return an x5t hash.
+   */
+  public static String convertFingerprintToThumbprint(String fingerprint) {
+    byte[] bytes = HexUtils.toBytes(fingerprint);
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+  }
+
+  /**
+   * Convert an X.509 certificate thumbprint to a HEX <code>SHA-1</code> or <code>SHA-256</code> fingerprint respectively.
+   * <p>
+   * If a <code>x5t</code> thumbprint is provided, a SHA-1 HEX encoded fingerprint will be returned.
+   * <p>
+   * If a <code>x5t#256</code> thumbprint is provided, a SHA-256 HEX encoded fingerprint will be returned.
+   *
+   * @param x5tHash the x5t hash
+   * @return a SHA-1 or SHA-256 fingerprint
+   */
+  public static String convertThumbprintToFingerprint(String x5tHash) {
+    byte[] bytes = Base64.getUrlDecoder().decode(x5tHash.getBytes(Charset.forName("UTF-8")));
+    return HexUtils.fromBytes(bytes);
+  }
+
   /**
    * Generate the <code>x5t</code> - the X.509 certificate thumbprint to be used in JWT header.
    *
@@ -150,6 +178,7 @@ public class RSAUtils {
       throw new RuntimeException(e);
     }
   }
+
 
   private static String digest(String algorithm, byte[] bytes) {
     MessageDigest messageDigest;
