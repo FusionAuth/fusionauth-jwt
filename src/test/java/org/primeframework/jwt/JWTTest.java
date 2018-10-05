@@ -137,7 +137,7 @@ public class JWTTest extends BaseTest {
   }
 
   @Test
-  public void expired() throws Exception {
+  public void expired() {
     // no expiration
     assertFalse(new JWT()
         .setSubject("123456789").isExpired());
@@ -152,7 +152,7 @@ public class JWTTest extends BaseTest {
   }
 
   @Test
-  public void test_HS256() throws Exception {
+  public void test_HS256() {
     JWT jwt = new JWT().setSubject("123456789");
     Signer signer = HMACSigner.newSHA256Signer("secret");
 
@@ -160,7 +160,7 @@ public class JWTTest extends BaseTest {
   }
 
   @Test
-  public void test_HS256_manualAddedClaim() throws Exception {
+  public void test_HS256_manualAddedClaim() {
     JWT jwt = new JWT().addClaim("test", "123456789");
     Signer signer = HMACSigner.newSHA256Signer("secret");
 
@@ -168,7 +168,7 @@ public class JWTTest extends BaseTest {
   }
 
   @Test
-  public void test_HS384() throws Exception {
+  public void test_HS384() {
     JWT jwt = new JWT().setSubject("123456789");
     Signer signer = HMACSigner.newSHA384Signer("secret");
 
@@ -179,7 +179,7 @@ public class JWTTest extends BaseTest {
   }
 
   @Test
-  public void test_HS512() throws Exception {
+  public void test_HS512() {
     JWT jwt = new JWT().setSubject("123456789");
     Signer signer = HMACSigner.newSHA512Signer("secret");
 
@@ -214,7 +214,7 @@ public class JWTTest extends BaseTest {
   }
 
   @Test
-  public void test_RSA_1024Key() throws Exception {
+  public void test_RSA_1024Key() {
     expectException(InvalidKeyLengthException.class, ()
         -> RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_1024.pem")))));
     expectException(InvalidKeyLengthException.class, ()
@@ -230,7 +230,7 @@ public class JWTTest extends BaseTest {
   }
 
   @Test
-  public void test_complexPayload() throws Exception {
+  public void test_complexPayload() {
     JWT expectedJWT = new JWT()
         .setAudience(Arrays.asList("www.acme.com", "www.vandelayindustries.com"))
         .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS))
@@ -248,7 +248,7 @@ public class JWTTest extends BaseTest {
         .addClaim("meaningOfLife", 42)
         .addClaim("bar", Arrays.asList("bing", "bam", "boo"))
         .addClaim("object", Collections.singletonMap("nested", Collections.singletonMap("foo", "bar")))
-        .addClaim("www.inversoft.com/otherClaims/is_admin", true);
+        .addClaim("www.inversoft.com/claims/is_admin", true);
 
     Signer signer = HMACSigner.newSHA256Signer("secret");
     Verifier verifier = HMACVerifier.newVerifier("secret");
@@ -283,9 +283,9 @@ public class JWTTest extends BaseTest {
     assertEquals(actualJwt.getObject("bar"), expectedJWT.getObject("bar"));
     assertEquals(actualJwt.getList("bar"), expectedJWT.getList("bar"));
     assertEquals(actualJwt.getMap("object"), expectedJWT.getObject("object"));
-    assertEquals(actualJwt.getBoolean("www.inversoft.com/otherClaims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/otherClaims/is_admin"));
+    assertEquals(actualJwt.getBoolean("www.inversoft.com/claims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/claims/is_admin"));
 
-    // validate raw otherClaims
+    // validate raw claims
     Map<String, Object> rawClaims = actualJwt.getRawClaims();
     assertEquals(rawClaims.get("aud"), expectedJWT.audience);
     assertEquals(rawClaims.get("exp"), expectedJWT.expiration.toEpochSecond());
@@ -299,9 +299,9 @@ public class JWTTest extends BaseTest {
     assertEquals(rawClaims.get("meaningOfLife"), expectedJWT.getBigInteger("meaningOfLife"));
     assertEquals(rawClaims.get("bar"), expectedJWT.getObject("bar"));
     assertEquals(rawClaims.get("object"), expectedJWT.getObject("object"));
-    assertEquals(rawClaims.get("www.inversoft.com/otherClaims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/otherClaims/is_admin"));
+    assertEquals(rawClaims.get("www.inversoft.com/claims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/claims/is_admin"));
 
-    // validate raw otherClaims
+    // validate all claims
     Map<String, Object> allClaims = actualJwt.getAllClaims();
     assertEquals(allClaims.get("aud"), expectedJWT.audience);
     assertEquals(allClaims.get("exp"), expectedJWT.expiration);
@@ -315,11 +315,11 @@ public class JWTTest extends BaseTest {
     assertEquals(allClaims.get("meaningOfLife"), expectedJWT.getBigInteger("meaningOfLife"));
     assertEquals(allClaims.get("bar"), expectedJWT.getObject("bar"));
     assertEquals(allClaims.get("object"), expectedJWT.getObject("object"));
-    assertEquals(allClaims.get("www.inversoft.com/otherClaims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/otherClaims/is_admin"));
+    assertEquals(allClaims.get("www.inversoft.com/claims/is_admin"), expectedJWT.getBoolean("www.inversoft.com/claims/is_admin"));
   }
 
   @Test
-  public void test_expiredThrows() throws Exception {
+  public void test_expiredThrows() {
     JWT expectedJWT = new JWT()
         .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1).truncatedTo(ChronoUnit.SECONDS));
 
@@ -365,7 +365,7 @@ public class JWTTest extends BaseTest {
   }
 
   @Test
-  public void test_none() throws Exception {
+  public void test_none() {
     JWT jwt = new JWT().setSubject("123456789");
     Signer signer = new UnsecuredSigner();
 
@@ -380,7 +380,7 @@ public class JWTTest extends BaseTest {
   }
 
   @Test
-  public void test_notBeforeThrows() throws Exception {
+  public void test_notBeforeThrows() {
     JWT expectedJWT = new JWT()
         .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS))
         .setIssuedAt(ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS))
@@ -397,14 +397,14 @@ public class JWTTest extends BaseTest {
   }
 
   @Test
-  public void test_nullFailFast() throws Exception {
+  public void test_nullFailFast() {
     expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode(null, null, null));
     expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode("foo", null, null));
     expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode("foo", Collections.emptyMap(), null));
   }
 
   @Test
-  public void test_zonedDateTime() throws Exception {
+  public void test_zonedDateTime() {
     ZonedDateTime expiration = ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60).truncatedTo(ChronoUnit.SECONDS);
     JWT expectedJWT = new JWT().setExpiration(expiration);
 

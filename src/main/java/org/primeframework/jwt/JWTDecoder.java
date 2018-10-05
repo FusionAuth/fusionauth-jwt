@@ -162,7 +162,7 @@ public class JWTDecoder {
    * @param header             the JWT header
    * @param verifier           the selected JWT verifier
    * @param allowNoneAlgorithm true if un-secured JWTs may be decoded, i.e. 'none' algorithm is allowed
-   * @return the constructed JWT object containing identity otherClaims
+   * @return the constructed JWT object containing identity claims
    */
   private JWT validate(String encodedJWT, String[] parts, Header header, Verifier verifier, boolean allowNoneAlgorithm) {
     // When parts.length == 2, we have no signature.
@@ -198,7 +198,7 @@ public class JWTDecoder {
       verifySignature(verifier, header, parts[2], encodedJWT);
     }
 
-    // Signature is valid or there is no signature to validate for an un-secured JWT, verify time based JWT otherClaims
+    // Signature is valid or there is no signature to validate for an un-secured JWT, verify time based JWT claims
     JWT jwt = Mapper.deserialize(base64Decode(parts[1]), JWT.class);
 
     // Verify expiration claim
