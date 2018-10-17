@@ -11,6 +11,9 @@ Changes in 2.0.0
  * Added RSAUtils.convertThumbprintToFingerprint
  * Added HEXUtils.fromBytes
  * Added HEXUtils.toBytes
+ * Upgraded Jackson from 2.8.8 to 2.9.6. This upgrade addresses CVE-2018-7489 and CVE-2017-7525 for jackson-databind.
+   See https://nvd.nist.gov/vuln/detail/CVE-2018-7489
+   See https://nvd.nist.gov/vuln/detail/CVE-2017-7525
 
 Changes in 1.3.1
 
