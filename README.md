@@ -64,7 +64,7 @@ HS256, HS384, HS512, RS256, RS384, RS512, none (Unsecured)
 <dependency>
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>2.0.0</version>
+  <version>2.1.0</version>
 </dependency>
  ```
  
