@@ -14,8 +14,8 @@
   </component>
   <component name="CopyrightManager" default="">
     <copyright>
-      <option name="notice" value="/*&#10; * Copyright (c) &amp;#36;year, Inversoft Inc., All Rights Reserved&#10; *&#10; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);&#10; * you may not use this file except in compliance with the License.&#10; * You may obtain a copy of the License at&#10; *&#10; *   http://www.apache.org/licenses/LICENSE-2.0&#10; *&#10; * Unless required by applicable law or agreed to in writing,&#10; * software distributed under the License is distributed on an&#10; * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,&#10; * either express or implied. See the License for the specific&#10; * language governing permissions and limitations under the License.&#10; */" />
-      <option name="myName" value="Inversoft" />
+      <option name="notice" value="/*&#10; * Copyright (c) &amp;#36;year, FusionAuth, All Rights Reserved&#10; *&#10; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);&#10; * you may not use this file except in compliance with the License.&#10; * You may obtain a copy of the License at&#10; *&#10; *   http://www.apache.org/licenses/LICENSE-2.0&#10; *&#10; * Unless required by applicable law or agreed to in writing,&#10; * software distributed under the License is distributed on an&#10; * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,&#10; * either express or implied. See the License for the specific&#10; * language governing permissions and limitations under the License.&#10; */" />
+      <option name="myName" value="FusionAuth" />
     </copyright>
   </component>
   <component name="Encoding">
@@ -857,7 +857,7 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/prime-jwt.iml" filepath="$PROJECT_DIR$/prime-jwt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/fusionauth-jwt.iml" filepath="$PROJECT_DIR$/fusionauth-jwt.iml" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="Java 1.8" project-jdk-type="JavaSDK">

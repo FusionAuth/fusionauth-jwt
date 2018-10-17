@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.inversoft</groupId>
-  <artifactId>prime-jwt</artifactId>
+  <groupId>io.fusionauth</groupId>
+  <artifactId>fusionauth-jwt</artifactId>
   <version>2.0.0</version>
   <packaging>jar</packaging>
 
   <name>Inversoft Prime JWT</name>
   <description>A Java 8 fluent API for signing, verifying and building JSON Web Tokens</description>
-  <url>http://www.inversoft.org</url>
+  <url>https://github.com/FusionAuth/fusionauth-jwt</url>
 
   <distributionManagement>
     <snapshotRepository>
@@ -27,15 +27,15 @@
   <developers>
     <developer>
       <name>Brian Pontarelli</name>
-      <email>brian@inversoft.com</email>
-      <organization>Inversoft</organization>
-      <organizationUrl>https://www.inversoft.com</organizationUrl>
+      <email>brian@fusionauth.io</email>
+      <organization>FusionAuth</organization>
+      <organizationUrl>https://fusionauth.io</organizationUrl>
     </developer>
     <developer>
       <name>Daniel DeGroff</name>
-      <email>daniel@inversoft.com</email>
-      <organization>Inversoft</organization>
-      <organizationUrl>https://www.inversoft.com</organizationUrl>
+      <email>daniel@fusionauth.io</email>
+      <organization>FusionAuth</organization>
+      <organizationUrl>https://fusionauth.io</organizationUrl>
     </developer>
   </developers>
 
@@ -47,8 +47,8 @@
   </licenses>
 
   <scm>
-    <connection>scm:git:ssh://github.com:inversoft/prime-jwt</connection>
-    <url>https://github.com/inversoft/prime-jwt</url>
+    <connection>scm:git:ssh://github.com:fusionauth/fusionauth-jwt</connection>
+    <url>https://github.com/fusionauth/fusionauth-jwt</url>
   </scm>
 
   <properties>

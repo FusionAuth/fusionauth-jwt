@@ -1,9 +1,6 @@
 ## Prime JWT ![semver 2.0.0 compliant](http://img.shields.io/badge/semver-2.0.0-brightgreen.svg?style=flat-square)
 
-Prime JWT is intended to be fast and easy to use. Prime JWT has a single external dependency on Jackson.
-
-## Security Notice
-Please upgrade to version >= 1.3.1. A vulnerability was reported that may allow the library to incorrectly validate a JWT.
+FusionAuth JWT is intended to be fast and easy to use. Prime JWT has a single external dependency on Jackson.
 
 ## Example Code:
 
@@ -65,8 +62,8 @@ HS256, HS384, HS512, RS256, RS384, RS512, none (Unsecured)
  ## Maven Dependency
  ```xml
 <dependency>
-  <groupId>com.inversoft</groupId>
-  <artifactId>prime-jwt</artifactId>
+  <groupId>io.fusionauth</groupId>
+  <artifactId>fusionauth-jwt</artifactId>
   <version>2.0.0</version>
 </dependency>
  ```
