@@ -9,7 +9,7 @@
   <version>2.1.0</version>
   <packaging>jar</packaging>
 
-  <name>Inversoft Prime JWT</name>
+  <name>FusionAuth JWT</name>
   <description>A Java 8 fluent API for signing, verifying and building JSON Web Tokens</description>
   <url>https://github.com/FusionAuth/fusionauth-jwt</url>
 
