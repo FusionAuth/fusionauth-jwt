@@ -1,6 +1,6 @@
-## Prime JWT ![semver 2.0.0 compliant](http://img.shields.io/badge/semver-2.0.0-brightgreen.svg?style=flat-square)
+## FusionAuth JWT ![semver 2.0.0 compliant](http://img.shields.io/badge/semver-2.0.0-brightgreen.svg?style=flat-square)
 
-FusionAuth JWT is intended to be fast and easy to use. Prime JWT has a single external dependency on Jackson.
+FusionAuth JWT is intended to be fast and easy to use. FusionAuth JWT has a single external dependency on Jackson.
 
 ## Example Code:
 
