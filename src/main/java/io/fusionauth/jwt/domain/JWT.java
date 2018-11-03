@@ -142,6 +142,10 @@ public class JWT {
    * @return this.
    */
   public JWT addClaim(String name, Object value) {
+    if (value == null) {
+      return this;
+    }
+
     switch (name) {
       case "aud":
         this.audience = value;

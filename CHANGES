@@ -1,5 +1,11 @@
 Prime JWT Changes
 
+Changes in 2.1.1
+ * Ignore null values when calling JWT.addClaim
+
+Changes in 2.1.0
+ * Rename packages from org.primeframework to io.fusionauth
+
 Changes in 2.0.0
 
  This major version of prime-jwt contains breaking changes to the JWT class to make the behavior more consistent and predictable.
