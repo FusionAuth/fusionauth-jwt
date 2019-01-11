@@ -1,0 +1,8 @@
+{
+  "alg" : "ES384",
+  "crv" : "P-384",
+  "kty" : "EC",
+  "use" : "sig",
+  "x" : "z6kxnA_HZP8t9F9XBH-YYggdQi4FrcuhSElu0mxcRITIuJG7YgtSWYUmBHNv9J0-",
+  "y" : "uDShjOHRepB5ll8B8Cs-A4kxbs8cl-PfE0gAtqE72Cdhbb5ZPNclrzi6rSfx1TuU"
+}

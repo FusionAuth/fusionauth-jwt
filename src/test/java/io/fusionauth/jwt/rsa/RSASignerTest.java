@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
  */
 public class RSASignerTest extends BaseTest {
   @Test
-  public void test_private_pem_parsing() throws Exception {
+  public void test_private_pem_parsing() {
     RSASigner.newSHA256Signer(readFile("rsa_private_key_2048.pem"));
     RSASigner.newSHA256Signer(readFile("rsa_private_key_2048_with_meta.pem"));
     RSASigner.newSHA256Signer(readFile("rsa_private_key_3072.pem"));

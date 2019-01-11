@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import io.fusionauth.jwt.domain.InvalidJWTException;
+import io.fusionauth.jwt.InvalidJWTException;
 
 import java.io.IOException;
 
@@ -38,6 +38,14 @@ public class Mapper {
       return OBJECT_MAPPER.readValue(bytes, type);
     } catch (IOException e) {
       throw new InvalidJWTException("The JWT could not be de-serialized.", e);
+    }
+  }
+
+  public static byte[] prettyPrint(Object object) throws InvalidJWTException {
+    try {
+      return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsBytes(object);
+    } catch (JsonProcessingException e) {
+      throw new InvalidJWTException("The object could not be serialized.", e);
     }
   }
 

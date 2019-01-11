@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fusionauth.jwt.JWTDecoder;
 import io.fusionauth.jwt.JWTEncoder;
+import io.fusionauth.jwt.json.Mapper;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -121,7 +122,7 @@ public class JWT {
    * @return a JWT decoder.
    */
   public static JWTDecoder getDecoder() {
-    return JWTDecoder.getInstance();
+    return new JWTDecoder();
   }
 
   /**
@@ -404,6 +405,11 @@ public class JWT {
   public JWT setUniqueId(String uniqueId) {
     this.uniqueId = uniqueId;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return new String(Mapper.prettyPrint(this));
   }
 
   private Object lookupClaim(String key) {

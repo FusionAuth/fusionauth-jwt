@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,7 @@ package io.fusionauth.jwt;
 
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.Header;
-import io.fusionauth.jwt.domain.InvalidJWTException;
-import io.fusionauth.jwt.domain.InvalidJWTSignatureException;
 import io.fusionauth.jwt.domain.JWT;
-import io.fusionauth.jwt.domain.JWTExpiredException;
-import io.fusionauth.jwt.domain.JWTUnavailableForProcessingException;
-import io.fusionauth.jwt.domain.MissingSignatureException;
-import io.fusionauth.jwt.domain.MissingVerifierException;
-import io.fusionauth.jwt.domain.NoneNotAllowedException;
 import io.fusionauth.jwt.json.Mapper;
 
 import java.nio.charset.StandardCharsets;
@@ -39,17 +32,6 @@ import java.util.function.Function;
  * @author Daniel DeGroff
  */
 public class JWTDecoder {
-
-  private static JWTDecoder instance;
-
-  public static JWTDecoder getInstance() {
-    if (instance == null) {
-      instance = new JWTDecoder();
-    }
-
-    return instance;
-  }
-
   /**
    * Decode the JWT using one of they provided verifiers. One more verifiers may be provided, the first verifier found
    * supporting the algorithm reported by the JWT header will be utilized.

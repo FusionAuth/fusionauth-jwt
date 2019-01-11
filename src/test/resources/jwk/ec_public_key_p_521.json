@@ -1,0 +1,8 @@
+{
+  "alg": "ES512",
+  "crv": "P-521",
+  "kty": "EC",
+  "use": "sig",
+  "x": "AASKtNZn-wSH5gPokx0SR2R9rpv8Gzf8pmSUJ8dBvrsSLSL-nSMtQC5lsmgTKpyd8p3WZFkn3BkUgYPrNxrR8Wcy",
+  "y": "AehbMYfcRK8RfeHG2XHyWM0PuEVWcKB35NwXhce9meNyjsgJAZPBaCfR9FqDZrPCc4ARpw9UNmlYsZ-j3wHmxu-M"
+}

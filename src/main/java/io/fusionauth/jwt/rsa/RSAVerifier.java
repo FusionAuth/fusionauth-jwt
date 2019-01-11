@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,17 @@
 
 package io.fusionauth.jwt.rsa;
 
+import io.fusionauth.jwt.InvalidJWTSignatureException;
+import io.fusionauth.jwt.InvalidKeyLengthException;
+import io.fusionauth.jwt.JWTVerifierException;
+import io.fusionauth.jwt.MissingPublicKeyException;
 import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.jwt.domain.InvalidJWTSignatureException;
-import io.fusionauth.jwt.domain.InvalidKeyLengthException;
+import io.fusionauth.pem.domain.PEM;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
@@ -34,13 +40,15 @@ import java.util.Objects;
  * @author Daniel DeGroff
  */
 public class RSAVerifier implements Verifier {
-
   private final RSAPublicKey publicKey;
 
   private RSAVerifier(String publicKey) {
-    Objects.requireNonNull(publicKey);
-    this.publicKey = RSAUtils.getPublicKeyFromPEM(publicKey);
+    PEM pem = PEM.decode(publicKey);
+    if (pem.publicKey == null) {
+      throw new MissingPublicKeyException("The provided PEM encoded string did not contain a public key.");
+    }
 
+    this.publicKey = pem.getPublicKey();
     int keyLength = this.publicKey.getModulus().bitLength();
     if (keyLength < 2048) {
       throw new InvalidKeyLengthException("Key length of [" + keyLength + "] is less than the required key length of 2048 bits.");
@@ -48,16 +56,45 @@ public class RSAVerifier implements Verifier {
   }
 
   /**
-   * Return a new instance of the RSA Verifier with the provided public secret.
+   * Return a new instance of the RSA Verifier with the provided public key.
    *
    * @param publicKey The RSA public key PEM.
    * @return a new instance of the RSA verifier.
    */
   public static RSAVerifier newVerifier(String publicKey) {
+    Objects.requireNonNull(publicKey);
     return new RSAVerifier(publicKey);
   }
 
+  /**
+   * Return a new instance of the RSA Verifier with the provided public key.
+   *
+   * @param path The path to the RSA public key PEM.
+   * @return a new instance of the RSA verifier.
+   */
+  public static RSAVerifier newVerifier(Path path) {
+    Objects.requireNonNull(path);
+
+    try {
+      return new RSAVerifier(new String(Files.readAllBytes(path)));
+    } catch (IOException e) {
+      throw new JWTVerifierException("Unable to read the file from path [" + path.toAbsolutePath().toString() + "]", e);
+    }
+  }
+
+  /**
+   * Return a new instance of the RSA Verifier with the provided public key.
+   *
+   * @param bytes The bytes of the RSA public key PEM.
+   * @return a new instance of the RSA verifier.
+   */
+  public static RSAVerifier newVerifier(byte[] bytes) {
+    Objects.requireNonNull(bytes);
+    return new RSAVerifier((new String(bytes)));
+  }
+
   @Override
+  @SuppressWarnings("Duplicates")
   public boolean canVerify(Algorithm algorithm) {
     switch (algorithm) {
       case RS256:
@@ -69,20 +106,20 @@ public class RSAVerifier implements Verifier {
     }
   }
 
-  public void verify(Algorithm algorithm, byte[] payload, byte[] signature) {
+  public void verify(Algorithm algorithm, byte[] message, byte[] signature) {
     Objects.requireNonNull(algorithm);
-    Objects.requireNonNull(payload);
+    Objects.requireNonNull(message);
     Objects.requireNonNull(signature);
 
     try {
       Signature verifier = Signature.getInstance(algorithm.getName());
       verifier.initVerify(publicKey);
-      verifier.update(payload);
+      verifier.update(message);
       if (!verifier.verify(signature)) {
         throw new InvalidJWTSignatureException();
       }
     } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | SecurityException e) {
-      throw new RuntimeException(e);
+      throw new JWTVerifierException("An unexpected exception occurred when attempting to verify the JWT", e);
     }
   }
 }

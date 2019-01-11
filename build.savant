@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,10 @@
  */
 
 savantVersion = "1.0.0"
-jacksonVersion = "2.9.6"
+jacksonVersion = "2.9.8"
+jacksonAnnotationVersion = "2.9.6"
 
-project(group: "io.fusionauth", name: "fusionauth-jwt", version: "2.1.1", licenses: ["ApacheV2_0"]) {
+project(group: "io.fusionauth", name: "fusionauth-jwt", version: "3.0.0", licenses: ["ApacheV2_0"]) {
 
   workflow {
     standard()
@@ -31,7 +32,7 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "2.1.1", licens
     group(name: "compile") {
       dependency(id: "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
       dependency(id: "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
-      dependency(id: "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
+      dependency(id: "com.fasterxml.jackson.core:jackson-annotations:${jacksonAnnotationVersion}")
     }
     group(name: "test-compile", export: false) {
       dependency(id: "org.testng:testng:6.8.7")
@@ -47,6 +48,7 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "2.1.1", licens
  * Define Plugins
  */
 dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:1.0.2")
+file = loadPlugin(id: "org.savantbuild.plugin:file:1.0.2")
 java = loadPlugin(id: "org.savantbuild.plugin:java:1.0.2")
 javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.2")
 groovy = loadPlugin(id: "org.savantbuild.plugin:groovy:${savantVersion}")
@@ -82,13 +84,20 @@ target(name: "test", description: "Runs the project's tests", dependsOn: ["jar"]
 
 target(name: "doc", description: "Generate the project's JavaDoc", dependsOn: ["jar"]) {
   java.document()
+
+//  file.mkdir(dir: "doc")
+  file.prune(dir: "doc")
+
+  file.copy(to: "doc") {
+    fileSet(dir: "build/doc")
+  }
 }
 
 target(name: "int", description: "Releases a local integration build of the project", dependsOn: ["test"]) {
   dependency.integrate()
 }
 
-target(name: "release", description: "Releases a full version of the project", dependsOn: ["test"]) {
+target(name: "release", description: "Releases a full version of the project", dependsOn: ["test", "doc"]) {
   release.release()
 }
 

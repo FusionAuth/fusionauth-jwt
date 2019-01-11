@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 
 package io.fusionauth.jwt.rsa;
 
+import io.fusionauth.jwt.InvalidKeyLengthException;
+import io.fusionauth.jwt.JWTSigningException;
+import io.fusionauth.jwt.MissingPrivateKeyException;
 import io.fusionauth.jwt.Signer;
 import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.jwt.domain.InvalidKeyLengthException;
+import io.fusionauth.pem.domain.PEM;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -34,7 +37,6 @@ import java.util.Objects;
  * @author Daniel DeGroff
  */
 public class RSASigner implements Signer {
-
   private final Algorithm algorithm;
 
   private RSAPrivateKey privateKey;
@@ -42,9 +44,14 @@ public class RSASigner implements Signer {
   private RSASigner(Algorithm algorithm, String privateKey) {
     Objects.requireNonNull(algorithm);
     Objects.requireNonNull(privateKey);
-    this.algorithm = algorithm;
-    this.privateKey = RSAUtils.getPrivateKeyFromPEM(privateKey);
 
+    this.algorithm = algorithm;
+    PEM pem = PEM.decode(privateKey);
+    if (pem.privateKey == null) {
+      throw new MissingPrivateKeyException("The provided PEM encoded string did not contain a private key.");
+    }
+
+    this.privateKey = pem.getPrivateKey();
     int keyLength = this.privateKey.getModulus().bitLength();
     if (keyLength < 2048) {
       throw new InvalidKeyLengthException("Key length of [" + keyLength + "] is less than the required key length of 2048 bits.");
@@ -87,13 +94,15 @@ public class RSASigner implements Signer {
   }
 
   public byte[] sign(String message) {
+    Objects.requireNonNull(message);
+
     try {
       Signature signature = Signature.getInstance(algorithm.getName());
       signature.initSign(privateKey);
       signature.update(message.getBytes(StandardCharsets.UTF_8));
       return signature.sign();
     } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
-      throw new RuntimeException(e);
+      throw new JWTSigningException("An unexpected exception occurred when attempting to sign the JWT", e);
     }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, FusionAuth, All Rights Reserved
+ * Copyright (c) 2017-2019, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,16 @@
 package io.fusionauth.jwt.rsa;
 
 import io.fusionauth.jwt.BaseTest;
+import io.fusionauth.jwt.InvalidKeyLengthException;
 import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.jwt.domain.InvalidKeyLengthException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.InvalidParameterException;
 import java.util.Arrays;
 
-import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
@@ -37,34 +35,26 @@ import static org.testng.Assert.assertTrue;
  */
 public class RSAVerifierTest extends BaseTest {
   @Test
-  public void test_private_pem_parsing() throws Exception {
-    RSASigner.newSHA256Signer(readFile("rsa_private_key_2048.pem"));
-    RSASigner.newSHA256Signer(readFile("rsa_private_key_2048_with_meta.pem"));
-    RSASigner.newSHA256Signer(readFile("rsa_private_key_3072.pem"));
-    RSASigner.newSHA256Signer(readFile("rsa_private_key_4096.pem"));
-  }
-
-  @Test
-  public void test_public_pem_parsing() throws Exception {
+  public void test_public_pem_parsing() {
     Arrays.asList(
         "rsa_public_certificate_2048.pem",
         "rsa_public_key_2048.pem",
         "rsa_public_key_2048_with_meta.pem",
         "rsa_public_key_3072.pem",
         "rsa_public_key_4096.pem")
-        .forEach(fileName -> assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName))));
+          .forEach(fileName -> assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName))));
 
-    // Public key parsing fails with private keys
+    // Public key parsing also works with private keys since the public key is encoded in the private
     Arrays.asList(
         "rsa_private_key_2048.pem",
         "rsa_private_key_2048_with_meta.pem",
         "rsa_private_key_3072.pem",
         "rsa_private_key_4096.pem")
-        .forEach(this::assertFailed);
+          .forEach((fileName -> assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName)))));
   }
 
   @Test
-  public void test_rsa_1024_pem() throws Exception {
+  public void test_rsa_1024_pem() {
     try {
       RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_1024.pem"))));
       Assert.fail("Expected [InvalidKeyLengthException] exception");
@@ -74,18 +64,10 @@ public class RSAVerifierTest extends BaseTest {
     }
   }
 
-  private void assertFailed(String fileName) {
-    try {
-      RSAVerifier.newVerifier(readFile(fileName));
-      Assert.fail("Expected [InvalidParameterException] exception");
-    } catch (InvalidParameterException e) {
-      assertEquals(e.getMessage(), "Unexpected Public Key Format", "[" + fileName + "]");
-    } catch (Exception e) {
-      Assert.fail("Unexpected exception when parsing file [" + fileName + "]", e);
-    }
-  }
-
   private void assertRSAVerifier(Verifier verifier) {
+    assertFalse(verifier.canVerify(Algorithm.ES256));
+    assertFalse(verifier.canVerify(Algorithm.ES384));
+    assertFalse(verifier.canVerify(Algorithm.ES512));
     assertTrue(verifier.canVerify(Algorithm.RS256));
     assertTrue(verifier.canVerify(Algorithm.RS384));
     assertTrue(verifier.canVerify(Algorithm.RS512));

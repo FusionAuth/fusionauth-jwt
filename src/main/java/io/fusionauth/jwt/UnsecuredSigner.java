@@ -19,7 +19,7 @@ package io.fusionauth.jwt;
 import io.fusionauth.jwt.domain.Algorithm;
 
 /**
- * Unsecured signer.
+ * Unsecured signer. You should probably never use this signer.
  *
  * @author Daniel DeGroff
  */

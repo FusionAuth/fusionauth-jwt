@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,16 @@
 
 package io.fusionauth.jwt;
 
-import io.fusionauth.jwt.domain.InvalidJWTException;
-import io.fusionauth.jwt.domain.InvalidKeyLengthException;
 import io.fusionauth.jwt.domain.JWT;
-import io.fusionauth.jwt.domain.JWTExpiredException;
-import io.fusionauth.jwt.domain.JWTUnavailableForProcessingException;
+import io.fusionauth.jwt.ec.ECSigner;
+import io.fusionauth.jwt.ec.ECVerifier;
 import io.fusionauth.jwt.hmac.HMACSigner;
 import io.fusionauth.jwt.hmac.HMACVerifier;
 import io.fusionauth.jwt.rsa.RSASigner;
 import io.fusionauth.jwt.rsa.RSAVerifier;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -46,13 +45,13 @@ import java.util.UUID;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 /**
  * @author Daniel DeGroff
  */
 public class JWTTest extends BaseTest {
-
   /**
    * Performance
    * <pre>
@@ -69,7 +68,7 @@ public class JWTTest extends BaseTest {
    */
   @Test(enabled = false)
   public void decoding_performance() throws Exception {
-    String secret = JWTUtils.generateSHA256HMACSecret();
+    String secret = JWTUtils.generateSHA256_HMACSecret();
     Signer hmacSigner = HMACSigner.newSHA256Signer(secret);
     Signer rsaSigner = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048.pem"))));
 
@@ -77,11 +76,11 @@ public class JWTTest extends BaseTest {
     Verifier rsaVerifier = RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
 
     JWT jwt = new JWT().setSubject(UUID.randomUUID().toString())
-        .addClaim("exp", ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).toInstant().toEpochMilli())
-        .setAudience(UUID.randomUUID().toString())
-        .addClaim("roles", new ArrayList<>(Arrays.asList("admin", "user")))
-        .addClaim("iat", ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli())
-        .setIssuer("inversoft.com");
+                       .addClaim("exp", ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).toInstant().toEpochMilli())
+                       .setAudience(UUID.randomUUID().toString())
+                       .addClaim("roles", new ArrayList<>(Arrays.asList("admin", "user")))
+                       .addClaim("iat", ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli())
+                       .setIssuer("inversoft.com");
 
     long iterationCount = 250_000;
     for (Verifier verifier : Arrays.asList(hmacVerifier, rsaVerifier)) {
@@ -109,15 +108,15 @@ public class JWTTest extends BaseTest {
 
   @Test(enabled = false)
   public void encoding_performance() throws Exception {
-    Signer hmacSigner = HMACSigner.newSHA256Signer(JWTUtils.generateSHA256HMACSecret());
+    Signer hmacSigner = HMACSigner.newSHA256Signer(JWTUtils.generateSHA256_HMACSecret());
     Signer rsaSigner = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048.pem"))));
 
     JWT jwt = new JWT().setSubject(UUID.randomUUID().toString())
-        .addClaim("exp", ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).toInstant().toEpochMilli())
-        .setAudience(UUID.randomUUID().toString())
-        .addClaim("roles", new ArrayList<>(Arrays.asList("admin", "user")))
-        .addClaim("iat", ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli())
-        .setIssuer("inversoft.com");
+                       .addClaim("exp", ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).toInstant().toEpochMilli())
+                       .setAudience(UUID.randomUUID().toString())
+                       .addClaim("roles", new ArrayList<>(Arrays.asList("admin", "user")))
+                       .addClaim("iat", ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli())
+                       .setIssuer("inversoft.com");
 
     long iterationCount = 10_000;
     for (Signer signer : Arrays.asList(hmacSigner, rsaSigner)) {
@@ -149,6 +148,147 @@ public class JWTTest extends BaseTest {
     assertTrue(new JWT()
         .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1))
         .setSubject("123456789").isExpired());
+  }
+
+  @Test
+  public void test_EC_privateKey_needsConversionTo_pkcs_8() {
+    JWT jwt = new JWT()
+        .setSubject("1234567890")
+        .addClaim("name", "John Doe")
+        .addClaim("admin", true)
+        .addClaim("iat", 1516239022);
+
+    // EC Private key, needs to be encapulated to a PKCS#8 to be parsed by Java
+    Signer signer = ECSigner.newSHA512Signer(
+        "-----BEGIN EC PRIVATE KEY-----\n" +
+            "MIHcAgEBBEIBiyAa7aRHFDCh2qga9sTUGINE5jHAFnmM8xWeT/uni5I4tNqhV5Xx\n" +
+            "0pDrmCV9mbroFtfEa0XVfKuMAxxfZ6LM/yKgBwYFK4EEACOhgYkDgYYABAGBzgdn\n" +
+            "P798FsLuWYTDDQA7c0r3BVk8NnRUSexpQUsRilPNv3SchO0lRw9Ru86x1khnVDx+\n" +
+            "duq4BiDFcvlSAcyjLACJvjvoyTLJiA+TQFdmrearjMiZNE25pT2yWP1NUndJxPcv\n" +
+            "VtfBW48kPOmvkY4WlqP5bAwCXwbsKrCgk6xbsp12ew==\n" +
+            "-----END EC PRIVATE KEY-----");
+    String encodedJWT = JWT.getEncoder().encode(jwt, signer, header
+        -> header.set("kid", "xZDfZpry4P9vZPZyG2fNBRj-7Lz5omVdm7tHoCgSNfY"));
+
+    Verifier verifier = ECVerifier.newVerifier(
+        "-----BEGIN PUBLIC KEY-----\n" +
+            "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBgc4HZz+/fBbC7lmEww0AO3NK9wVZ\n" +
+            "PDZ0VEnsaUFLEYpTzb90nITtJUcPUbvOsdZIZ1Q8fnbquAYgxXL5UgHMoywAib47\n" +
+            "6MkyyYgPk0BXZq3mq4zImTRNuaU9slj9TVJ3ScT3L1bXwVuPJDzpr5GOFpaj+WwM\n" +
+            "Al8G7CqwoJOsW7Kddns=\n" +
+            "-----END PUBLIC KEY-----");
+    JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
+
+    assertEquals(actual.subject, jwt.subject);
+  }
+
+  @Test
+  public void test_ES() throws IOException {
+    Signer signer = ECSigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/ec_private_key_control.pem"))));
+    Verifier verifier = ECVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/ec_public_key_p_256_control.pem"))));
+
+    JWT jwt = new JWT().setSubject("123456789");
+    String encodedJWT = JWT.getEncoder().encode(jwt, signer);
+    JWT decoded = JWT.getDecoder().decode(encodedJWT, verifier);
+    assertNotNull(decoded);
+    assertEquals(decoded.subject, "123456789");
+  }
+
+  @Test
+  public void test_ES256() {
+    String encodedJWT = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.vPn7xrCNOLWbBRaWdVn53ddj2hW0E87FYl4gPnWy5d1Qj3WgyF8FS6I_hj_3kIJ77tbvy0GXdr7fO91NeWMD1A";
+    Verifier verifier = ECVerifier.newVerifier(Paths.get("src/test/resources/ec_public_key_p_256.pem"));
+    JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
+    assertEquals(jwt.subject, "123456789");
+  }
+
+  @Test
+  public void test_ES256_control() {
+    // Control test, known encoded ES256 JWT
+    String encodedJWT = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.tyh-VfuzIxCyGYDlkBA7DfyjrqmSHu6pQ2hoZuFqUSLPNY2N0mpHb3nk5K17HWP_3cYHBw7AhHale5wky6-sVA";
+
+    JWT jwt = JWT.getDecoder().decode(encodedJWT, ECVerifier.newVerifier(
+        "-----BEGIN PUBLIC KEY-----\n" +
+            "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEEVs/o5+uQbTjL3chynL4wXgUg2R9\n" +
+            "q9UU8I5mEovUf86QZ7kOBIjJwqnzD1omageEHWwHdBO6B+dFabmdT9POxg==\n" +
+            "-----END PUBLIC KEY-----"));
+    assertNotNull(jwt);
+    assertEquals(jwt.subject, "1234567890");
+    assertEquals(jwt.getString("name"), "John Doe");
+    assertEquals(jwt.getBoolean("admin"), Boolean.TRUE);
+    assertEquals(jwt.getRawClaims().get("iat"), 1516239022L);
+    assertEquals(jwt.issuedAt, ZonedDateTime.ofInstant(Instant.ofEpochSecond(1516239022L), ZoneOffset.UTC));
+  }
+
+  @Test
+  public void test_ES384() throws Exception {
+    String encodedJWT = "eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCIsImtpZCI6ImlUcVhYSTB6YkFuSkNLRGFvYmZoa00xZi02ck1TcFRmeVpNUnBfMnRLSTgifQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.cJOP_w-hBqnyTsBm3T6lOE5WpcHaAkLuQGAs1QO-lg2eWs8yyGW8p9WagGjxgvx7h9X72H7pXmXqej3GdlVbFmhuzj45A9SXDOAHZ7bJXwM1VidcPi7ZcrsMSCtP1hiN";
+    Verifier verifier = ECVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/ec_public_key_p_384_2.pem"))));
+    JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
+    assertEquals(jwt.subject, "1234567890");
+    assertEquals(jwt.getString("name"), "John Doe");
+    assertEquals(jwt.getBoolean("admin"), Boolean.TRUE);
+    assertEquals(jwt.getRawClaims().get("iat"), 1516239022L);
+  }
+
+  @Test
+  public void test_ES384_control() {
+    // Control test, known encoded ES384 JWT
+    String encodedJWT = "eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.okIXzSvlJ0gFtnrrcdlzcnYBiJsk-S5m4Qj-qpUSgnT6uMrYIYL06Z7_Nx6buKFyY4DgeS8RU-9tZOy1VmayTbvm0hQyjuiDY8tsoVHi7FhhF4GyTDAAgDH_4jK_h4_R";
+    JWT jwt = JWT.getDecoder().decode(encodedJWT, ECVerifier.newVerifier(
+        "-----BEGIN PUBLIC KEY-----\n" +
+            "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEC1uWSXj2czCDwMTLWV5BFmwxdM6PX9p+\n" +
+            "Pk9Yf9rIf374m5XP1U8q79dBhLSIuaojsvOT39UUcPJROSD1FqYLued0rXiooIii\n" +
+            "1D3jaW6pmGVJFhodzC31cy5sfOYotrzF\n" +
+            "-----END PUBLIC KEY-----"));
+    assertNotNull(jwt);
+    assertEquals(jwt.subject, "1234567890");
+    assertEquals(jwt.getString("name"), "John Doe");
+    assertEquals(jwt.getBoolean("admin"), Boolean.TRUE);
+    assertEquals(jwt.getRawClaims().get("iat"), 1516239022L);
+    assertEquals(jwt.issuedAt, ZonedDateTime.ofInstant(Instant.ofEpochSecond(1516239022L), ZoneOffset.UTC));
+  }
+
+  @Test
+  public void test_ES512() throws Exception {
+    String encodedJWT = "eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCIsImtpZCI6InhaRGZacHJ5NFA5dlpQWnlHMmZOQlJqLTdMejVvbVZkbTd0SG9DZ1NOZlkifQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.AP_CIMClixc5-BFflmjyh_bRrkloEvwzn8IaWJFfMz13X76PGWF0XFuhjJUjp7EYnSAgtjJ-7iJG4IP7w3zGTBk_AUdmvRCiWp5YAe8S_Hcs8e3gkeYoOxiXFZlSSAx0GfwW1cZ0r67mwGtso1I3VXGkSjH5J0Rk6809bn25GoGRjOPu";
+    Verifier verifier = ECVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/ec_public_key_p_521_2.pem"))));
+    JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
+    assertEquals(jwt.subject, "1234567890");
+    assertEquals(jwt.getString("name"), "John Doe");
+    assertEquals(jwt.getBoolean("admin"), Boolean.TRUE);
+    assertEquals(jwt.getRawClaims().get("iat"), 1516239022L);
+  }
+
+  @Test
+  public void test_ES512_control() {
+    // Control test, known encoded ES512 JWT
+    String encodedJWT = "eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.AU5vXkGbPjUABWey3dk4_UldeQMXMwjHY6LG6ff5J-YzH925b4ItQzkJ0kuOuwammUTXRZ7_4W76qa-ooR0umLl1AU0YjFVqxBFXeletCYCznFnIlZYJS-iKqvuwpwPFT0b4OHQxmrIV0ETw4Ei2p1dDMtX4oAbBi-DRybc70CA5f3XT";
+    JWT jwt = JWT.getDecoder().decode(encodedJWT, ECVerifier.newVerifier(
+        "-----BEGIN PUBLIC KEY-----\n" +
+            "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBgc4HZz+/fBbC7lmEww0AO3NK9wVZ\n" +
+            "PDZ0VEnsaUFLEYpTzb90nITtJUcPUbvOsdZIZ1Q8fnbquAYgxXL5UgHMoywAib47\n" +
+            "6MkyyYgPk0BXZq3mq4zImTRNuaU9slj9TVJ3ScT3L1bXwVuPJDzpr5GOFpaj+WwM\n" +
+            "Al8G7CqwoJOsW7Kddns=\n" +
+            "-----END PUBLIC KEY-----"));
+    assertNotNull(jwt);
+    assertEquals(jwt.subject, "1234567890");
+    assertEquals(jwt.getString("name"), "John Doe");
+    assertEquals(jwt.getBoolean("admin"), Boolean.TRUE);
+    assertEquals(jwt.getRawClaims().get("iat"), 1516239022L);
+    assertEquals(jwt.issuedAt, ZonedDateTime.ofInstant(Instant.ofEpochSecond(1516239022L), ZoneOffset.UTC));
+  }
+
+  @Test
+  public void test_ES_2() throws IOException {
+    Signer signer = ECSigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/ec_private_key_p_256.pem"))));
+    Verifier verifier = ECVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/ec_public_key_p_256.pem"))));
+
+    JWT jwt = new JWT().setSubject("123456789");
+    String encodedJWT = JWT.getEncoder().encode(jwt, signer);
+    JWT decoded = JWT.getDecoder().decode(encodedJWT, verifier);
+    assertNotNull(decoded);
+    assertEquals(decoded.subject, "123456789");
   }
 
   @Test
@@ -333,6 +473,116 @@ public class JWTTest extends BaseTest {
   }
 
   @Test
+  public void test_external_ec_521() {
+    JWT jwt = new JWT()
+        .setSubject("1234567890")
+        .addClaim("name", "John Doe")
+        .addClaim("admin", true)
+        .addClaim("iat", 1516239022);
+
+    // PKCS#8 PEM, needs no encapsulation
+    Signer signer = ECSigner.newSHA512Signer(
+        "-----BEGIN PRIVATE KEY-----\n" +
+            "MIHtAgEAMBAGByqGSM49AgEGBSuBBAAjBIHVMIHSAgEBBEHzl1DpZSQJ8YhCbN/u\n" +
+            "vo5SOu0BjDDX9Gub6zsBW6B2TxRzb5sBeQaWVscDUZha4Xr1HEWpVtua9+nEQU/9\n" +
+            "Aq9Pl6GBiQOBhgAEAJhvCa6S89ePqlLO6MRV9KQqHvdAITDAf/WRDcvCmfrrNuov\n" +
+            "+j4gQXO12ohIukPCHM9rYms8Eqciz3gaxVTxZD4CAA8i2k9H6ew9iSh1qXa1kLxi\n" +
+            "yzMBqmAmmg4u/SroD6OleG56SwZVbWx+KIINB6r/PQVciGX8FjwgR/mbLHotVZYD\n" +
+            "-----END PRIVATE KEY-----");
+    String encodedJWT = JWT.getEncoder().encode(jwt, signer, header
+        -> header.set("kid", "xZDfZpry4P9vZPZyG2fNBRj-7Lz5omVdm7tHoCgSNfY"));
+
+    Verifier verifier = ECVerifier.newVerifier(
+        "-----BEGIN PUBLIC KEY-----\n" +
+            "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQAmG8JrpLz14+qUs7oxFX0pCoe90Ah\n" +
+            "MMB/9ZENy8KZ+us26i/6PiBBc7XaiEi6Q8Icz2tiazwSpyLPeBrFVPFkPgIADyLa\n" +
+            "T0fp7D2JKHWpdrWQvGLLMwGqYCaaDi79KugPo6V4bnpLBlVtbH4ogg0Hqv89BVyI\n" +
+            "ZfwWPCBH+Zssei1VlgM=\n" +
+            "-----END PUBLIC KEY-----");
+
+    JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
+    assertEquals(actual.subject, jwt.subject);
+  }
+
+  @Test
+  public void test_external_ec_p256() {
+    JWT jwt = new JWT()
+        .setSubject("1234567890")
+        .addClaim("name", "John Doe")
+        .addClaim("admin", true)
+        .addClaim("iat", 1516239022);
+
+    // PKCS#8 PEM, needs no encapsulation
+    Signer signer = ECSigner.newSHA256Signer(
+        "-----BEGIN PRIVATE KEY-----\n" +
+            "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgPGJGAm4X1fvBuC1z\n" +
+            "SpO/4Izx6PXfNMaiKaS5RUkFqEGhRANCAARCBvmeksd3QGTrVs2eMrrfa7CYF+sX\n" +
+            "sjyGg+Bo5mPKGH4Gs8M7oIvoP9pb/I85tdebtKlmiCZHAZE5w4DfJSV6\n" +
+            "-----END PRIVATE KEY-----");
+    String encodedJWT = JWT.getEncoder().encode(jwt, signer, header
+        -> header.set("kid", "xZDfZpry4P9vZPZyG2fNBRj-7Lz5omVdm7tHoCgSNfY"));
+
+    Verifier verifier = ECVerifier.newVerifier(
+        "-----BEGIN PUBLIC KEY-----\n" +
+            "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEQgb5npLHd0Bk61bNnjK632uwmBfr\n" +
+            "F7I8hoPgaOZjyhh+BrPDO6CL6D/aW/yPObXXm7SpZogmRwGROcOA3yUleg==\n" +
+            "-----END PUBLIC KEY-----");
+
+    JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
+    assertEquals(actual.subject, jwt.subject);
+  }
+
+  @Test
+  public void test_external_ec_p384() {
+    JWT jwt = new JWT()
+        .setSubject("1234567890")
+        .addClaim("name", "John Doe")
+        .addClaim("admin", true)
+        .addClaim("iat", 1516239022);
+
+    // PKCS#8 PEM, needs no encapsulation
+    Signer signer = ECSigner.newSHA384Signer(
+        "-----BEGIN PRIVATE KEY-----\n" +
+            "MIG2AgEAMBAGByqGSM49AgEGBSuBBAAiBIGeMIGbAgEBBDCVWQsOJHjKD0I4cXOY\n" +
+            "Jm4G8i5c7IMhFbxFq57OUlrTVmND43dvvNW1oQ6i6NiXEQWhZANiAASezSGlAu4w\n" +
+            "AaJe4676mQM0F/5slI+EkdptRJdfsQP9mNxe7RdzHgcSw7j/Wxa45nlnFnFrPPL4\n" +
+            "viJKOBRxMB1jjVA9my9PixxJGoB22qDQwFbP8ldmEp6abwdBsXNaePM=\n" +
+            "-----END PRIVATE KEY-----");
+    String encodedJWT = JWT.getEncoder().encode(jwt, signer, header
+        -> header.set("kid", "xZDfZpry4P9vZPZyG2fNBRj-7Lz5omVdm7tHoCgSNfY"));
+
+    Verifier verifier = ECVerifier.newVerifier(
+        "-----BEGIN PUBLIC KEY-----\n" +
+            "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEns0hpQLuMAGiXuOu+pkDNBf+bJSPhJHa\n" +
+            "bUSXX7ED/ZjcXu0Xcx4HEsO4/1sWuOZ5ZxZxazzy+L4iSjgUcTAdY41QPZsvT4sc\n" +
+            "SRqAdtqg0MBWz/JXZhKemm8HQbFzWnjz\n" +
+            "-----END PUBLIC KEY-----");
+
+    JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
+    assertEquals(actual.subject, jwt.subject);
+  }
+
+  @Test
+  public void test_loading_keys() throws Exception {
+    // Ensure no explosions, loading three different ways
+
+    // RSA
+    assertNotNull(RSAVerifier.newVerifier(Paths.get("src/test/resources/rsa_public_key_2048.pem")));
+    assertNotNull(RSAVerifier.newVerifier(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
+    assertNotNull(RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem")))));
+
+    // EC
+    assertNotNull(ECVerifier.newVerifier(Paths.get("src/test/resources/ec_public_key_p_256.pem")));
+    assertNotNull(ECVerifier.newVerifier(Files.readAllBytes(Paths.get("src/test/resources/ec_public_key_p_256.pem"))));
+    assertNotNull(ECVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/ec_public_key_p_256.pem")))));
+
+    // HMAC
+    assertNotNull(HMACVerifier.newVerifier(Paths.get("src/test/resources/secret.txt")));
+    assertNotNull(HMACVerifier.newVerifier(Files.readAllBytes(Paths.get("src/test/resources/secret.txt"))));
+    assertNotNull(HMACVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/secret.txt")))));
+  }
+
+  @Test
   public void test_multipleSignersAndVerifiers() throws Exception {
     JWT jwt = new JWT().setSubject("123456789");
 
@@ -398,9 +648,68 @@ public class JWTTest extends BaseTest {
 
   @Test
   public void test_nullFailFast() {
-    expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode(null, null, null));
-    expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode("foo", null, null));
-    expectException(NullPointerException.class, () -> JWTDecoder.getInstance().decode("foo", Collections.emptyMap(), null));
+    expectException(NullPointerException.class, () -> new JWTDecoder().decode(null, null, null));
+    expectException(NullPointerException.class, () -> new JWTDecoder().decode("foo", null, null));
+    expectException(NullPointerException.class, () -> new JWTDecoder().decode("foo", Collections.emptyMap(), null));
+  }
+
+  @Test
+  public void test_openssl_keys_p_256() {
+    JWT jwt = new JWT()
+        .setSubject("1234567890")
+        .addClaim("name", "John Doe")
+        .addClaim("admin", true)
+        .addClaim("iat", 1516239022);
+
+    // PKCS#8 PEM, needs no encapsulation
+    Signer signer = ECSigner.newSHA256Signer(
+        "-----BEGIN PRIVATE KEY-----\n" +
+            "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgy3F4UN/uqaNn4o4G\n" +
+            "8UHT3Gq6Ab/2CdjFeoDpLREcGaChRANCAAR2dqbsTukFi1nBHI4wOOApeczUf8pG\n" +
+            "8g+hsTDTedkDj4q9686mgx+OwHwbT5XOt+sNEhyz0jxUz6Vy+6l6DeUQ\n" +
+            "-----END PRIVATE KEY-----");
+    String encodedJWT = JWT.getEncoder().encode(jwt, signer, header
+        -> header.set("kid", "xZDfZpry4P9vZPZyG2fNBRj-7Lz5omVdm7tHoCgSNfY"));
+
+    Verifier verifier = ECVerifier.newVerifier(
+        "-----BEGIN PUBLIC KEY-----\n" +
+            "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdnam7E7pBYtZwRyOMDjgKXnM1H/K\n" +
+            "RvIPobEw03nZA4+KvevOpoMfjsB8G0+VzrfrDRIcs9I8VM+lcvupeg3lEA==\n" +
+            "-----END PUBLIC KEY-----");
+
+    JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
+    assertEquals(actual.subject, jwt.subject);
+  }
+
+  @Test
+  public void test_openssl_keys_p_521() {
+    JWT jwt = new JWT()
+        .setSubject("1234567890")
+        .addClaim("name", "John Doe")
+        .addClaim("admin", true)
+        .addClaim("iat", 1516239022);
+
+    // PKCS#8 PEM, needs no encapsulation
+    Signer signer = ECSigner.newSHA512Signer(
+        "-----BEGIN PRIVATE KEY-----\n" +
+            "MIHtAgEAMBAGByqGSM49AgEGBSuBBAAjBIHVMIHSAgEBBEHdgM7Q2N5VAu1JXri9\n" +
+            "5AYmCZo+rVbdtYbz58D0mWB+TZs8YPvawg6u3m1xGNJXoqPBr/KSVvqHkpgLONlU\n" +
+            "NGs5t6GBiQOBhgAEAYsJ/uVsOJR5FrCynbKsuWhkj/+2PdFnIlnJp1s0l0T13gtE\n" +
+            "iIcpzSDLHuvJS3812NlC5ZYGvhqIoWfMBy4KTfdyAenIeyriM/P6gJeR1HYMZIP0\n" +
+            "PFNr0EghmYCIK51MamQAlEcvhoPri1phF6Fa6mZtrCqaaIB3VDNRaabcJfsFHl94\n" +
+            "-----END PRIVATE KEY-----");
+    String encodedJWT = JWT.getEncoder().encode(jwt, signer, header
+        -> header.set("kid", "xZDfZpry4P9vZPZyG2fNBRj-7Lz5omVdm7tHoCgSNfY"));
+
+    Verifier verifier = ECVerifier.newVerifier(
+        "-----BEGIN PUBLIC KEY-----\n" +
+            "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBiwn+5Ww4lHkWsLKdsqy5aGSP/7Y9\n" +
+            "0WciWcmnWzSXRPXeC0SIhynNIMse68lLfzXY2ULllga+GoihZ8wHLgpN93IB6ch7\n" +
+            "KuIz8/qAl5HUdgxkg/Q8U2vQSCGZgIgrnUxqZACURy+Gg+uLWmEXoVrqZm2sKppo\n" +
+            "gHdUM1Fpptwl+wUeX3g=\n" +
+            "-----END PUBLIC KEY-----");
+    JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
+    assertEquals(actual.subject, jwt.subject);
   }
 
   @Test
@@ -416,5 +725,4 @@ public class JWTTest extends BaseTest {
 
     assertEquals(actualJWT1.expiration, expectedJWT.expiration);
   }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,24 +22,17 @@ import io.fusionauth.jwt.json.Mapper;
 
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * @author Daniel DeGroff
  */
 public class JWTEncoder {
-
-  private static JWTEncoder instance;
+  private static JWTEncoder instance = new JWTEncoder();
 
   public static JWTEncoder getInstance() {
-    if (instance == null) {
-      instance = new JWTEncoder();
-    }
-
     return instance;
   }
 
@@ -76,17 +69,13 @@ public class JWTEncoder {
     parts.add(base64Encode(Mapper.serialize(header)));
     parts.add(base64Encode(Mapper.serialize(jwt)));
 
-    byte[] signature = signer.sign(join(parts));
+    byte[] signature = signer.sign(String.join(".", parts));
     parts.add(base64Encode(signature));
 
-    return join(parts);
+    return String.join(".", parts);
   }
 
   private String base64Encode(byte[] bytes) {
     return new String(Base64.getUrlEncoder().withoutPadding().encode(bytes));
-  }
-
-  private String join(Collection<String> collection) {
-    return collection.stream().collect(Collectors.joining("."));
   }
 }

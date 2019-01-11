@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ public class HexUtils {
 
   public static String fromBytes(byte[] bytes) {
     char[] hexChars = new char[bytes.length * 2];
-    for (int j = 0; j < bytes.length; j++) {
-      int v = bytes[j] & 0xFF;
-      hexChars[j * 2] = HEX[v >>> 4];
-      hexChars[j * 2 + 1] = HEX[v & 0x0F];
+    for (int i = 0; i < bytes.length; i++) {
+      int v = bytes[i] & 0xFF;
+      hexChars[i * 2] = HEX[v >>> 4];
+      hexChars[i * 2 + 1] = HEX[v & 0x0F];
     }
     return new String(hexChars);
   }

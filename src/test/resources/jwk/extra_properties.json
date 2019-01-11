@@ -1,0 +1,10 @@
+{
+  "alg" : "ES256",
+  "boom" : "goes the dynamite",
+  "crv" : "P-256",
+  "kty" : "EC",
+  "more" : "cowbell",
+  "use" : "sig",
+  "x" : "NIWpsIea0qzB22S0utDG8dGFYqEInv9C7ZgZuKtwjno",
+  "y" : "iVFFtTgiInz_fjh-n1YqbibnUb2vtBZFs3wPpQw3mc0"
+}

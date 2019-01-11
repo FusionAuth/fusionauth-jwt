@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,12 +36,10 @@ import static org.testng.Assert.fail;
  * @author Daniel DeGroff
  */
 public class VerifierTest {
-
   static List<Pair<Verifier, String>> algorithms = new ArrayList<>();
 
   @Test
-  public void verify() throws Exception {
-
+  public void verify() {
     // JWT Subject : 123456789
     for (Pair<Verifier, String> algorithm : algorithms) {
 
