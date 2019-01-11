@@ -85,10 +85,9 @@ target(name: "test", description: "Runs the project's tests", dependsOn: ["jar"]
 target(name: "doc", description: "Generate the project's JavaDoc", dependsOn: ["jar"]) {
   java.document()
 
-//  file.mkdir(dir: "doc")
-  file.prune(dir: "doc")
+  file.prune(dir: "docs")
 
-  file.copy(to: "doc") {
+  file.copy(to: "docs") {
     fileSet(dir: "build/doc")
   }
 }
