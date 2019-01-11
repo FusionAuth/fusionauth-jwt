@@ -27,11 +27,36 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
 
 /**
  * @author Daniel DeGroff
  */
 public class JSONWebKeyBuilderTest extends BaseTest {
+  @Test
+  public void add_named_properties() {
+    Arrays.asList(
+        "alg",
+        "crv",
+        "d",
+        "dp",
+        "dq",
+        "e",
+        "kid",
+        "kty",
+        "n",
+        "p",
+        "q",
+        "qi",
+        "use",
+        "x",
+        "x5c",
+        "x5t",
+        "x5t_256",
+        "y"
+    ).forEach(key -> expectException(JSONWebKeyBuilderException.class, () -> new JSONWebKey().add(key, "Nunya, Business")));
+  }
+
   @Test
   public void ec_private() throws Exception {
     // EC 256 Private key - PKCS#8 encapsulated already
@@ -63,8 +88,8 @@ public class JSONWebKeyBuilderTest extends BaseTest {
     // EC 256 Public key
     ECPublicKey ecPublic_p256 = PEM.decode(Paths.get("src/test/resources/ec_public_key_p_256.pem")).getPublicKey();
     assertJSONEquals(JSONWebKey.build(ecPublic_p256)
-                               .addOther("more", "cowbell")
-                               .addOther("boom", "goes the dynamite"), "src/test/resources/jwk/extra_properties.json");
+                               .add("more", "cowbell")
+                               .add("boom", "goes the dynamite"), "src/test/resources/jwk/extra_properties.json");
   }
 
   @Test

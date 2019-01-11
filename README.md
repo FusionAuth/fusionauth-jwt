@@ -148,7 +148,6 @@ assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 
 ```java
 JSONWebKey jwk = JSONWebKey.build(publicKey);
-
 String json = jwk.toJSON();
 ```
 
@@ -165,7 +164,6 @@ String json = jwk.toJSON();
 
 ```java
 JSONWebKey jwk = JSONWebKey.build(privateKey);
-
 String json = jwk.toJSON();
 ```
 
@@ -188,9 +186,8 @@ String json = jwk.toJSON();
 
 ```java
 JSONWebKey jwk = JSONWebKey.build(privateKey)
-                           .addOther("boom", "goes the dynamite")
-                           .addOther("more", "cowbell");
-
+                           .add("boom", "goes the dynamite")
+                           .add("more", "cowbell");
 String json = jwk.toJSON();
 ```
 

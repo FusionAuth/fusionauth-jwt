@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fusionauth.jwks.JSONWebKeyBuilder;
+import io.fusionauth.jwks.JSONWebKeyBuilderException;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.Buildable;
 import io.fusionauth.jwt.domain.KeyType;
@@ -203,8 +204,35 @@ public class JSONWebKey implements Buildable<JSONWebKey> {
   }
 
   @JsonIgnore
-  public JSONWebKey addOther(String key, Object value) {
-    other.put(key, value);
+  public JSONWebKey add(String key, Object value) {
+    if (key == null || value == null) {
+      return this;
+    }
+
+    switch (key) {
+      case "alg":
+      case "crv":
+      case "d":
+      case "dp":
+      case "dq":
+      case "e":
+      case "kid":
+      case "kty":
+      case "n":
+      case "p":
+      case "q":
+      case "qi":
+      case "use":
+      case "x":
+      case "x5c":
+      case "x5t":
+      case "x5t_256":
+      case "y":
+        throw new JSONWebKeyBuilderException("You can not add a named property. Use the field for [" + key + "] instead.", new IllegalArgumentException());
+      default:
+        other.put(key, value);
+    }
+
     return this;
   }
 
