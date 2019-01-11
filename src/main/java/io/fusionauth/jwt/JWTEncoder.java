@@ -30,12 +30,6 @@ import java.util.function.Consumer;
  * @author Daniel DeGroff
  */
 public class JWTEncoder {
-  private static JWTEncoder instance = new JWTEncoder();
-
-  public static JWTEncoder getInstance() {
-    return instance;
-  }
-
   /**
    * Encode the JWT to produce a dot separated encoded string that can be sent in an HTTP request header.
    *

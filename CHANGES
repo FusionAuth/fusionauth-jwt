@@ -1,10 +1,29 @@
-Prime JWT Changes
+FusionAuth JWT Changes
+
+Changes in 3.0.0
+
+ This major version of fusionauth-jwt contains breaking changes.
+
+ * Elliptic Support, ES256, ES384 and ES512
+ * JWK Support
+ * Some minor breakages
+ * Upgraded Jackson from 2.9.6 to 2.9.8. This upgrade addresses CVE-2018-19360, CVE-2018-19361, CVE-2018-19362 and CVE-2018-1000873.
+
+   If you are unable to upgrade to 3.0.0, simply explicitly depend upon version 2.9.8 in your own application, this will be compatible with
+   this library.
+
+   See https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.9.8
+   See https://nvd.nist.gov/vuln/detail/CVE-2018-19360
+   See https://nvd.nist.gov/vuln/detail/CVE-2018-19361
+   See https://nvd.nist.gov/vuln/detail/CVE-2018-19362
+   See https://nvd.nist.gov/vuln/detail/CVE-2018-1000873
 
 Changes in 2.1.1
  * Ignore null values when calling JWT.addClaim
 
 Changes in 2.1.0
  * Rename packages from org.primeframework to io.fusionauth
+ * Rename project from prime-jwt to fusionauth-jwt
 
 Changes in 2.0.0
 

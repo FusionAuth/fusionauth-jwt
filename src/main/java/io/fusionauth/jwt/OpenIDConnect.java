@@ -26,14 +26,14 @@ import java.util.Base64;
 import java.util.Objects;
 
 /**
- * Helpers for OpenId Connect.
+ * Helpers for OpenID Connect.
  *
  * @author Daniel DeGroff
  */
 public class OpenIDConnect {
 
   /**
-   * Generate the hash of the Access Token specified by the OpenId Connect Core spec for the <code>at_hash</code> claim.
+   * Generate the hash of the Access Token specified by the OpenID Connect Core spec for the <code>at_hash</code> claim.
    *
    * @param accessToken the ASCII form of the access token
    * @param algorithm   the algorithm to be used when encoding the Id Token
@@ -45,7 +45,7 @@ public class OpenIDConnect {
   }
 
   /**
-   * Generate the hash of the Authorization Code as specified by the OpenId Connect Core spec for the <code>c_hash</code> claim.
+   * Generate the hash of the Authorization Code as specified by the OpenID Connect Core spec for the <code>c_hash</code> claim.
    *
    * @param authorizationCode the ASCII form of the authorization code
    * @param algorithm         the algorithm to be used when encoding the Id Token

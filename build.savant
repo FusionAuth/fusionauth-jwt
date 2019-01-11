@@ -84,19 +84,13 @@ target(name: "test", description: "Runs the project's tests", dependsOn: ["jar"]
 
 target(name: "doc", description: "Generate the project's JavaDoc", dependsOn: ["jar"]) {
   java.document()
-
-  file.prune(dir: "docs")
-
-  file.copy(to: "docs") {
-    fileSet(dir: "build/doc")
-  }
 }
 
 target(name: "int", description: "Releases a local integration build of the project", dependsOn: ["test"]) {
   dependency.integrate()
 }
 
-target(name: "release", description: "Releases a full version of the project", dependsOn: ["test", "doc"]) {
+target(name: "release", description: "Releases a full version of the project", dependsOn: ["test"]) {
   release.release()
 }
 

@@ -117,7 +117,7 @@ public class JWT {
   public String uniqueId;
 
   /**
-   * Return a singleton instance of the JWT Decoder.
+   * Return an instance of the JWT Decoder.
    *
    * @return a JWT decoder.
    */
@@ -126,12 +126,12 @@ public class JWT {
   }
 
   /**
-   * Return a singleton instance of the JWT encoder.
+   * Return an instance of the JWT encoder.
    *
    * @return a JWT encoder.
    */
   public static JWTEncoder getEncoder() {
-    return JWTEncoder.getInstance();
+    return new JWTEncoder();
   }
 
   /**

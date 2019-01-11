@@ -243,6 +243,10 @@ public class JSONWebKey implements Buildable<JSONWebKey> {
     return Objects.hash(alg, crv, d, dp, dq, e, kid, kty, n, p, q, qi, use, x, x5c, x5t, x5t_256, y);
   }
 
+  public String toJSON() {
+    return new String(Mapper.serialize(this));
+  }
+
   @Override
   public String toString() {
     return new String(Mapper.prettyPrint(this));
