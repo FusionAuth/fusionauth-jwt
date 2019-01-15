@@ -1,5 +1,8 @@
 FusionAuth JWT Changes
 
+Changes in 3.0.1
+ * Remove un-needed line return at the end of the PEM when encoding a PEM string.
+
 Changes in 3.0.0
 
  This major version of fusionauth-jwt contains breaking changes.

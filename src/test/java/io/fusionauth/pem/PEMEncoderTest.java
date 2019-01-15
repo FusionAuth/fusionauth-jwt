@@ -46,12 +46,12 @@ public class PEMEncoderTest {
     String encodedPublicKey = PEM.encode(keyPair.getPublic());
     assertNotNull(encodedPublicKey);
     assertTrue(encodedPublicKey.startsWith(PEM.X509_PUBLIC_KEY_PREFIX));
-    assertTrue(encodedPublicKey.endsWith(PEM.X509_PUBLIC_KEY_SUFFIX + "\n"));
+    assertTrue(encodedPublicKey.endsWith(PEM.X509_PUBLIC_KEY_SUFFIX));
 
     String encodedPrivateKey = PEM.encode(keyPair.getPrivate());
     assertNotNull(encodedPrivateKey);
     assertTrue(encodedPrivateKey.startsWith(PEM.PKCS_8_PRIVATE_KEY_PREFIX));
-    assertTrue(encodedPrivateKey.endsWith(PEM.PKCS_8_PRIVATE_KEY_SUFFIX + "\n"));
+    assertTrue(encodedPrivateKey.endsWith(PEM.PKCS_8_PRIVATE_KEY_SUFFIX));
 
     // Since we built our own key pair, the private key will not contain the public key
     PEM pem = PEM.decode(encodedPrivateKey);
@@ -69,8 +69,8 @@ public class PEMEncoderTest {
   @Test
   public void ec_backAndForth() throws Exception {
     // Start with openSSL PKCS#8 private key and X.509 public key
-    String expectedPrivate = new String(Files.readAllBytes(Paths.get("src/test/resources/ec_private_prime256v1_p_256_openssl_pkcs8.pem")));
-    String expectedPublic = new String(Files.readAllBytes(Paths.get("src/test/resources/ec_public_prime256v1_p_256_openssl.pem")));
+    String expectedPrivate = new String(Files.readAllBytes(Paths.get("src/test/resources/ec_private_prime256v1_p_256_openssl_pkcs8.pem"))).trim();
+    String expectedPublic = new String(Files.readAllBytes(Paths.get("src/test/resources/ec_public_prime256v1_p_256_openssl.pem"))).trim();
 
     // Decode the private key to ensure we get both private and public keys out of the private PEM
     PEM pem = PEM.decode(expectedPrivate);
@@ -103,12 +103,12 @@ public class PEMEncoderTest {
     String encodedPublicKey = PEM.encode(keyPair.getPublic());
     assertNotNull(encodedPublicKey);
     assertTrue(encodedPublicKey.startsWith(PEM.X509_PUBLIC_KEY_PREFIX));
-    assertTrue(encodedPublicKey.endsWith(PEM.X509_PUBLIC_KEY_SUFFIX + "\n"));
+    assertTrue(encodedPublicKey.endsWith(PEM.X509_PUBLIC_KEY_SUFFIX));
 
     String encodedPrivateKey = PEM.encode(keyPair.getPrivate());
     assertNotNull(encodedPrivateKey);
     assertTrue(encodedPrivateKey.startsWith(PEM.PKCS_8_PRIVATE_KEY_PREFIX));
-    assertTrue(encodedPrivateKey.endsWith(PEM.PKCS_8_PRIVATE_KEY_SUFFIX + "\n"));
+    assertTrue(encodedPrivateKey.endsWith(PEM.PKCS_8_PRIVATE_KEY_SUFFIX));
 
     // Since the public RSA modulus and  public exponent are always included in the private key, they should
     // be contained in the generated PEM
@@ -120,8 +120,8 @@ public class PEMEncoderTest {
   @Test
   public void rsa_backAndForth_pkcs_1() throws Exception {
     // Start externally created PKCS#1 private key and X.509 public key
-    String expectedPrivate_pkcs_1 = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048_pkcs_1_control.pem")));
-    String expectedPrivate_pkcs_8 = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048_pkcs_8_control.pem")));
+    String expectedPrivate_pkcs_1 = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048_pkcs_1_control.pem"))).trim();
+    String expectedPrivate_pkcs_8 = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048_pkcs_8_control.pem"))).trim();
     String expectedPublic = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048_x509_control.pem")));
 
     // Decode the private key to ensure we get both private and public keys out of the private PEM
@@ -146,14 +146,14 @@ public class PEMEncoderTest {
 
     // Re-encode the public key to PEM X.509 format and ensure it equals the original
     String encodedPublicKey = PEM.encode(pem.getPublicKey());
-    assertEquals(encodedPublicKey, expectedPublic + "\n");
+    assertEquals(encodedPublicKey, expectedPublic);
   }
 
   @Test
   public void rsa_backAndForth_pkcs_8() throws Exception {
     // Start externally created PKCS#1 private key and X.509 public key
-    String expectedPrivate = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048_pkcs_8_control.pem")));
-    String expectedPublic = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048_x509_control.pem")));
+    String expectedPrivate = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048_pkcs_8_control.pem"))).trim();
+    String expectedPublic = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048_x509_control.pem"))).trim();
 
     // Decode the private key to ensure we get both private and public keys out of the private PEM
     PEM pem = PEM.decode(expectedPrivate);
@@ -175,6 +175,6 @@ public class PEMEncoderTest {
 
     // Re-encode the public key to PEM X.509 format and ensure it equals the original
     String encodedPublicKey = PEM.encode(pem.getPublicKey());
-    assertEquals(encodedPublicKey, expectedPublic + "\n");
+    assertEquals(encodedPublicKey, expectedPublic);
   }
 }

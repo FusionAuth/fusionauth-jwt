@@ -160,12 +160,12 @@ public class PEMEncoder {
     sb.append("\n");
     if (key instanceof PrivateKey) {
       if (key.getFormat().equals("PKCS#1")) {
-        sb.append(PEM.PKCS_1_PRIVATE_KEY_SUFFIX).append("\n");
+        sb.append(PEM.PKCS_1_PRIVATE_KEY_SUFFIX);
       } else if (key.getFormat().equals("PKCS#8")) {
-        sb.append(PEM.PKCS_8_PRIVATE_KEY_SUFFIX).append("\n");
+        sb.append(PEM.PKCS_8_PRIVATE_KEY_SUFFIX);
       }
     } else {
-      sb.append(PEM.X509_PUBLIC_KEY_SUFFIX).append("\n");
+      sb.append(PEM.X509_PUBLIC_KEY_SUFFIX);
     }
   }
 
