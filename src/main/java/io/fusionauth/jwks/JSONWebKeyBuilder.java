@@ -157,9 +157,9 @@ public class JSONWebKeyBuilder {
       ECPoint point = ecPublicKey.getW();
       int length = point.getAffineX().toByteArray().length;
       key.alg = Algorithm.ES256;
-      if (length >= 64) {
+      if (length >= 63) {
         key.alg = Algorithm.ES512;
-      } else if (length >= 48) {
+      } else if (length >= 47) {
         key.alg = Algorithm.ES384;
       }
 
