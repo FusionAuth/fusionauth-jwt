@@ -108,7 +108,7 @@ public class Tag {
   public Tag(int value) {
     // Hold the raw value provided
     rawByte = (byte) value;
-    tagClass = _setTagClass(value);
+    tagClass = setTagClass(value);
 
     // The 6th bit indicates if this tag is primitive or constructed
     primitive = (rawByte & 0b00100000) == 0;
@@ -178,7 +178,7 @@ public class Tag {
     return value + " [" + getName() + ", " + hexString() + "]";
   }
 
-  private TagClass _setTagClass(int value) {
+  private TagClass setTagClass(int value) {
     TagClass tagClass = null;
     for (TagClass tc : TagClass.values()) {
       if ((value & 0b11000000) == tc.value) {

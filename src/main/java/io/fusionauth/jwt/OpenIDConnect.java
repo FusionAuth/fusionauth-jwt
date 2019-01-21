@@ -18,7 +18,7 @@ package io.fusionauth.jwt;
 
 import io.fusionauth.jwt.domain.Algorithm;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -41,7 +41,7 @@ public class OpenIDConnect {
    * @throws NoSuchAlgorithmException Thrown when no provider supports an implementation of the specified algorithm
    */
   public static String at_hash(String accessToken, Algorithm algorithm) throws NoSuchAlgorithmException {
-    return generate_hash(accessToken, algorithm, 128);
+    return generate_hash(accessToken, algorithm);
   }
 
   /**
@@ -53,29 +53,40 @@ public class OpenIDConnect {
    * @throws NoSuchAlgorithmException Thrown when no provider supports an implementation of the specified algorithm
    */
   public static String c_hash(String authorizationCode, Algorithm algorithm) throws NoSuchAlgorithmException {
-    return generate_hash(authorizationCode, algorithm, 256);
+    return generate_hash(authorizationCode, algorithm);
   }
 
-  private static String generate_hash(String string, Algorithm algorithm, int leftMostBits) throws NoSuchAlgorithmException {
+  private static String generate_hash(String string, Algorithm algorithm) throws NoSuchAlgorithmException {
     Objects.requireNonNull(string);
     Objects.requireNonNull(algorithm);
-    if (leftMostBits % 8 != 0) {
-      throw new IllegalArgumentException("The leftMostBits parameter is not valid. It must be a factor of 8.");
-    }
 
+    int leftMostBits;
     MessageDigest messageDigest;
-    if (algorithm == Algorithm.RS256) {
-      messageDigest = MessageDigest.getInstance("SHA-256");
-    } else if (algorithm == Algorithm.RS384) {
-      messageDigest = MessageDigest.getInstance("SHA-384");
-    } else if (algorithm == Algorithm.RS512) {
-      messageDigest = MessageDigest.getInstance("SHA-512");
-    } else {
-      throw new IllegalArgumentException("You specified an unsupported algorithm. The algorithm [" + algorithm + "]"
-          + " is not supported. You must use RS256, RS384 or RS512.");
+    switch (algorithm) {
+      case ES256:
+      case HS256:
+      case RS256:
+        messageDigest = MessageDigest.getInstance("SHA-256");
+        leftMostBits = 128;
+        break;
+      case ES384:
+      case HS384:
+      case RS384:
+        messageDigest = MessageDigest.getInstance("SHA-384");
+        leftMostBits = 192;
+        break;
+      case ES512:
+      case HS512:
+      case RS512:
+        messageDigest = MessageDigest.getInstance("SHA-512");
+        leftMostBits = 256;
+        break;
+      default:
+        throw new IllegalArgumentException("You specified an unsupported algorithm. The algorithm [" + algorithm + "]"
+            + " is not supported. You must use ES256, ES384, ES512,  HS256, HS384, HS512, RS256, RS384 or RS512.");
     }
 
-    byte[] digest = string.getBytes(Charset.forName("UTF-8"));
+    byte[] digest = string.getBytes(StandardCharsets.UTF_8);
     digest = messageDigest.digest(digest);
 
     int toIndex = Math.min(digest.length, leftMostBits / 8);
