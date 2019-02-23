@@ -16,7 +16,9 @@
 
 package io.fusionauth.jwt;
 
+import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.domain.KeyPair;
+import io.fusionauth.jwt.hmac.HMACSigner;
 import io.fusionauth.pem.domain.PEM;
 import org.testng.annotations.Test;
 
@@ -39,6 +41,19 @@ import static org.testng.Assert.assertTrue;
  * @author Daniel DeGroff
  */
 public class JWTUtilsTest {
+  @Test
+  public void decodePayload() {
+    JWT jwt = new JWT().setSubject("123456789");
+
+    // HMAC signed
+    JWT actual = JWTUtils.decodePayload(JWT.getEncoder().encode(jwt, HMACSigner.newSHA512Signer("secret1")));
+    assertEquals(actual.subject, jwt.subject);
+
+    // Test with an unsecured signer
+    String unsecuredJWT = JWT.getEncoder().encode(jwt, new UnsecuredSigner());
+    assertEquals(JWTUtils.decodePayload(unsecuredJWT).subject, jwt.subject);
+  }
+
   @Test
   public void generateECKey() {
     // 256 bit key

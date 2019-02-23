@@ -1,6 +1,9 @@
 FusionAuth JWT Changes
 
 Changes in 3.0.1
+ * Add JWTUtils.decodePayload as a utility to decode a JWT, this is an unsafe and should only be used for utility not to verify the JWT.
+
+Changes in 3.0.1
  * Remove un-needed line return at the end of the PEM when encoding a PEM string.
 
 Changes in 3.0.0

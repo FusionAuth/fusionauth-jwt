@@ -16,8 +16,10 @@
 
 package io.fusionauth.jwt;
 
+import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.domain.KeyPair;
 import io.fusionauth.jwt.domain.KeyType;
+import io.fusionauth.jwt.json.Mapper;
 import io.fusionauth.pem.domain.PEM;
 
 import java.nio.charset.Charset;
@@ -26,6 +28,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Objects;
 
 /**
  * Helper to generate new HMAC secrets, EC and RSA public / private key pairs and other fun things.
@@ -58,6 +61,26 @@ public class JWTUtils {
   public static String convertThumbprintToFingerprint(String x5tHash) {
     byte[] bytes = Base64.getUrlDecoder().decode(x5tHash.getBytes(Charset.forName("UTF-8")));
     return HexUtils.fromBytes(bytes);
+  }
+
+  /**
+   * WARNING!! This is not a secure or safe way to decode a JWT, this will not perform any validation on the signature.
+   * <p>
+   * Consider the JWT returned from this method as un-trustworthy. This is intended for utility and a nice way to
+   * read the JWT, but do not use it in production to verify the claims contained in this JWT.
+   *
+   * @param encodedJWT the encoded JWT
+   * @return a JWT object
+   */
+  public static JWT decodePayload(String encodedJWT) {
+    Objects.requireNonNull(encodedJWT);
+
+    String[] parts = encodedJWT.split("\\.");
+    if (parts.length == 3 || (parts.length == 2 && encodedJWT.endsWith("."))) {
+      return Mapper.deserialize(Base64.getUrlDecoder().decode(parts[1]), JWT.class);
+    }
+
+    throw new InvalidJWTException("The encoded JWT is not properly formatted. Expected a three part dot separated string.");
   }
 
   /**
