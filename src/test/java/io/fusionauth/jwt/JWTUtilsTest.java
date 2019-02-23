@@ -16,6 +16,7 @@
 
 package io.fusionauth.jwt;
 
+import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.domain.KeyPair;
 import io.fusionauth.jwt.hmac.HMACSigner;
@@ -46,12 +47,14 @@ public class JWTUtilsTest {
     JWT jwt = new JWT().setSubject("123456789");
 
     // HMAC signed
-    JWT actual = JWTUtils.decodePayload(JWT.getEncoder().encode(jwt, HMACSigner.newSHA512Signer("secret1")));
-    assertEquals(actual.subject, jwt.subject);
+    String encodedJWT = JWT.getEncoder().encode(jwt, HMACSigner.newSHA512Signer("secret1"));
+    assertEquals(JWTUtils.decodePayload(encodedJWT).subject, "123456789");
+    assertEquals(JWTUtils.decodeHeader(encodedJWT).algorithm, Algorithm.HS512);
 
     // Test with an unsecured signer
     String unsecuredJWT = JWT.getEncoder().encode(jwt, new UnsecuredSigner());
-    assertEquals(JWTUtils.decodePayload(unsecuredJWT).subject, jwt.subject);
+    assertEquals(JWTUtils.decodePayload(unsecuredJWT).subject, "123456789");
+    assertEquals(JWTUtils.decodeHeader(unsecuredJWT).algorithm, Algorithm.none);
   }
 
   @Test
