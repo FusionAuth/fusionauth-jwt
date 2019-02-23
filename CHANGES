@@ -1,6 +1,6 @@
 FusionAuth JWT Changes
 
-Changes in 3.0.1
+Changes in 3.0.2
  * Add JWTUtils.decodePayload and decodeHeader as a utility to decode a JWT, this is an unsafe and should only be used for utility not to verify the JWT.
 
 Changes in 3.0.1

@@ -31,7 +31,7 @@ We are very interested in compensating anyone that can identify a security relat
 <dependency>
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>3.0.0</version>
+  <version>3.0.2</version>
 </dependency>
  ```
  
