@@ -38,9 +38,8 @@ public class OpenIDConnect {
    * @param accessToken the ASCII form of the access token
    * @param algorithm   the algorithm to be used when encoding the Id Token
    * @return a hash to be used as the <code>at_hash</code> claim in the Id Token claim payload
-   * @throws NoSuchAlgorithmException Thrown when no provider supports an implementation of the specified algorithm
    */
-  public static String at_hash(String accessToken, Algorithm algorithm) throws NoSuchAlgorithmException {
+  public static String at_hash(String accessToken, Algorithm algorithm) {
     return generate_hash(accessToken, algorithm);
   }
 
@@ -50,13 +49,12 @@ public class OpenIDConnect {
    * @param authorizationCode the ASCII form of the authorization code
    * @param algorithm         the algorithm to be used when encoding the Id Token
    * @return a hash to be used as the <code>c_hash</code> claim in the Id Token claim payload
-   * @throws NoSuchAlgorithmException Thrown when no provider supports an implementation of the specified algorithm
    */
-  public static String c_hash(String authorizationCode, Algorithm algorithm) throws NoSuchAlgorithmException {
+  public static String c_hash(String authorizationCode, Algorithm algorithm) {
     return generate_hash(authorizationCode, algorithm);
   }
 
-  private static String generate_hash(String string, Algorithm algorithm) throws NoSuchAlgorithmException {
+  private static String generate_hash(String string, Algorithm algorithm) {
     Objects.requireNonNull(string);
     Objects.requireNonNull(algorithm);
 
@@ -66,19 +64,19 @@ public class OpenIDConnect {
       case ES256:
       case HS256:
       case RS256:
-        messageDigest = MessageDigest.getInstance("SHA-256");
+        messageDigest = getDigest("SHA-256");
         leftMostBits = 128;
         break;
       case ES384:
       case HS384:
       case RS384:
-        messageDigest = MessageDigest.getInstance("SHA-384");
+        messageDigest = getDigest("SHA-384");
         leftMostBits = 192;
         break;
       case ES512:
       case HS512:
       case RS512:
-        messageDigest = MessageDigest.getInstance("SHA-512");
+        messageDigest = getDigest("SHA-512");
         leftMostBits = 256;
         break;
       default:
@@ -93,5 +91,13 @@ public class OpenIDConnect {
     byte[] leftMostBytes = Arrays.copyOfRange(digest, 0, toIndex);
 
     return new String(Base64.getUrlEncoder().withoutPadding().encode(leftMostBytes));
+  }
+
+  private static MessageDigest getDigest(String digest) {
+    try {
+      return MessageDigest.getInstance(digest);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
