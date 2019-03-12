@@ -208,9 +208,7 @@ public class JWTUtils {
    * @return a secret for use with an HMAC signing and verification scheme.
    */
   public static String generateSHA256_HMACSecret() {
-    byte[] buffer = new byte[32];
-    new SecureRandom().nextBytes(buffer);
-    return Base64.getEncoder().encodeToString(buffer);
+    return generateSecureRandom(32);
   }
 
   /**
@@ -219,9 +217,7 @@ public class JWTUtils {
    * @return a secret for use with an HMAC signing and verification scheme.
    */
   public static String generateSHA384_HMACSecret() {
-    byte[] buffer = new byte[48];
-    new SecureRandom().nextBytes(buffer);
-    return Base64.getEncoder().encodeToString(buffer);
+    return generateSecureRandom(48);
   }
 
   /**
@@ -230,7 +226,17 @@ public class JWTUtils {
    * @return a secret for use with an HMAC signing and verification scheme.
    */
   public static String generateSHA512_HMACSecret() {
-    byte[] buffer = new byte[64];
+    return generateSecureRandom(64);
+  }
+
+  /**
+   * Return a secure random string
+   *
+   * @param bytes the number of bytes used to generate the random byte array to be encoded.
+   * @return a random string.
+   */
+  public static String generateSecureRandom(int bytes) {
+    byte[] buffer = new byte[bytes];
     new SecureRandom().nextBytes(buffer);
     return Base64.getEncoder().encodeToString(buffer);
   }
