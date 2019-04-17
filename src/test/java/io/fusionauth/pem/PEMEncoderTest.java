@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.ECPublicKey;
@@ -84,11 +85,11 @@ public class PEMEncoderTest {
     assertEquals(publicKey.getW().getAffineY(), new BigInteger("8abdebcea6831f8ec07c1b4f95ceb7eb0d121cb3d23c54cfa572fba97a0de510", 16));
 
     // Re-encode the private key to PEM PKCS#8 format and ensure it equals the original
-    String encodedPrivateKey = PEM.encode(pem.getPrivateKey());
+    String encodedPrivateKey = PEM.encode((Key) pem.getPrivateKey());
     assertEquals(encodedPrivateKey, expectedPrivate);
 
     // Re-encode the public key to PEM X.509 format and ensure it equals the original
-    String encodedPublicKey = PEM.encode(pem.getPublicKey());
+    String encodedPublicKey = PEM.encode((Key) pem.getPublicKey());
     assertEquals(encodedPublicKey, expectedPublic);
   }
 
@@ -138,14 +139,14 @@ public class PEMEncoderTest {
     assertEquals(publicKey.getPublicExponent(), BigInteger.valueOf(65537));
 
     // Re-encode the private key which started as PKCS#1 to PEM PKCS#8 format
-    String encodedPrivateKey_pkcs_8 = PEM.encode(pem.getPrivateKey());
+    String encodedPrivateKey_pkcs_8 = PEM.encode((Key) pem.getPrivateKey());
     assertTrue(encodedPrivateKey_pkcs_8.startsWith(PEM.PKCS_8_PRIVATE_KEY_PREFIX));
     // The PKCS#1 will not equal the PKCS#8 key
     assertNotEquals(encodedPrivateKey_pkcs_8, expectedPrivate_pkcs_1);
     assertEquals(encodedPrivateKey_pkcs_8, expectedPrivate_pkcs_8);
 
     // Re-encode the public key to PEM X.509 format and ensure it equals the original
-    String encodedPublicKey = PEM.encode(pem.getPublicKey());
+    String encodedPublicKey = PEM.encode((Key) pem.getPublicKey());
     assertEquals(encodedPublicKey, expectedPublic);
   }
 
@@ -169,12 +170,12 @@ public class PEMEncoderTest {
     assertEquals(publicKey.getPublicExponent(), BigInteger.valueOf(65537));
 
     // Re-encode the private to PEM PKCS#8 format
-    String encodedPrivateKey_pkcs_8 = PEM.encode(pem.getPrivateKey());
+    String encodedPrivateKey_pkcs_8 = PEM.encode((Key) pem.getPrivateKey());
     assertTrue(encodedPrivateKey_pkcs_8.startsWith(PEM.PKCS_8_PRIVATE_KEY_PREFIX));
     assertEquals(encodedPrivateKey_pkcs_8, expectedPrivate);
 
     // Re-encode the public key to PEM X.509 format and ensure it equals the original
-    String encodedPublicKey = PEM.encode(pem.getPublicKey());
+    String encodedPublicKey = PEM.encode((Key) pem.getPublicKey());
     assertEquals(encodedPublicKey, expectedPublic);
   }
 }

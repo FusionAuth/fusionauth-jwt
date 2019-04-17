@@ -29,8 +29,13 @@ import java.security.InvalidParameterException;
 import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.interfaces.ECPrivateKey;
 import java.util.Base64;
+
+import static io.fusionauth.pem.domain.PEM.X509_CERTIFICATE_PREFIX;
+import static io.fusionauth.pem.domain.PEM.X509_CERTIFICATE_SUFFIX;
 
 /**
  * Encode a <code>PrivateKey</code> or <code>PublicKey</code> into a PEM formatted string.
@@ -154,6 +159,20 @@ public class PEMEncoder {
     }
 
     throw new PEMEncoderException(new InvalidParameterException("Unexpected key type. Expecting instance of [PrivateKey | PublicKey], found [" + key.getClass().getCanonicalName() + "]"));
+  }
+
+  /**
+   * Encodes the certificate as a X.509 PEM certificate.
+   *
+   * @param certificate The certificate
+   * @return The encoded PEM certificate.
+   */
+  public String encode(Certificate certificate) {
+    try {
+      return X509_CERTIFICATE_PREFIX + "\n" + Base64_MIME_Encoder.encodeToString(certificate.getEncoded()) + "\n" + X509_CERTIFICATE_SUFFIX;
+    } catch (CertificateEncodingException e) {
+      throw new PEMEncoderException(e);
+    }
   }
 
   private void addClosingTag(Key key, StringBuilder sb) {

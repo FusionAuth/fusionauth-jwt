@@ -144,6 +144,16 @@ public class PEM implements Buildable<PEM> {
     return new PEMEncoder().encode(privateKey, publicKey);
   }
 
+  /**
+   * Encode a certificate in PEM format.
+   *
+   * @param certificate The certificate.
+   * @return An encoded PEM.
+   */
+  public static String encode(Certificate certificate) {
+    return new PEMEncoder().encode(certificate);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -154,12 +164,16 @@ public class PEM implements Buildable<PEM> {
         Objects.equals(publicKey, pem.publicKey);
   }
 
-  public <T> T getPrivateKey() {
+  public Certificate getCertificate() {
+    return certificate;
+  }
+
+  public <T extends PrivateKey> T getPrivateKey() {
     //noinspection unchecked
     return (T) privateKey;
   }
 
-  public <T> T getPublicKey() {
+  public <T extends PublicKey> T getPublicKey() {
     //noinspection unchecked
     return (T) publicKey;
   }
