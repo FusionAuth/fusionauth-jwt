@@ -1,5 +1,8 @@
 FusionAuth JWT Changes
 
+Changes in 3.0.4
+ * Add PEM.encode(Certificate certificate) and PEMEncoder.encode(Certificate certificate)
+
 Changes in 3.0.3
  * Remove throws from OpenIDConnect utility methods
 
