@@ -2,3 +2,4 @@ build
 *.iws
 .idea
 target
+.DS_Store
