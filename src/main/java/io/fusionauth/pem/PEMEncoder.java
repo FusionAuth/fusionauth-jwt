@@ -56,7 +56,7 @@ public class PEMEncoder {
    *
    * @param privateKey the private key
    * @param publicKey  the public key
-   * @return a string encoded PEM
+   * @return a PEM Encoded key
    */
   public String encode(PrivateKey privateKey, PublicKey publicKey) {
     if (privateKey == null && publicKey == null) {
@@ -149,7 +149,7 @@ public class PEMEncoder {
    * Both values may no be null.
    *
    * @param key the key, this parameter may be of type <code>PrivateKey</code> <code>PublicKey</code>
-   * @return a string encoded PEM
+   * @return a PEM encoded key
    */
   public String encode(Key key) {
     if (key instanceof PrivateKey) {
@@ -162,10 +162,10 @@ public class PEMEncoder {
   }
 
   /**
-   * Encodes the certificate as a X.509 PEM certificate.
+   * Encode the X.509 certificate in a PEM format and return a string.
    *
    * @param certificate The certificate
-   * @return The encoded PEM certificate.
+   * @return a PEM encoded certificate
    */
   public String encode(Certificate certificate) {
     try {
