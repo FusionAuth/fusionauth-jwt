@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,15 @@ public interface Signer {
    * @return the algorithm.
    */
   Algorithm getAlgorithm();
+
+  /**
+   * Return the kid used for this signer.
+   *
+   * @return the kid
+   */
+  default String getKid() {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Sign the provided message and return the signature.

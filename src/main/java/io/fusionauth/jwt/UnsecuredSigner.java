@@ -31,6 +31,11 @@ public class UnsecuredSigner implements Signer {
   }
 
   @Override
+  public String getKid() {
+    return null;
+  }
+
+  @Override
   public byte[] sign(String payload) {
     return new byte[0];
   }

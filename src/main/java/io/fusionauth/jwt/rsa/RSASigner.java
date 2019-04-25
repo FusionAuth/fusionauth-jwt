@@ -39,13 +39,16 @@ import java.util.Objects;
 public class RSASigner implements Signer {
   private final Algorithm algorithm;
 
-  private RSAPrivateKey privateKey;
+  private final String kid;
 
-  private RSASigner(Algorithm algorithm, String privateKey) {
+  private final RSAPrivateKey privateKey;
+
+  private RSASigner(Algorithm algorithm, String privateKey, String kid) {
     Objects.requireNonNull(algorithm);
     Objects.requireNonNull(privateKey);
 
     this.algorithm = algorithm;
+    this.kid = kid;
     PEM pem = PEM.decode(privateKey);
     if (pem.privateKey == null) {
       throw new MissingPrivateKeyException("The provided PEM encoded string did not contain a private key.");
@@ -62,10 +65,32 @@ public class RSASigner implements Signer {
    * Build a new RSA signer using a SHA-256 hash.
    *
    * @param privateKey The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @param kid        The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @return a new RSA signer.
+   */
+  public static RSASigner newSHA256Signer(String privateKey, String kid) {
+    return new RSASigner(Algorithm.RS256, privateKey, kid);
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-256 hash.
+   *
+   * @param privateKey The private key PEM expected to be in PKCS#1 or PKCS#8 format.
    * @return a new RSA signer.
    */
   public static RSASigner newSHA256Signer(String privateKey) {
-    return new RSASigner(Algorithm.RS256, privateKey);
+    return new RSASigner(Algorithm.RS256, privateKey, null);
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-384 hash.
+   *
+   * @param privateKey The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @param kid        The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @return a new RSA signer.
+   */
+  public static RSASigner newSHA384Signer(String privateKey, String kid) {
+    return new RSASigner(Algorithm.RS384, privateKey, kid);
   }
 
   /**
@@ -75,7 +100,18 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA384Signer(String privateKey) {
-    return new RSASigner(Algorithm.RS384, privateKey);
+    return new RSASigner(Algorithm.RS384, privateKey, null);
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-512 hash.
+   *
+   * @param privateKey The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @param kid        The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @return a new RSA signer.
+   */
+  public static RSASigner newSHA512Signer(String privateKey, String kid) {
+    return new RSASigner(Algorithm.RS512, privateKey, kid);
   }
 
   /**
@@ -85,12 +121,17 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA512Signer(String privateKey) {
-    return new RSASigner(Algorithm.RS512, privateKey);
+    return new RSASigner(Algorithm.RS512, privateKey, null);
   }
 
   @Override
   public Algorithm getAlgorithm() {
     return algorithm;
+  }
+
+  @Override
+  public String getKid() {
+    return kid;
   }
 
   public byte[] sign(String message) {

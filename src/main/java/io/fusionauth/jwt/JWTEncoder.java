@@ -38,7 +38,7 @@ public class JWTEncoder {
    * @return the encoded JWT string.
    */
   public String encode(JWT jwt, Signer signer) {
-    return encode(jwt, signer, null);
+    return encode(jwt, signer, h -> h.set("kid", signer.getKid()));
   }
 
   /**

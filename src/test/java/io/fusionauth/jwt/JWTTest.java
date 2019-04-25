@@ -52,6 +52,56 @@ import static org.testng.Assert.assertTrue;
  * @author Daniel DeGroff
  */
 public class JWTTest extends BaseTest {
+  @Test(enabled = false)
+  public void buildSignerPerformance() throws Exception {
+    long iterationCount = 500_000;
+    String privateKey = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048.pem")));
+
+    Instant start = Instant.now();
+    for (int i = 0; i < iterationCount; i++) {
+      RSASigner.newSHA256Signer(privateKey);
+    }
+
+    Duration duration = Duration.between(start, Instant.now());
+    BigDecimal durationInMillis = BigDecimal.valueOf(duration.toMillis());
+    BigDecimal average = durationInMillis.divide(BigDecimal.valueOf(iterationCount), RoundingMode.HALF_DOWN);
+    long perSecond = iterationCount / (duration.toMillis() / 1000);
+
+    System.out.println("[Build Signer] " + duration.toMillis() + " milliseconds total. [" + iterationCount + "] iterations. [" + average + "] milliseconds per iteration. Approx. [" + perSecond + "] per second.");
+
+    // 500,000 Iterations
+    // - Reading file and building signer
+    //   --> Results [Build Signer] 28274 milliseconds total. [500000] iterations. [0] milliseconds per iteration. Approx. [17,857] per second.
+    ///
+    // - Build Signer Only
+    //   --> Results [Build Signer] 15443 milliseconds total. [500000] iterations. [0] milliseconds per iteration. Approx. [33,333] per second.
+  }
+
+  @Test(enabled = false)
+  public void buildVerifierPerformance() throws Exception {
+    long iterationCount = 500_000;
+    String publicKey = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem")));
+
+    Instant start = Instant.now();
+    for (int i = 0; i < iterationCount; i++) {
+      RSAVerifier.newVerifier(publicKey);
+    }
+
+    Duration duration = Duration.between(start, Instant.now());
+    BigDecimal durationInMillis = BigDecimal.valueOf(duration.toMillis());
+    BigDecimal average = durationInMillis.divide(BigDecimal.valueOf(iterationCount), RoundingMode.HALF_DOWN);
+    long perSecond = iterationCount / (duration.toMillis() / 1000);
+
+    System.out.println("[Build Verifier] " + duration.toMillis() + " milliseconds total. [" + iterationCount + "] iterations. [" + average + "] milliseconds per iteration. Approx. [" + perSecond + "] per second.");
+
+    // 500,000 Iterations
+    // - Reading file and building verifier
+    //   --> Results [Build Verifier] 14778 milliseconds total. [500000] iterations. [0] milliseconds per iteration. Approx. [35,714] per second.
+    ///
+    // - Build Verifier Only
+    //   --> Results [Build Verifier] 4969 milliseconds total. [500000] iterations. [0] milliseconds per iteration. Approx. [125,000] per second.
+  }
+
   /**
    * Performance
    * <pre>

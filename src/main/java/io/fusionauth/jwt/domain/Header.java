@@ -70,6 +70,10 @@ public class Header {
    */
   @JsonAnySetter
   public Header set(String name, String value) {
+    if (name == null || value == null) {
+      return this;
+    }
+
     properties.put(name, value);
     return this;
   }

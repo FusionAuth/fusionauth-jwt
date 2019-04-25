@@ -1,5 +1,9 @@
 FusionAuth JWT Changes
 
+Changes in 3.1.0
+
+ * Added Signer.getKid() with a default impl to throw UnsupportedOperationException(), this allows the JWTEncoder.encode to add a 'kid' by default. This makes it more consistent with the JWTDecoder.
+
 Changes in 3.0.4
  * Add PEM.encode(Certificate certificate) and PEMEncoder.encode(Certificate certificate)
 
