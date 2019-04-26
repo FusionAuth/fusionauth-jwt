@@ -5,15 +5,19 @@ Changes in 3.1.0
  * Added Signer.getKid() with a default impl to throw UnsupportedOperationException(), this allows the JWTEncoder.encode to add a 'kid' by default. This makes it more consistent with the JWTDecoder.
 
 Changes in 3.0.4
+
  * Add PEM.encode(Certificate certificate) and PEMEncoder.encode(Certificate certificate)
 
 Changes in 3.0.3
+
  * Remove throws from OpenIDConnect utility methods
 
 Changes in 3.0.2
+
  * Add JWTUtils.decodePayload and decodeHeader as a utility to decode a JWT, this is an unsafe and should only be used for utility not to verify the JWT.
 
 Changes in 3.0.1
+
  * Remove un-needed line return at the end of the PEM when encoding a PEM string.
 
 Changes in 3.0.0
@@ -35,9 +39,11 @@ Changes in 3.0.0
    See https://nvd.nist.gov/vuln/detail/CVE-2018-1000873
 
 Changes in 2.1.1
+
  * Ignore null values when calling JWT.addClaim
 
 Changes in 2.1.0
+
  * Rename packages from org.primeframework to io.fusionauth
  * Rename project from prime-jwt to fusionauth-jwt
 
