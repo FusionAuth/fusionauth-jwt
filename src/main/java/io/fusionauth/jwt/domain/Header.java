@@ -20,9 +20,11 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.fusionauth.jwt.json.Mapper;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * JSON Object Signing and Encryption (JOSE) Header
@@ -57,8 +59,23 @@ public class Header {
     return properties;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Header)) return false;
+    Header header = (Header) o;
+    return algorithm == header.algorithm &&
+        Objects.equals(properties, header.properties) &&
+        type == header.type;
+  }
+
   public String get(String name) {
     return properties.get(name);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(algorithm, properties, type);
   }
 
   /**
@@ -76,5 +93,10 @@ public class Header {
 
     properties.put(name, value);
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return new String(Mapper.prettyPrint(this));
   }
 }
