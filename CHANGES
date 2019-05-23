@@ -3,6 +3,13 @@ FusionAuth JWT Changes
 Changes in 3.1.1
 
  * Add .equals(), .hashCode() and .toString() to io.fusionauth.jwt.domain.Header
+ * Upgraded Jackson to 2.9.9. This upgrade addresses CVE-2019-12086.
+
+   If you are unable to upgrade to 3.1.1, simply explicitly depend upon version 2.9.9 in your own application, this will be compatible with
+   this library.
+
+   See https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.9.9
+   See https://nvd.nist.gov/vuln/detail/CVE-2019-12086
 
 Changes in 3.1.0
 
