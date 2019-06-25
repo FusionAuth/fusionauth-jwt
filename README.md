@@ -138,7 +138,7 @@ Signer signer = ECSigner.newSHA512Signer(new String(Files.readAllBytes(Paths.get
 #### Verify and decode a JWT using EC
 ```java
 // Build an EC verifier using an EC Public Key
-Verifier verifier = ECSigner.newVerifier(Paths.get("public_key.pem"));
+Verifier verifier = ECVerifier.newVerifier(Paths.get("public_key.pem"));
 
 // Verify and decode the encoded string JWT to a rich object
 JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
