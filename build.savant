@@ -17,7 +17,7 @@
 savantVersion = "1.0.0"
 jacksonVersion = "2.9.9"
 
-project(group: "io.fusionauth", name: "fusionauth-jwt", version: "3.1.1", licenses: ["ApacheV2_0"]) {
+project(group: "io.fusionauth", name: "fusionauth-jwt", version: "3.1.2", licenses: ["ApacheV2_0"]) {
 
   workflow {
     standard()
@@ -30,7 +30,7 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "3.1.1", licens
   dependencies {
     group(name: "compile") {
       dependency(id: "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
-      dependency(id: "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+      dependency(id: "com.fasterxml.jackson.core:jackson-databind:2.9.10+2.9.9.1")
       dependency(id: "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
     }
     group(name: "test-compile", export: false) {

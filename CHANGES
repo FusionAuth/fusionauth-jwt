@@ -1,5 +1,9 @@
 FusionAuth JWT Changes
 
+
+Changes in 3.1.2
+ * Upgraded Jackson Databind to 2.9.9.1. This upgrade addresses CVE-2019-12814.
+
 Changes in 3.1.1
 
  * Add .equals(), .hashCode() and .toString() to io.fusionauth.jwt.domain.Header
