@@ -1,6 +1,10 @@
 FusionAuth JWT Changes
 
 
+Changes in 3.1.4
+
+ * Upgraded Jackson Core, Databind and Annotations to 2.10.0.
+
 Changes in 3.1.3
 
  * Upgraded Jackson Databind to 2.9.9.2. This upgrade addresses CVE-2019-14379, CVE-2019-14439 and CVE-2019-12814.
