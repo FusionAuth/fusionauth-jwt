@@ -54,6 +54,7 @@
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <java.module.version>9</java.module.version>
   </properties>
 
   <dependencies>
@@ -108,6 +109,27 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+          <groupId>org.moditect</groupId>
+          <artifactId>moditect-maven-plugin</artifactId>
+          <version>1.0.0.Beta2</version>
+          <executions>
+              <execution>
+                  <id>add-module-infos</id>
+                  <phase>package</phase>
+                  <goals>
+                      <goal>add-module-info</goal>
+                  </goals>
+                  <configuration>
+                      <jvmVersion>${java.module.version}</jvmVersion>
+                      <overwriteExistingFiles>true</overwriteExistingFiles>
+                      <module>
+                          <moduleInfoFile>src/main/java9/module-info.java</moduleInfoFile>
+                      </module>
+                  </configuration>
+              </execution>
+          </executions>
       </plugin>
     </plugins>
   </build>
