@@ -42,17 +42,22 @@ import java.util.Objects;
 public class RSAVerifier implements Verifier {
   private final RSAPublicKey publicKey;
 
-  private RSAVerifier(String publicKey) {
-    PEM pem = PEM.decode(publicKey);
+  public RSAVerifier(RSAPublicKey publicKey) {
+    this.publicKey = publicKey;
+  }
+
+  private static RSAPublicKey decodePemKey(String pemPublicKey) {
+    PEM pem = PEM.decode(pemPublicKey);
     if (pem.publicKey == null) {
       throw new MissingPublicKeyException("The provided PEM encoded string did not contain a public key.");
     }
 
-    this.publicKey = pem.getPublicKey();
-    int keyLength = this.publicKey.getModulus().bitLength();
+    final RSAPublicKey publicKey = pem.getPublicKey();
+    int keyLength = publicKey.getModulus().bitLength();
     if (keyLength < 2048) {
       throw new InvalidKeyLengthException("Key length of [" + keyLength + "] is less than the required key length of 2048 bits.");
     }
+    return publicKey;
   }
 
   /**
@@ -63,7 +68,7 @@ public class RSAVerifier implements Verifier {
    */
   public static RSAVerifier newVerifier(String publicKey) {
     Objects.requireNonNull(publicKey);
-    return new RSAVerifier(publicKey);
+    return new RSAVerifier(decodePemKey(publicKey));
   }
 
   /**
@@ -76,7 +81,7 @@ public class RSAVerifier implements Verifier {
     Objects.requireNonNull(path);
 
     try {
-      return new RSAVerifier(new String(Files.readAllBytes(path)));
+      return newVerifier(new String(Files.readAllBytes(path)));
     } catch (IOException e) {
       throw new JWTVerifierException("Unable to read the file from path [" + path.toAbsolutePath().toString() + "]", e);
     }
@@ -90,7 +95,7 @@ public class RSAVerifier implements Verifier {
    */
   public static RSAVerifier newVerifier(byte[] bytes) {
     Objects.requireNonNull(bytes);
-    return new RSAVerifier((new String(bytes)));
+    return newVerifier((new String(bytes)));
   }
 
   @Override
@@ -123,3 +128,4 @@ public class RSAVerifier implements Verifier {
     }
   }
 }
+
