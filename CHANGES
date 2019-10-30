@@ -1,5 +1,8 @@
 FusionAuth JWT Changes
 
+Changes in 3.1.5
+
+ * Add explicit Jackson serializer configuration for ZonedDateTime fields in case anyone wants to serialize the object directly with a Jackson ObjectMapper.
 
 Changes in 3.1.4
 
