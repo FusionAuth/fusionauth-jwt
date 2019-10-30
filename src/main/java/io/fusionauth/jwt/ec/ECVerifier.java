@@ -40,6 +40,10 @@ import java.util.Objects;
 public class ECVerifier implements Verifier {
   private final ECPublicKey publicKey;
 
+  private ECVerifier(ECPublicKey publicKey) {
+    this.publicKey = publicKey;
+  }
+
   private ECVerifier(String publicKey) {
     PEM pem = PEM.decode(publicKey);
     if (pem.publicKey == null) {
@@ -60,6 +64,17 @@ public class ECVerifier implements Verifier {
    * @return a new instance of the EC verifier.
    */
   public static ECVerifier newVerifier(String publicKey) {
+    Objects.requireNonNull(publicKey);
+    return new ECVerifier(publicKey);
+  }
+
+  /**
+   * Return a new instance of the EC Verifier with the provided public key.
+   *
+   * @param publicKey The EC public key object.
+   * @return a new instance of the EC verifier.
+   */
+  public static ECVerifier newVerifier(ECPublicKey publicKey) {
     Objects.requireNonNull(publicKey);
     return new ECVerifier(publicKey);
   }

@@ -23,6 +23,7 @@ import io.fusionauth.jwt.hmac.HMACSigner;
 import io.fusionauth.jwt.hmac.HMACVerifier;
 import io.fusionauth.jwt.rsa.RSASigner;
 import io.fusionauth.jwt.rsa.RSAVerifier;
+import io.fusionauth.pem.domain.PEM;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -31,6 +32,8 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -250,6 +253,9 @@ public class JWTTest extends BaseTest {
     Verifier verifier = ECVerifier.newVerifier(Paths.get("src/test/resources/ec_public_key_p_256.pem"));
     JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
     assertEquals(jwt.subject, "123456789");
+
+    // Re-test using a pre-built EC Public Key
+    assertEquals(JWT.getDecoder().decode(encodedJWT, ECVerifier.newVerifier((ECPublicKey) PEM.decode(Paths.get("src/test/resources/ec_public_key_p_256.pem")).getPublicKey())).subject, "123456789");
   }
 
   @Test
@@ -393,6 +399,9 @@ public class JWTTest extends BaseTest {
     assertEquals(encodedJWT, "eyJhbGciOiJSUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.OkmWXzhTm7mtfpeMVNLlFjw3fJvc7yMQ1rgI5BXBPqaLSb_fpLHYAq_q5pQDDaIGg8klg9y2f784smc7-o9czX3JnzEDvO9e_sA10YIEA6Q9qRh17EATNXFG-WzSocpxPgEOQZ8lqSqZ_0waCGaUMwK5J5BB1A_70AcNGPnI7PrX76lWNNHwdK0OjkhkxX7vHR6B-uAIzih0ntQP_afr1UIzXkllmnnb1oU9cgFFD1AGDa3V0XCgitVYZA_ozbGELGMrUl_7fB_uNVEvcreUoZIEI4cfUKI6iZ8Ll4j_iLAdlpH4GRGNiQ7gMLq35AqqxKbEG8r-S-SrlRL6PkKlaJ-viMVLxoHreZow634r8A1fxR1mnrdUnn0vGmOthyjpP_TgfAsER9EJ_UUIamsKC8s6pip2jcPB7G6huHocyKBTxsoxclQgk1jOy4lZq4Js2KKM5sGfcq5SWQTW4B44KlUU1kWWmUg21jtflna38sWFdTk845phi5ITOBZ_ElJ9MdYVAgjvDsRFs_XxFENlwpwKeLD9PsaCiJhdG7EJN5qJvVogYuUMM0wyS-SOGZ1ILsTeYsjc7TtI0JUKndlUXFPubwaaxW_06zrCJR-dvWye99fIDH-u3I74XK5MKhknlgewzsXpsiPdvsMW59WUbdIZqkvok5vdkIlm4XGIqcM");
 
     assertEquals(JWT.getDecoder().decode(encodedJWT, RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_4096.pem"))))).subject, jwt.subject);
+
+    // Re-test using a pre-built RSAPublicKey
+    assertEquals(JWT.getDecoder().decode(encodedJWT, RSAVerifier.newVerifier((RSAPublicKey) PEM.decode(Paths.get("src/test/resources/rsa_public_key_4096.pem")).getPublicKey())).subject, jwt.subject);
   }
 
   @Test
@@ -409,6 +418,8 @@ public class JWTTest extends BaseTest {
         -> RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_1024.pem")))));
     expectException(InvalidKeyLengthException.class, ()
         -> RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_1024.pem")))));
+    expectException(InvalidKeyLengthException.class, ()
+        -> RSAVerifier.newVerifier((RSAPublicKey) PEM.decode(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_1024.pem"))).getPublicKey()));
   }
 
   @Test
@@ -614,17 +625,21 @@ public class JWTTest extends BaseTest {
 
   @Test
   public void test_loading_keys() throws Exception {
-    // Ensure no explosions, loading three different ways
+    // Ensure no explosions, loading different ways
 
     // RSA
     assertNotNull(RSAVerifier.newVerifier(Paths.get("src/test/resources/rsa_public_key_2048.pem")));
     assertNotNull(RSAVerifier.newVerifier(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
     assertNotNull(RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem")))));
+    // RSA Verifier can also take a pre-built key
+    assertNotNull(RSAVerifier.newVerifier((RSAPublicKey) PEM.decode(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))).getPublicKey()));
 
     // EC
     assertNotNull(ECVerifier.newVerifier(Paths.get("src/test/resources/ec_public_key_p_256.pem")));
     assertNotNull(ECVerifier.newVerifier(Files.readAllBytes(Paths.get("src/test/resources/ec_public_key_p_256.pem"))));
     assertNotNull(ECVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/ec_public_key_p_256.pem")))));
+    // EC Verifier can also take a pre-built key
+    assertNotNull(ECVerifier.newVerifier((ECPublicKey) PEM.decode(Files.readAllBytes(Paths.get("src/test/resources/ec_public_key_p_256.pem"))).getPublicKey()));
 
     // HMAC
     assertNotNull(HMACVerifier.newVerifier(Paths.get("src/test/resources/secret.txt")));
