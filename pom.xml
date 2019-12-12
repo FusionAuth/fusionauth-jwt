@@ -125,7 +125,7 @@
               <jvmVersion>${java.module.version}</jvmVersion>
               <overwriteExistingFiles>true</overwriteExistingFiles>
               <module>
-                <moduleInfoFile>src/main/moditech/module-info.java</moduleInfoFile>
+                <moduleInfoFile>src/main/java9/module-info.java</moduleInfoFile>
               </module>
             </configuration>
           </execution>
