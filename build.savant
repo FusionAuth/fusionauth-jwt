@@ -17,7 +17,7 @@
 savantVersion = "1.0.0"
 jacksonVersion = "2.10.0"
 
-project(group: "io.fusionauth", name: "fusionauth-jwt", version: "3.1.4", licenses: ["ApacheV2_0"]) {
+project(group: "io.fusionauth", name: "fusionauth-jwt", version: "3.1.6", licenses: ["ApacheV2_0"]) {
 
   workflow {
     standard()
@@ -93,7 +93,7 @@ target(name: "release", description: "Releases a full version of the project", d
   release.release()
 }
 
-target(name: "mvn-deploy", description: "Publish to MVN repo", dependsOn: ["clean", "compile"]) {
+target(name: "publish", description: "Publish to MVN repo", dependsOn: ["clean", "compile"]) {
   if (new ProcessBuilder('mvn', 'deploy', '-Prelease').inheritIO().start().waitFor() != 0) {
     fail("deploy failed")
   }

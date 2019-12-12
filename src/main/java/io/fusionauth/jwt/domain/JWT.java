@@ -20,9 +20,11 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.fusionauth.jwt.JWTDecoder;
 import io.fusionauth.jwt.JWTEncoder;
 import io.fusionauth.jwt.json.Mapper;
+import io.fusionauth.jwt.json.ZonedDateTimeSerializer;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -63,6 +65,7 @@ public class JWT {
    * processing. The expiration time is expected to provided in UNIX time, or the number of seconds since Epoch.
    */
   @JsonProperty("exp")
+  @JsonSerialize(using = ZonedDateTimeSerializer.class)
   public ZonedDateTime expiration;
 
   /**
@@ -72,6 +75,7 @@ public class JWT {
    * UNIX time, or the number of seconds since Epoch.
    */
   @JsonProperty("iat")
+  @JsonSerialize(using = ZonedDateTimeSerializer.class)
   public ZonedDateTime issuedAt;
 
   /**
@@ -90,6 +94,7 @@ public class JWT {
    * expected to provided in UNIX time, or the number of seconds since Epoch.
    */
   @JsonProperty("nbf")
+  @JsonSerialize(using = ZonedDateTimeSerializer.class)
   public ZonedDateTime notBefore;
 
   /**

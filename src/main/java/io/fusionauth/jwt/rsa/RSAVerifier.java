@@ -42,6 +42,11 @@ import java.util.Objects;
 public class RSAVerifier implements Verifier {
   private final RSAPublicKey publicKey;
 
+  private RSAVerifier(RSAPublicKey publicKey) {
+    this.publicKey = publicKey;
+    assertValidKeyLength();
+  }
+
   private RSAVerifier(String publicKey) {
     PEM pem = PEM.decode(publicKey);
     if (pem.publicKey == null) {
@@ -49,10 +54,18 @@ public class RSAVerifier implements Verifier {
     }
 
     this.publicKey = pem.getPublicKey();
-    int keyLength = this.publicKey.getModulus().bitLength();
-    if (keyLength < 2048) {
-      throw new InvalidKeyLengthException("Key length of [" + keyLength + "] is less than the required key length of 2048 bits.");
-    }
+    assertValidKeyLength();
+  }
+
+  /**
+   * Return a new instance of the RSA Verifier with the provided public key.
+   *
+   * @param publicKey The RSA public key object.
+   * @return a new instance of the RSA verifier.
+   */
+  public static RSAVerifier newVerifier(RSAPublicKey publicKey) {
+    Objects.requireNonNull(publicKey);
+    return new RSAVerifier(publicKey);
   }
 
   /**
@@ -120,6 +133,13 @@ public class RSAVerifier implements Verifier {
       }
     } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | SecurityException e) {
       throw new JWTVerifierException("An unexpected exception occurred when attempting to verify the JWT", e);
+    }
+  }
+
+  private void assertValidKeyLength() {
+    int keyLength = this.publicKey.getModulus().bitLength();
+    if (keyLength < 2048) {
+      throw new InvalidKeyLengthException("Key length of [" + keyLength + "] is less than the required key length of 2048 bits.");
     }
   }
 }

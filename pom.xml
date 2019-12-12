@@ -6,7 +6,7 @@
 
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>3.1.4</version>
+  <version>3.1.6</version>
   <packaging>jar</packaging>
 
   <name>FusionAuth JWT</name>
@@ -111,25 +111,25 @@
         </executions>
       </plugin>
       <plugin>
-          <groupId>org.moditect</groupId>
-          <artifactId>moditect-maven-plugin</artifactId>
-          <version>1.0.0.Beta2</version>
-          <executions>
-              <execution>
-                  <id>add-module-infos</id>
-                  <phase>package</phase>
-                  <goals>
-                      <goal>add-module-info</goal>
-                  </goals>
-                  <configuration>
-                      <jvmVersion>${java.module.version}</jvmVersion>
-                      <overwriteExistingFiles>true</overwriteExistingFiles>
-                      <module>
-                          <moduleInfoFile>src/main/java9/module-info.java</moduleInfoFile>
-                      </module>
-                  </configuration>
-              </execution>
-          </executions>
+        <groupId>org.moditect</groupId>
+        <artifactId>moditect-maven-plugin</artifactId>
+        <version>1.0.0.Beta2</version>
+        <executions>
+          <execution>
+            <id>add-module-infos</id>
+            <phase>package</phase>
+            <goals>
+              <goal>add-module-info</goal>
+            </goals>
+            <configuration>
+              <jvmVersion>${java.module.version}</jvmVersion>
+              <overwriteExistingFiles>true</overwriteExistingFiles>
+              <module>
+                <moduleInfoFile>src/main/moditech/module-info.java</moduleInfoFile>
+              </module>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -139,6 +139,17 @@
       <id>release</id>
       <build>
         <plugins>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>1.6.8</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+            </configuration>
+          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>

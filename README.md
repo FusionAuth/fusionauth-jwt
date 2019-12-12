@@ -7,7 +7,7 @@ If you find a vulnerability or other security related bug, please send a note to
 
 We are very interested in compensating anyone that can identify a security related bug or vulnerability and properly disclose it to us.
 
-### Features
+## Features
  - JWT signing using HMAC, RSA and Elliptic Curve support
    - `HS256`, `HS384`, `HS512`, `RS256`, `RS384`, `RS512`, `ES256`, `ES384`, `ES512`
  - PEM decoding / encoding
@@ -26,14 +26,33 @@ We are very interested in compensating anyone that can identify a security relat
    - Generate ideal HMAC secret lengths for `SHA-256`, `SHA-384` and `SHA-512`
    - Generate the `at_hash` and `c_hash` claims for OpenID Connect
 
- ## Maven Dependency
+## Get it
+
+### Maven
  ```xml
 <dependency>
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>3.1.4</version>
+  <version>3.1.6</version>
 </dependency>
  ```
+
+### Gradle
+```groovy
+implementation 'io.fusionauth:fusionauth-jwt:3.1.6'
+```
+
+### Gradle Kotlin
+```kotlin
+implementation("io.fusionauth:fusionauth-jwt:3.1.6")
+```
+
+### Savant 
+```groovy
+dependency(id: "io.fusionauth:fusionauth-jwt:3.1.6")
+```
+
+For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/3.1.6/jar).
  
 ## Example Code:
 
