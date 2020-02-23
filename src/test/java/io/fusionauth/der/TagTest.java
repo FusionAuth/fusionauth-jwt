@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import static org.testng.Assert.assertTrue;
 public class TagTest {
   @Test
   public void binaryAssertions() {
-    // I know these won't change - this is for understanding.
+    // I know these won't change - this is for (my) understanding.
 
     assertEquals(0b00000000, 0); // General
     assertEquals(0b01000000, 64); // Application
@@ -50,12 +50,12 @@ public class TagTest {
     // Context specific primitive Integer
     assertEquals(new Tag(0b10000010).tagClass, TagClass.ContextSpecific);
     assertTrue(new Tag(0b10000010).is(Tag.Integer));
-    assertTrue(new Tag(0b00000010).isPrimitive());
+    assertTrue(new Tag(0b10000010).isPrimitive());
 
     // Universal primitive Object Identifier
     assertEquals(new Tag(0b00000110).tagClass, TagClass.Universal);
     assertTrue(new Tag(0b00000110).is(Tag.ObjectIdentifier));
-    assertTrue(new Tag(0b00000010).isPrimitive());
+    assertTrue(new Tag(0b00000110).isPrimitive());
 
     // Context specific primitive Object Identifier
     assertEquals(new Tag(0b10000110).tagClass, TagClass.ContextSpecific);
@@ -93,5 +93,20 @@ public class TagTest {
 
     assertEquals(new Tag(0xA1).value, 1);
     assertEquals(new Tag(0xA1).tagClass, TagClass.ContextSpecific);
+
+    // Universal PrintableString
+    assertEquals(new Tag(0b00010011).tagClass, TagClass.Universal);
+    assertTrue(new Tag(0b00010011).is(Tag.PrintableString));
+    assertTrue(new Tag(0b00010011).isPrimitive());
+
+    // Universal Set
+    assertEquals(new Tag(0b00010001).tagClass, TagClass.Universal);
+    assertTrue(new Tag(0b00010001).is(Tag.Set));
+    assertTrue(new Tag(0b00010001).isPrimitive());
+
+    // Universal UTCTime
+    assertEquals(new Tag(0b00010111).tagClass, TagClass.Universal);
+    assertTrue(new Tag(0b00010111).is(Tag.UTCTime));
+    assertTrue(new Tag(0b00010111).isPrimitive());
   }
 }

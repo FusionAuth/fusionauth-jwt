@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package io.fusionauth.jwt.ec;
 import io.fusionauth.jwt.InvalidKeyTypeException;
 import io.fusionauth.jwt.JWTSigningException;
 import io.fusionauth.jwt.MissingPrivateKeyException;
+import io.fusionauth.jwt.CryptoProvider;
 import io.fusionauth.jwt.Signer;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.pem.domain.PEM;
@@ -138,7 +139,7 @@ public class ECSigner implements Signer {
     Objects.requireNonNull(message);
 
     try {
-      Signature signature = Signature.getInstance(algorithm.getName());
+      Signature signature = CryptoProvider.getSignatureInstance(algorithm.getName());
       signature.initSign(privateKey, new SecureRandom());
       signature.update((message).getBytes(StandardCharsets.UTF_8));
       byte[] derEncoded = signature.sign();

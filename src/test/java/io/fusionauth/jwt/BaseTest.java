@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package io.fusionauth.jwt;
 
 import io.fusionauth.jwt.json.Mapper;
 import org.testng.Assert;
+import org.testng.annotations.BeforeSuite;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -63,6 +64,11 @@ public abstract class BaseTest {
 
     sorted.sort(Comparator.comparing(value -> new String(Mapper.prettyPrint(value))));
     return sorted;
+  }
+
+  @BeforeSuite
+  public void beforeSuite() {
+//    Security.addProvider(new BouncyCastleFipsProvider());
   }
 
   @SuppressWarnings("unchecked")

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,13 +50,39 @@ public class Tag {
   public static final int OctetString = 4;
 
   /**
+   * PrintableString Tag
+   * <p>
+   * 19 decimal, 0x13 hex
+   * </p>
+   */
+  public static final int PrintableString = 19;
+
+  /**
    * Sequence Tag
    * <p>
+   * 16 decimal, 0x10 hex, 0b00010000 binary
+   * </p>
    * Because the Sequence tag is always in a constructed form (not primitive), the tag will present as <code>0x30</code> because
    * the 6th bit is a <code>1</code> indicating a constructed form. So the raw sequence of <code>0b00010000</code> becomes
    * <code>0b00110000</code> which is <code>48</code> decimal.
    */
   public static final int Sequence = 48;
+
+  /**
+   * Set and Set of
+   * <p>
+   * 17 decimal, 0x11 hex
+   * </p>
+   */
+  public static final int Set = 17;
+
+  /**
+   * UTCTime Tag
+   * <p>
+   * 23 decimal, 0x17 hex
+   * </p>
+   */
+  public static final int UTCTime = 23;
 
   /**
    * True if this Tag is primitive. False if this Tag is constructed.
@@ -141,8 +167,14 @@ public class Tag {
         return "Object Identifier";
       case OctetString:
         return "Octet String";
+      case PrintableString:
+        return "PrintableString";
       case Sequence:
         return "Sequence";
+      case Set:
+        return "Set";
+      case UTCTime:
+        return "UTCTime";
       default:
         return "Other";
     }

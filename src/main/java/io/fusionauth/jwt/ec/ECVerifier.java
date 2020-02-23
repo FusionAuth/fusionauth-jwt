@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import io.fusionauth.jwt.InvalidJWTSignatureException;
 import io.fusionauth.jwt.InvalidKeyTypeException;
 import io.fusionauth.jwt.JWTVerifierException;
 import io.fusionauth.jwt.MissingPublicKeyException;
+import io.fusionauth.jwt.CryptoProvider;
 import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.pem.domain.PEM;
@@ -126,7 +127,7 @@ public class ECVerifier implements Verifier {
     Objects.requireNonNull(signature);
 
     try {
-      Signature verifier = Signature.getInstance(algorithm.getName());
+      Signature verifier = CryptoProvider.getSignatureInstance(algorithm.getName());
       verifier.initVerify(publicKey);
       verifier.update(message);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2020, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package io.fusionauth.jwt.hmac;
 
+import io.fusionauth.jwt.CryptoProvider;
 import io.fusionauth.jwt.JWTSigningException;
 import io.fusionauth.jwt.Signer;
 import io.fusionauth.jwt.domain.Algorithm;
@@ -126,7 +127,7 @@ public class HMACSigner implements Signer {
     Objects.requireNonNull(message);
 
     try {
-      Mac mac = Mac.getInstance(algorithm.getName());
+      Mac mac = CryptoProvider.getMacInstance(algorithm.getName());
       mac.init(new SecretKeySpec(secret, algorithm.getName()));
       return mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
     } catch (InvalidKeyException | NoSuchAlgorithmException e) {

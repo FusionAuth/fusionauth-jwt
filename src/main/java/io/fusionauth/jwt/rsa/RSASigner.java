@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2020, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package io.fusionauth.jwt.rsa;
 
+import io.fusionauth.jwt.CryptoProvider;
 import io.fusionauth.jwt.InvalidKeyLengthException;
 import io.fusionauth.jwt.JWTSigningException;
 import io.fusionauth.jwt.MissingPrivateKeyException;
@@ -138,7 +139,7 @@ public class RSASigner implements Signer {
     Objects.requireNonNull(message);
 
     try {
-      Signature signature = Signature.getInstance(algorithm.getName());
+      Signature signature = CryptoProvider.getSignatureInstance(algorithm.getName());
       signature.initSign(privateKey);
       signature.update(message.getBytes(StandardCharsets.UTF_8));
       return signature.sign();

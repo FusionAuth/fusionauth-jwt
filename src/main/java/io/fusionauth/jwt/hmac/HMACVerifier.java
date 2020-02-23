@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2020, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package io.fusionauth.jwt.hmac;
 
+import io.fusionauth.jwt.CryptoProvider;
 import io.fusionauth.jwt.InvalidJWTSignatureException;
 import io.fusionauth.jwt.JWTVerifierException;
 import io.fusionauth.jwt.Verifier;
@@ -107,7 +108,7 @@ public class HMACVerifier implements Verifier {
     Objects.requireNonNull(signature);
 
     try {
-      Mac mac = Mac.getInstance(algorithm.getName());
+      Mac mac = CryptoProvider.getMacInstance(algorithm.getName());
       mac.init(new SecretKeySpec(secret, algorithm.getName()));
       byte[] actualSignature = mac.doFinal(message);
 

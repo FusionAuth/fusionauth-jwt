@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2020, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package io.fusionauth.jwt.rsa;
 
+import io.fusionauth.jwt.CryptoProvider;
 import io.fusionauth.jwt.InvalidJWTSignatureException;
 import io.fusionauth.jwt.InvalidKeyLengthException;
 import io.fusionauth.jwt.JWTVerifierException;
@@ -125,7 +126,7 @@ public class RSAVerifier implements Verifier {
     Objects.requireNonNull(signature);
 
     try {
-      Signature verifier = Signature.getInstance(algorithm.getName());
+      Signature verifier = CryptoProvider.getSignatureInstance(algorithm.getName());
       verifier.initVerify(publicKey);
       verifier.update(message);
       if (!verifier.verify(signature)) {
