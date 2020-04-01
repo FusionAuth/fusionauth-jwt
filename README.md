@@ -40,17 +40,17 @@ We are very interested in compensating anyone that can identify a security relat
 
 ### Gradle
 ```groovy
-implementation 'io.fusionauth:fusionauth-jwt:3.1.6'
+implementation 'io.fusionauth:fusionauth-jwt:3.1.7'
 ```
 
 ### Gradle Kotlin
 ```kotlin
-implementation("io.fusionauth:fusionauth-jwt:3.1.6")
+implementation("io.fusionauth:fusionauth-jwt:3.1.7")
 ```
 
 ### Savant 
 ```groovy
-dependency(id: "io.fusionauth:fusionauth-jwt:3.1.6")
+dependency(id: "io.fusionauth:fusionauth-jwt:3.1.7")
 ```
 
 For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/3.1.6/jar).
