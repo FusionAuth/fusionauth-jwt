@@ -23,7 +23,7 @@ import io.fusionauth.jwt.domain.KeyType;
 import io.fusionauth.jwt.json.Mapper;
 import io.fusionauth.pem.domain.PEM;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -60,7 +60,7 @@ public class JWTUtils {
    * @return a SHA-1 or SHA-256 fingerprint
    */
   public static String convertThumbprintToFingerprint(String x5tHash) {
-    byte[] bytes = Base64.getUrlDecoder().decode(x5tHash.getBytes(Charset.forName("UTF-8")));
+    byte[] bytes = Base64.getUrlDecoder().decode(x5tHash.getBytes(StandardCharsets.UTF_8));
     return HexUtils.fromBytes(bytes);
   }
 
@@ -167,7 +167,7 @@ public class JWTUtils {
    * @return an x5t hash.
    */
   public static String generateJWS_x5t(String algorithm, String encodedCertificate) {
-    byte[] bytes = Base64.getDecoder().decode(encodedCertificate.getBytes(Charset.forName("UTF-8")));
+    byte[] bytes = Base64.getDecoder().decode(encodedCertificate.getBytes(StandardCharsets.UTF_8));
     return digest(algorithm, bytes);
   }
 

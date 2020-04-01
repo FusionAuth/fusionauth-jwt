@@ -20,10 +20,11 @@ import io.fusionauth.jwt.InvalidJWTSignatureException;
 import io.fusionauth.jwt.InvalidKeyTypeException;
 import io.fusionauth.jwt.JWTVerifierException;
 import io.fusionauth.jwt.MissingPublicKeyException;
-import io.fusionauth.jwt.CryptoProvider;
 import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.pem.domain.PEM;
+import io.fusionauth.security.CryptoProvider;
+import io.fusionauth.security.DefaultCryptoProvider;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,11 +42,21 @@ import java.util.Objects;
 public class ECVerifier implements Verifier {
   private final ECPublicKey publicKey;
 
-  private ECVerifier(ECPublicKey publicKey) {
+  private final CryptoProvider cryptoProvider;
+
+  private ECVerifier(ECPublicKey publicKey, CryptoProvider cryptoProvider) {
+    Objects.requireNonNull(publicKey);
+    Objects.requireNonNull(cryptoProvider);
+
+    this.cryptoProvider = cryptoProvider;
     this.publicKey = publicKey;
   }
 
-  private ECVerifier(String publicKey) {
+  private ECVerifier(String publicKey, CryptoProvider cryptoProvider) {
+    Objects.requireNonNull(publicKey);
+    Objects.requireNonNull(cryptoProvider);
+
+    this.cryptoProvider = cryptoProvider;
     PEM pem = PEM.decode(publicKey);
     if (pem.publicKey == null) {
       throw new MissingPublicKeyException("The provided PEM encoded string did not contain a public key.");
@@ -65,8 +76,7 @@ public class ECVerifier implements Verifier {
    * @return a new instance of the EC verifier.
    */
   public static ECVerifier newVerifier(String publicKey) {
-    Objects.requireNonNull(publicKey);
-    return new ECVerifier(publicKey);
+    return newVerifier(publicKey, new DefaultCryptoProvider());
   }
 
   /**
@@ -76,8 +86,7 @@ public class ECVerifier implements Verifier {
    * @return a new instance of the EC verifier.
    */
   public static ECVerifier newVerifier(ECPublicKey publicKey) {
-    Objects.requireNonNull(publicKey);
-    return new ECVerifier(publicKey);
+    return newVerifier(publicKey, new DefaultCryptoProvider());
   }
 
   /**
@@ -87,13 +96,7 @@ public class ECVerifier implements Verifier {
    * @return a new instance of the EC verifier.
    */
   public static ECVerifier newVerifier(Path path) {
-    Objects.requireNonNull(path);
-
-    try {
-      return new ECVerifier(new String(Files.readAllBytes(path)));
-    } catch (IOException e) {
-      throw new JWTVerifierException("Unable to read the file from path [" + path.toAbsolutePath().toString() + "]", e);
-    }
+    return newVerifier(path, new DefaultCryptoProvider());
   }
 
   /**
@@ -103,8 +106,61 @@ public class ECVerifier implements Verifier {
    * @return a new instance of the EC verifier.
    */
   public static ECVerifier newVerifier(byte[] bytes) {
+    return newVerifier(bytes, new DefaultCryptoProvider());
+
+  }
+
+  /**
+   * Return a new instance of the EC Verifier with the provided public key.
+   *
+   * @param publicKey      The EC public key PEM.
+   * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
+   * @return a new instance of the EC verifier.
+   */
+  public static ECVerifier newVerifier(String publicKey, CryptoProvider cryptoProvider) {
+    Objects.requireNonNull(publicKey);
+    return new ECVerifier(publicKey, cryptoProvider);
+  }
+
+  /**
+   * Return a new instance of the EC Verifier with the provided public key.
+   *
+   * @param publicKey      The EC public key object.
+   * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
+   * @return a new instance of the EC verifier.
+   */
+  public static ECVerifier newVerifier(ECPublicKey publicKey, CryptoProvider cryptoProvider) {
+    Objects.requireNonNull(publicKey);
+    return new ECVerifier(publicKey, cryptoProvider);
+  }
+
+  /**
+   * Return a new instance of the EC Verifier with the provided public key.
+   *
+   * @param path           The path to the EC public key PEM.
+   * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
+   * @return a new instance of the EC verifier.
+   */
+  public static ECVerifier newVerifier(Path path, CryptoProvider cryptoProvider) {
+    Objects.requireNonNull(path);
+
+    try {
+      return new ECVerifier(new String(Files.readAllBytes(path)), cryptoProvider);
+    } catch (IOException e) {
+      throw new JWTVerifierException("Unable to read the file from path [" + path.toAbsolutePath().toString() + "]", e);
+    }
+  }
+
+  /**
+   * Return a new instance of the EC Verifier with the provided public key.
+   *
+   * @param bytes          The bytes of the EC public key PEM.
+   * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
+   * @return a new instance of the EC verifier.
+   */
+  public static ECVerifier newVerifier(byte[] bytes, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(bytes);
-    return new ECVerifier(new String(bytes));
+    return new ECVerifier(new String(bytes), cryptoProvider);
   }
 
   @Override
@@ -127,7 +183,7 @@ public class ECVerifier implements Verifier {
     Objects.requireNonNull(signature);
 
     try {
-      Signature verifier = CryptoProvider.getSignatureInstance(algorithm.getName());
+      Signature verifier = cryptoProvider.getSignatureInstance(algorithm.getName());
       verifier.initVerify(publicKey);
       verifier.update(message);
 

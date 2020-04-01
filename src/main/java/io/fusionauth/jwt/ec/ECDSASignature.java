@@ -51,7 +51,7 @@ import java.util.Arrays;
  * @author Daniel DeGroff
  */
 public class ECDSASignature {
-  private byte[] bytes;
+  private final byte[] bytes;
 
   public ECDSASignature(byte[] bytes) {
     this.bytes = bytes;
@@ -86,7 +86,9 @@ public class ECDSASignature {
     }
 
     int len = result.length / 2;
+    //noinspection ManualMinMaxCalculation
     System.arraycopy(r, r.length > len ? 1 : 0, result, r.length < len ? 1 : 0, r.length > len ? len : r.length);
+    //noinspection ManualMinMaxCalculation
     System.arraycopy(s, s.length > len ? 1 : 0, result, s.length < len ? (len + 1) : len, s.length > len ? len : s.length);
     return result;
   }

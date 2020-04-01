@@ -164,6 +164,7 @@ public class PEM implements Buildable<PEM> {
         Objects.equals(publicKey, pem.publicKey);
   }
 
+  @SuppressWarnings("unused")
   public Certificate getCertificate() {
     return certificate;
   }

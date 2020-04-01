@@ -29,7 +29,7 @@ import static org.testng.AssertJUnit.fail;
  */
 public class OpenIdConnectTest {
   @Test
-  public void test_at_hash() throws Exception {
+  public void test_at_hash() {
     assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.HS256), "wfgvmE9VxjAudsl9lc6TqA");
     assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.HS384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
     assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.HS512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
@@ -48,7 +48,7 @@ public class OpenIdConnectTest {
   }
 
   @Test
-  public void test_c_hash() throws Exception {
+  public void test_c_hash() {
     assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.HS256), "wfgvmE9VxjAudsl9lc6TqA");
     assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.HS384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
     assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.HS512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
@@ -67,7 +67,7 @@ public class OpenIdConnectTest {
   }
 
   @Test
-  public void validation() throws Exception {
+  public void validation() {
     try {
       OpenIDConnect.at_hash("foo", Algorithm.none);
       fail("expected exception when passing an invalid Algorithm");

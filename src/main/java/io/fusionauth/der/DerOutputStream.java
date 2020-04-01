@@ -23,7 +23,7 @@ import java.io.IOException;
  * @author Daniel DeGroff
  */
 public class DerOutputStream {
-  private ByteArrayOutputStream os;
+  private final ByteArrayOutputStream os;
 
   public DerOutputStream() {
     os = new ByteArrayOutputStream();

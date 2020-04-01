@@ -22,6 +22,7 @@ import java.io.IOException;
  * @author Daniel DeGroff
  */
 public class DerEncodingException extends IOException {
+  @SuppressWarnings("unused")
   public DerEncodingException(String message, Throwable cause) {
     super(message, cause);
   }
@@ -30,6 +31,7 @@ public class DerEncodingException extends IOException {
     super(cause);
   }
 
+  @SuppressWarnings("unused")
   public DerEncodingException(String message) {
     super(message);
   }

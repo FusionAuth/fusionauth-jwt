@@ -18,6 +18,7 @@ package io.fusionauth.jwt.ec;
 
 import io.fusionauth.jwt.BaseTest;
 import io.fusionauth.pem.domain.PEM;
+import io.fusionauth.security.BCFIPSCryptoProvider;
 import org.testng.annotations.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -30,6 +31,8 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -84,16 +87,42 @@ public class ECSignerTest extends BaseTest {
 
   @Test
   public void test_private_pem_parsing() {
-    ECSigner.newSHA256Signer(readFile("ec_private_key_p_256.pem"));
-    ECSigner.newSHA256Signer(readFile("ec_private_key_p_384.pem"));
-    ECSigner.newSHA256Signer(readFile("ec_private_key_p_521.pem"));
+    assertNotNull(ECSigner.newSHA256Signer(readFile("ec_private_key_p_256.pem")));
+    assertNotNull(ECSigner.newSHA256Signer(readFile("ec_private_key_p_384.pem")));
+    assertNotNull(ECSigner.newSHA256Signer(readFile("ec_private_key_p_521.pem")));
 
-    ECSigner.newSHA384Signer(readFile("ec_private_key_p_256.pem"));
-    ECSigner.newSHA384Signer(readFile("ec_private_key_p_384.pem"));
-    ECSigner.newSHA384Signer(readFile("ec_private_key_p_521.pem"));
+    assertNotNull(ECSigner.newSHA384Signer(readFile("ec_private_key_p_256.pem")));
+    assertNotNull(ECSigner.newSHA384Signer(readFile("ec_private_key_p_384.pem")));
+    assertNotNull(ECSigner.newSHA384Signer(readFile("ec_private_key_p_521.pem")));
 
-    ECSigner.newSHA512Signer(readFile("ec_private_key_p_256.pem"));
-    ECSigner.newSHA512Signer(readFile("ec_private_key_p_384.pem"));
-    ECSigner.newSHA512Signer(readFile("ec_private_key_p_521.pem"));
+    assertNotNull(ECSigner.newSHA512Signer(readFile("ec_private_key_p_256.pem")));
+    assertNotNull(ECSigner.newSHA512Signer(readFile("ec_private_key_p_384.pem")));
+    assertNotNull(ECSigner.newSHA512Signer(readFile("ec_private_key_p_521.pem")));
+
+    // With kid
+    assertEquals(ECSigner.newSHA256Signer(readFile("ec_private_key_p_256.pem"), "abc").getKid(), "abc");
+    assertEquals(ECSigner.newSHA256Signer(readFile("ec_private_key_p_384.pem"), "abc").getKid(), "abc");
+    assertEquals(ECSigner.newSHA256Signer(readFile("ec_private_key_p_521.pem"), "abc").getKid(), "abc");
+
+    assertEquals(ECSigner.newSHA384Signer(readFile("ec_private_key_p_256.pem"), "abc").getKid(), "abc");
+    assertEquals(ECSigner.newSHA384Signer(readFile("ec_private_key_p_384.pem"), "abc").getKid(), "abc");
+    assertEquals(ECSigner.newSHA384Signer(readFile("ec_private_key_p_521.pem"), "abc").getKid(), "abc");
+
+    assertEquals(ECSigner.newSHA512Signer(readFile("ec_private_key_p_256.pem"), "abc").getKid(), "abc");
+    assertEquals(ECSigner.newSHA512Signer(readFile("ec_private_key_p_384.pem"), "abc").getKid(), "abc");
+    assertEquals(ECSigner.newSHA512Signer(readFile("ec_private_key_p_521.pem"), "abc").getKid(), "abc");
+
+    // With provided crypto provider
+    ECSigner.newSHA256Signer(readFile("ec_private_key_p_256.pem"), new BCFIPSCryptoProvider());
+    ECSigner.newSHA256Signer(readFile("ec_private_key_p_384.pem"), new BCFIPSCryptoProvider());
+    ECSigner.newSHA256Signer(readFile("ec_private_key_p_521.pem"), new BCFIPSCryptoProvider());
+
+    ECSigner.newSHA384Signer(readFile("ec_private_key_p_256.pem"), new BCFIPSCryptoProvider());
+    ECSigner.newSHA384Signer(readFile("ec_private_key_p_384.pem"), new BCFIPSCryptoProvider());
+    ECSigner.newSHA384Signer(readFile("ec_private_key_p_521.pem"), new BCFIPSCryptoProvider());
+
+    ECSigner.newSHA512Signer(readFile("ec_private_key_p_256.pem"), new BCFIPSCryptoProvider());
+    ECSigner.newSHA512Signer(readFile("ec_private_key_p_384.pem"), new BCFIPSCryptoProvider());
+    ECSigner.newSHA512Signer(readFile("ec_private_key_p_521.pem"), new BCFIPSCryptoProvider());
   }
 }

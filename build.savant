@@ -15,7 +15,7 @@
  */
 
 savantVersion = "1.0.0"
-jacksonVersion = "2.10.1"
+jacksonVersion = "2.10.3"
 
 project(group: "io.fusionauth", name: "fusionauth-jwt", version: "3.1.7", licenses: ["ApacheV2_0"]) {
 
@@ -34,6 +34,7 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "3.1.7", licens
       dependency(id: "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
     }
     group(name: "test-compile", export: false) {
+      dependency(id: "org.bouncycastle:bc-fips:1.0.1")
       dependency(id: "org.testng:testng:6.8.7")
     }
   }
@@ -47,9 +48,8 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "3.1.7", licens
  * Define Plugins
  */
 dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:1.0.2")
-file = loadPlugin(id: "org.savantbuild.plugin:file:1.0.2")
 java = loadPlugin(id: "org.savantbuild.plugin:java:1.0.2")
-javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.2")
+javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.5")
 groovy = loadPlugin(id: "org.savantbuild.plugin:groovy:${savantVersion}")
 idea = loadPlugin(id: "org.savantbuild.plugin:idea:${savantVersion}")
 release = loadPlugin(id: "org.savantbuild.plugin:release-git:${savantVersion}")

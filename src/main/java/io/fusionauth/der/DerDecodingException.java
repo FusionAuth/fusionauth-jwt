@@ -22,6 +22,7 @@ import java.io.IOException;
  * @author Daniel DeGroff
  */
 public class DerDecodingException extends IOException {
+  @SuppressWarnings("unused")
   public DerDecodingException(String message, Throwable cause) {
     super(message, cause);
   }

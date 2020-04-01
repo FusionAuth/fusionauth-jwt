@@ -234,13 +234,12 @@ public class JSONWebKeyBuilder {
 
   private String readCurveObjectIdentifier(Key key) {
     try {
+      DerValue[] sequence = new DerInputStream(key.getEncoded()).getSequence();
       if (key instanceof PrivateKey) {
-        DerValue[] sequence = new DerInputStream(key.getEncoded()).getSequence();
         // Read the first value in the sequence, it is the algorithm OID, the second wil be the curve
         sequence[1].getOID();
         return sequence[1].getOID().decode();
       } else {
-        DerValue[] sequence = new DerInputStream(key.getEncoded()).getSequence();
         // Read the first value in the sequence, it is the algorithm OID, the second wil be the curve
         sequence[0].getOID();
         return sequence[0].getOID().decode();

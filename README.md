@@ -10,6 +10,7 @@ We are very interested in compensating anyone that can identify a security relat
 ## Features
  - JWT signing using HMAC, RSA and Elliptic Curve support
    - `HS256`, `HS384`, `HS512`, `RS256`, `RS384`, `RS512`, `ES256`, `ES384`, `ES512`
+ - Modular crypto provider so you can drop in support for BC FIPS or other Java JCE security providers.   
  - PEM decoding / encoding
    - Decode PEM files to PrivateKey or PublicKey
      - Decode private EC keys un-encapsulated in PKCS#8, returned PEM will be in PKCS#8 form.
@@ -164,6 +165,18 @@ JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
 
 // Assert the subject of the JWT is as expected
 assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
+```
+
+### Build a Signer, or a Verifier using a provided CryptoProvider
+
+This pattern is available on the HMAC, RSA and EC verifier and signers.
+ 
+```java
+// Build and EC signer using a BC Fips ready Crypto Provider
+Signer signer = ECSigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))), new BCFIPSCryptoProvider());
+
+// Build an EC verifier using a BC Fips ready Crypto Provider
+Verifier verifier = ECVerifier.newVerifier(Paths.get("public_key.pem"), new BCFIPSCryptoProvider());
 ```
 
 ## JSON Web Keys

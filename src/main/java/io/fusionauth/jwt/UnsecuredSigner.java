@@ -24,7 +24,6 @@ import io.fusionauth.jwt.domain.Algorithm;
  * @author Daniel DeGroff
  */
 public class UnsecuredSigner implements Signer {
-
   @Override
   public Algorithm getAlgorithm() {
     return Algorithm.none;

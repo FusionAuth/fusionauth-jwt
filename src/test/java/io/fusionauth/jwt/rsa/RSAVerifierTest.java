@@ -20,11 +20,14 @@ import io.fusionauth.jwt.BaseTest;
 import io.fusionauth.jwt.InvalidKeyLengthException;
 import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.pem.domain.PEM;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 
 import static org.testng.Assert.assertFalse;
@@ -42,7 +45,16 @@ public class RSAVerifierTest extends BaseTest {
         "rsa_public_key_2048_with_meta.pem",
         "rsa_public_key_3072.pem",
         "rsa_public_key_4096.pem")
-          .forEach(fileName -> assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName))));
+          .forEach(fileName -> {
+            // Take a String arg
+            assertRSAVerifier(RSAVerifier.newVerifier(getPath(fileName)));
+            // Take a Path arg
+            assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName)));
+            // Take a byte[] arg
+            assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
+            // Take a public key arg
+            assertRSAVerifier(RSAVerifier.newVerifier((RSAPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
+          });
 
     // Public key parsing also works with private keys since the public key is encoded in the private
     Arrays.asList(
@@ -50,7 +62,16 @@ public class RSAVerifierTest extends BaseTest {
         "rsa_private_key_2048_with_meta.pem",
         "rsa_private_key_3072.pem",
         "rsa_private_key_4096.pem")
-          .forEach((fileName -> assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName)))));
+          .forEach((fileName -> {
+            // Take a String arg
+            assertRSAVerifier(RSAVerifier.newVerifier(getPath(fileName)));
+            // Take a Path arg
+            assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName)));
+            // Take a byte[] arg
+            assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
+            // Take a public key arg
+            assertRSAVerifier(RSAVerifier.newVerifier((RSAPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
+          }));
   }
 
   @Test

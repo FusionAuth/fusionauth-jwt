@@ -17,12 +17,15 @@
 package io.fusionauth.jwt;
 
 import io.fusionauth.jwt.json.Mapper;
+import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.AfterMethod;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -35,6 +38,7 @@ import static org.testng.Assert.fail;
  * @author Daniel DeGroff
  */
 public abstract class BaseTest {
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static Map<String, Object> deepSort(Map<String, Object> response) {
     Map<String, Object> sorted = new TreeMap<>();
     response.forEach((key, value) -> {
@@ -50,6 +54,7 @@ public abstract class BaseTest {
     return sorted;
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static List<Object> deepSort(List<Object> list) {
     List<Object> sorted = new ArrayList<>();
     list.forEach(value -> {
@@ -66,9 +71,9 @@ public abstract class BaseTest {
     return sorted;
   }
 
-  @BeforeSuite
-  public void beforeSuite() {
-//    Security.addProvider(new BouncyCastleFipsProvider());
+  @AfterMethod
+  public void afterMethod() {
+    Security.removeProvider(BouncyCastleFipsProvider.PROVIDER_NAME);
   }
 
   @SuppressWarnings("unchecked")
@@ -95,6 +100,10 @@ public abstract class BaseTest {
         fail("Expected [" + expected.getCanonicalName() + "] to be thrown. Caught this instead [" + e.getClass().getCanonicalName() + "]");
       }
     }
+  }
+
+  protected Path getPath(String fileName) {
+    return Paths.get("src/test/resources/" + fileName);
   }
 
   protected String readFile(String fileName) {

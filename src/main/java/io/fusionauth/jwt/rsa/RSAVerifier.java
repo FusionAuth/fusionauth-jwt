@@ -16,7 +16,6 @@
 
 package io.fusionauth.jwt.rsa;
 
-import io.fusionauth.jwt.CryptoProvider;
 import io.fusionauth.jwt.InvalidJWTSignatureException;
 import io.fusionauth.jwt.InvalidKeyLengthException;
 import io.fusionauth.jwt.JWTVerifierException;
@@ -24,6 +23,8 @@ import io.fusionauth.jwt.MissingPublicKeyException;
 import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.pem.domain.PEM;
+import io.fusionauth.security.CryptoProvider;
+import io.fusionauth.security.DefaultCryptoProvider;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,12 +44,22 @@ import java.util.Objects;
 public class RSAVerifier implements Verifier {
   private final RSAPublicKey publicKey;
 
-  private RSAVerifier(RSAPublicKey publicKey) {
+  private final CryptoProvider cryptoProvider;
+
+  private RSAVerifier(RSAPublicKey publicKey, CryptoProvider cryptoProvider) {
+    Objects.requireNonNull(publicKey);
+    Objects.requireNonNull(cryptoProvider);
+
+    this.cryptoProvider = cryptoProvider;
     this.publicKey = publicKey;
     assertValidKeyLength();
   }
 
-  private RSAVerifier(String publicKey) {
+  private RSAVerifier(String publicKey, CryptoProvider cryptoProvider) {
+    Objects.requireNonNull(publicKey);
+    Objects.requireNonNull(cryptoProvider);
+
+    this.cryptoProvider = cryptoProvider;
     PEM pem = PEM.decode(publicKey);
     if (pem.publicKey == null) {
       throw new MissingPublicKeyException("The provided PEM encoded string did not contain a public key.");
@@ -65,8 +76,19 @@ public class RSAVerifier implements Verifier {
    * @return a new instance of the RSA verifier.
    */
   public static RSAVerifier newVerifier(RSAPublicKey publicKey) {
+    return newVerifier(publicKey, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Return a new instance of the RSA Verifier with the provided public key.
+   *
+   * @param publicKey      The RSA public key object.
+   * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
+   * @return a new instance of the RSA verifier.
+   */
+  public static RSAVerifier newVerifier(RSAPublicKey publicKey, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(publicKey);
-    return new RSAVerifier(publicKey);
+    return new RSAVerifier(publicKey, cryptoProvider);
   }
 
   /**
@@ -76,8 +98,19 @@ public class RSAVerifier implements Verifier {
    * @return a new instance of the RSA verifier.
    */
   public static RSAVerifier newVerifier(String publicKey) {
+    return newVerifier(publicKey, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Return a new instance of the RSA Verifier with the provided public key.
+   *
+   * @param publicKey      The RSA public key PEM.
+   * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
+   * @return a new instance of the RSA verifier.
+   */
+  public static RSAVerifier newVerifier(String publicKey, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(publicKey);
-    return new RSAVerifier(publicKey);
+    return new RSAVerifier(publicKey, cryptoProvider);
   }
 
   /**
@@ -87,10 +120,21 @@ public class RSAVerifier implements Verifier {
    * @return a new instance of the RSA verifier.
    */
   public static RSAVerifier newVerifier(Path path) {
+    return newVerifier(path, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Return a new instance of the RSA Verifier with the provided public key.
+   *
+   * @param path           The path to the RSA public key PEM.
+   * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
+   * @return a new instance of the RSA verifier.
+   */
+  public static RSAVerifier newVerifier(Path path, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(path);
 
     try {
-      return new RSAVerifier(new String(Files.readAllBytes(path)));
+      return new RSAVerifier(new String(Files.readAllBytes(path)), cryptoProvider);
     } catch (IOException e) {
       throw new JWTVerifierException("Unable to read the file from path [" + path.toAbsolutePath().toString() + "]", e);
     }
@@ -104,7 +148,7 @@ public class RSAVerifier implements Verifier {
    */
   public static RSAVerifier newVerifier(byte[] bytes) {
     Objects.requireNonNull(bytes);
-    return new RSAVerifier((new String(bytes)));
+    return new RSAVerifier((new String(bytes)), new DefaultCryptoProvider());
   }
 
   @Override
@@ -126,7 +170,7 @@ public class RSAVerifier implements Verifier {
     Objects.requireNonNull(signature);
 
     try {
-      Signature verifier = CryptoProvider.getSignatureInstance(algorithm.getName());
+      Signature verifier = cryptoProvider.getSignatureInstance(algorithm.getName());
       verifier.initVerify(publicKey);
       verifier.update(message);
       if (!verifier.verify(signature)) {

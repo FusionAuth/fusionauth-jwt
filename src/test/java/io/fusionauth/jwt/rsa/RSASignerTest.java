@@ -17,7 +17,11 @@
 package io.fusionauth.jwt.rsa;
 
 import io.fusionauth.jwt.BaseTest;
+import io.fusionauth.security.BCFIPSCryptoProvider;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 /**
  * @author Daniel DeGroff
@@ -25,9 +29,52 @@ import org.testng.annotations.Test;
 public class RSASignerTest extends BaseTest {
   @Test
   public void test_private_pem_parsing() {
-    RSASigner.newSHA256Signer(readFile("rsa_private_key_2048.pem"));
-    RSASigner.newSHA256Signer(readFile("rsa_private_key_2048_with_meta.pem"));
-    RSASigner.newSHA256Signer(readFile("rsa_private_key_3072.pem"));
-    RSASigner.newSHA256Signer(readFile("rsa_private_key_4096.pem"));
+    // No kid
+    assertNotNull(RSASigner.newSHA256Signer(readFile("rsa_private_key_2048.pem")));
+    assertNotNull(RSASigner.newSHA256Signer(readFile("rsa_private_key_2048_with_meta.pem")));
+    assertNotNull(RSASigner.newSHA256Signer(readFile("rsa_private_key_3072.pem")));
+    assertNotNull(RSASigner.newSHA256Signer(readFile("rsa_private_key_4096.pem")));
+
+    assertNotNull(RSASigner.newSHA384Signer(readFile("rsa_private_key_2048.pem")));
+    assertNotNull(RSASigner.newSHA384Signer(readFile("rsa_private_key_2048_with_meta.pem")));
+    assertNotNull(RSASigner.newSHA384Signer(readFile("rsa_private_key_3072.pem")));
+    assertNotNull(RSASigner.newSHA384Signer(readFile("rsa_private_key_4096.pem")));
+
+    assertNotNull(RSASigner.newSHA512Signer(readFile("rsa_private_key_2048.pem")));
+    assertNotNull(RSASigner.newSHA512Signer(readFile("rsa_private_key_2048_with_meta.pem")));
+    assertNotNull(RSASigner.newSHA512Signer(readFile("rsa_private_key_3072.pem")));
+    assertNotNull(RSASigner.newSHA512Signer(readFile("rsa_private_key_4096.pem")));
+
+    // With kid
+    assertEquals(RSASigner.newSHA256Signer(readFile("rsa_private_key_2048.pem"), "abc").getKid(), "abc");
+    assertEquals(RSASigner.newSHA256Signer(readFile("rsa_private_key_2048_with_meta.pem"), "abc").getKid(), "abc");
+    assertEquals(RSASigner.newSHA256Signer(readFile("rsa_private_key_3072.pem"), "abc").getKid(), "abc");
+    assertEquals(RSASigner.newSHA256Signer(readFile("rsa_private_key_4096.pem"), "abc").getKid(), "abc");
+
+    assertEquals(RSASigner.newSHA384Signer(readFile("rsa_private_key_2048.pem"), "abc").getKid(), "abc");
+    assertEquals(RSASigner.newSHA384Signer(readFile("rsa_private_key_2048_with_meta.pem"), "abc").getKid(), "abc");
+    assertEquals(RSASigner.newSHA384Signer(readFile("rsa_private_key_3072.pem"), "abc").getKid(), "abc");
+    assertEquals(RSASigner.newSHA384Signer(readFile("rsa_private_key_4096.pem"), "abc").getKid(), "abc");
+
+    assertEquals(RSASigner.newSHA512Signer(readFile("rsa_private_key_2048.pem"), "abc").getKid(), "abc");
+    assertEquals(RSASigner.newSHA512Signer(readFile("rsa_private_key_2048_with_meta.pem"), "abc").getKid(), "abc");
+    assertEquals(RSASigner.newSHA512Signer(readFile("rsa_private_key_3072.pem"), "abc").getKid(), "abc");
+    assertEquals(RSASigner.newSHA512Signer(readFile("rsa_private_key_4096.pem"), "abc").getKid(), "abc");
+
+    // With provided crypto provider
+    assertNotNull(RSASigner.newSHA256Signer(readFile("rsa_private_key_2048.pem"), new BCFIPSCryptoProvider()));
+    assertNotNull(RSASigner.newSHA256Signer(readFile("rsa_private_key_2048_with_meta.pem"), new BCFIPSCryptoProvider()));
+    assertNotNull(RSASigner.newSHA256Signer(readFile("rsa_private_key_3072.pem"), new BCFIPSCryptoProvider()));
+    assertNotNull(RSASigner.newSHA256Signer(readFile("rsa_private_key_4096.pem"), new BCFIPSCryptoProvider()));
+
+    assertNotNull(RSASigner.newSHA384Signer(readFile("rsa_private_key_2048.pem"), new BCFIPSCryptoProvider()));
+    assertNotNull(RSASigner.newSHA384Signer(readFile("rsa_private_key_2048_with_meta.pem"), new BCFIPSCryptoProvider()));
+    assertNotNull(RSASigner.newSHA384Signer(readFile("rsa_private_key_3072.pem"), new BCFIPSCryptoProvider()));
+    assertNotNull(RSASigner.newSHA384Signer(readFile("rsa_private_key_4096.pem"), new BCFIPSCryptoProvider()));
+
+    assertNotNull(RSASigner.newSHA512Signer(readFile("rsa_private_key_2048.pem"), new BCFIPSCryptoProvider()));
+    assertNotNull(RSASigner.newSHA512Signer(readFile("rsa_private_key_2048_with_meta.pem"), new BCFIPSCryptoProvider()));
+    assertNotNull(RSASigner.newSHA512Signer(readFile("rsa_private_key_3072.pem"), new BCFIPSCryptoProvider()));
+    assertNotNull(RSASigner.newSHA512Signer(readFile("rsa_private_key_4096.pem"), new BCFIPSCryptoProvider()));
   }
 }

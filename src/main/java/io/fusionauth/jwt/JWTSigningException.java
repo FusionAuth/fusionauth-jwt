@@ -22,6 +22,7 @@ package io.fusionauth.jwt;
  * @author Daniel DeGroff
  */
 public class JWTSigningException extends JWTException {
+  @SuppressWarnings("unused")
   public JWTSigningException() {
   }
 

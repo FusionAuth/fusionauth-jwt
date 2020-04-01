@@ -24,6 +24,8 @@ import io.fusionauth.jwt.hmac.HMACVerifier;
 import io.fusionauth.jwt.rsa.RSASigner;
 import io.fusionauth.jwt.rsa.RSAVerifier;
 import io.fusionauth.pem.domain.PEM;
+import io.fusionauth.security.BCFIPSCryptoProvider;
+import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -32,6 +34,7 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.Security;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
@@ -259,6 +262,26 @@ public class JWTTest extends BaseTest {
   }
 
   @Test
+  public void test_ES256_BC_FIPS() {
+    Security.addProvider(new BouncyCastleFipsProvider());
+    String encodedJWT = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.vPn7xrCNOLWbBRaWdVn53ddj2hW0E87FYl4gPnWy5d1Qj3WgyF8FS6I_hj_3kIJ77tbvy0GXdr7fO91NeWMD1A";
+    Verifier verifier = ECVerifier.newVerifier(Paths.get("src/test/resources/ec_public_key_p_256.pem"), new BCFIPSCryptoProvider());
+    JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
+    assertEquals(jwt.subject, "123456789");
+
+    // Re-test using a pre-built EC Public Key
+    assertEquals(JWT.getDecoder().decode(encodedJWT, ECVerifier.newVerifier((ECPublicKey) PEM.decode(Paths.get("src/test/resources/ec_public_key_p_256.pem")).getPublicKey())).subject, "123456789");
+  }
+
+  @Test(expectedExceptions = RuntimeException.class)
+  public void test_ES256_BC_FIPS_notAvailable() {
+    // RuntimeException, provider BCFIPS not found
+    String encodedJWT = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.vPn7xrCNOLWbBRaWdVn53ddj2hW0E87FYl4gPnWy5d1Qj3WgyF8FS6I_hj_3kIJ77tbvy0GXdr7fO91NeWMD1A";
+    Verifier verifier = ECVerifier.newVerifier(Paths.get("src/test/resources/ec_public_key_p_256.pem"), new BCFIPSCryptoProvider());
+    JWT.getDecoder().decode(encodedJWT, verifier);
+  }
+
+  @Test
   public void test_ES256_control() {
     // Control test, known encoded ES256 JWT
     String encodedJWT = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.tyh-VfuzIxCyGYDlkBA7DfyjrqmSHu6pQ2hoZuFqUSLPNY2N0mpHb3nk5K17HWP_3cYHBw7AhHale5wky6-sVA";
@@ -386,6 +409,15 @@ public class JWTTest extends BaseTest {
   public void test_RS256() throws Exception {
     JWT jwt = new JWT().setSubject("123456789");
     Signer signer = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
+
+    assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.kRXJkOHC98D0LCT2oPg5fTmQJDFXkMRQJopbt7QM6prmQDHwjJL_xO-_EXRXnbvf5NLORto45By3XNn2ZzWmY3pAOxj46MlQ5elhROx2S-EnHZNLfQhoG8ZXPZ54q-Obz_6K7ZSlkAQ8jmeZUO3Ryi8jRlHQ2PT4LbBtLpaf982SGJfeTyUMw1LbvowZUTZSF-E6JARaokmmx8M2GeLuKcFhU-YsBTXUarKp0IJCy3jpMQ2zW_HGjyVWH8WwSIbSdpBn7ztoQEJYO-R5H3qVaAz2BsTuGLRxoyIu1iy2-QcDp5uTufmX1roXM8ciQMpcfwKGiyNpKVIZm-lF8aROXRL4kk4rqp6KUzJuOPljPXRU--xKSua-DeR0BEerKzI9hbwIMWiblCslAciNminoSc9G7pUyVwV5Z5IT8CGJkVgoyVGELeBmYCDy7LHwXrr0poc0hPbE3mJXhzolga4BB84nCg2Hb9tCNiHU8F-rKgZWCONaSSIdhQ49x8OiPafFh2DJBEBe5Xbm6xdCfh3KVG0qe4XL18R5s98aIP9UIC4i62UEgPy6W7Fr7QgUxpXrjRCERBV3MiNu4L8NNJb3oZleq5lQi72EfdS-Bt8ZUOVInIcAvSmu-3i8jB_2sF38XUXdl8gkW8k_b9dJkzDcivCFehvSqGmm3vBm5X4bNmk");
+  }
+
+  @Test
+  public void test_RS256_BC_FIPS() throws Exception {
+    Security.addProvider(new BouncyCastleFipsProvider());
+    JWT jwt = new JWT().setSubject("123456789");
+    Signer signer = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))), new BCFIPSCryptoProvider());
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.kRXJkOHC98D0LCT2oPg5fTmQJDFXkMRQJopbt7QM6prmQDHwjJL_xO-_EXRXnbvf5NLORto45By3XNn2ZzWmY3pAOxj46MlQ5elhROx2S-EnHZNLfQhoG8ZXPZ54q-Obz_6K7ZSlkAQ8jmeZUO3Ryi8jRlHQ2PT4LbBtLpaf982SGJfeTyUMw1LbvowZUTZSF-E6JARaokmmx8M2GeLuKcFhU-YsBTXUarKp0IJCy3jpMQ2zW_HGjyVWH8WwSIbSdpBn7ztoQEJYO-R5H3qVaAz2BsTuGLRxoyIu1iy2-QcDp5uTufmX1roXM8ciQMpcfwKGiyNpKVIZm-lF8aROXRL4kk4rqp6KUzJuOPljPXRU--xKSua-DeR0BEerKzI9hbwIMWiblCslAciNminoSc9G7pUyVwV5Z5IT8CGJkVgoyVGELeBmYCDy7LHwXrr0poc0hPbE3mJXhzolga4BB84nCg2Hb9tCNiHU8F-rKgZWCONaSSIdhQ49x8OiPafFh2DJBEBe5Xbm6xdCfh3KVG0qe4XL18R5s98aIP9UIC4i62UEgPy6W7Fr7QgUxpXrjRCERBV3MiNu4L8NNJb3oZleq5lQi72EfdS-Bt8ZUOVInIcAvSmu-3i8jB_2sF38XUXdl8gkW8k_b9dJkzDcivCFehvSqGmm3vBm5X4bNmk");
   }

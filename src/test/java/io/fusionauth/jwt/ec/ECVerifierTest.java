@@ -20,10 +20,13 @@ import io.fusionauth.jwt.BaseTest;
 import io.fusionauth.jwt.MissingPublicKeyException;
 import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.pem.domain.PEM;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
+import java.security.interfaces.ECPublicKey;
 import java.util.Arrays;
 
 import static org.testng.Assert.assertEquals;
@@ -40,7 +43,16 @@ public class ECVerifierTest extends BaseTest {
         "ec_public_key_p_256.pem",
         "ec_public_key_p_384.pem",
         "ec_public_key_p_521.pem")
-          .forEach(fileName -> assertECVerifier(ECVerifier.newVerifier(readFile(fileName))));
+          .forEach(fileName -> {
+            // Take a Path arg
+            assertECVerifier(ECVerifier.newVerifier(getPath(fileName)));
+            // Take a String arg
+            assertECVerifier(ECVerifier.newVerifier(readFile(fileName)));
+            // Take a byte[] arg
+            assertECVerifier(ECVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
+            // Take a public key arg
+            assertECVerifier(ECVerifier.newVerifier((ECPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
+          });
 
     // Public key parsing fails with private keys w/out an encoded public key
     Arrays.asList(
@@ -57,7 +69,17 @@ public class ECVerifierTest extends BaseTest {
         "ec_private_secp384r1_p_384_openssl_pkcs8.pem",
         "ec_private_secp521r1_p_512_openssl.pem",
         "ec_private_secp521r1_p_512_openssl_pkcs8.pem")
-          .forEach(fileName -> assertECVerifier(ECVerifier.newVerifier(readFile(fileName))));
+          .forEach(fileName -> {
+            // Take a Path arg
+            assertECVerifier(ECVerifier.newVerifier(getPath(fileName)));
+            // Take a String arg
+            assertECVerifier(ECVerifier.newVerifier(readFile(fileName)));
+            // Take a byte[] arg
+            assertECVerifier(ECVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
+            // Take a public key arg
+            assertECVerifier(ECVerifier.newVerifier((ECPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
+          });
+
   }
 
   private void assertECVerifier(Verifier verifier) {

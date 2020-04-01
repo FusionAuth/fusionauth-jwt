@@ -25,9 +25,9 @@ import java.util.Objects;
  * @author Daniel DeGroff
  */
 public class DerValue {
-  public Tag tag;
+  private final DerInputStream value;
 
-  private DerInputStream value;
+  public Tag tag;
 
   public DerValue(Tag tag, byte[] value) {
     this.tag = tag;
