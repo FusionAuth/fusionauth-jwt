@@ -1,6 +1,10 @@
 FusionAuth JWT Changes
 
-Changes in 3.1.5
+Changes in 3.1.7
+
+ * Add option to provide your own crypto provider to support BC FIPS or other options.
+
+Changes in 3.1.6
 
  * Support taking an ECPublicKey or RSAPublicKey object on the Verifier builders.
 
