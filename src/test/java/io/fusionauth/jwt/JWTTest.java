@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Security;
@@ -132,11 +133,11 @@ public class JWTTest extends BaseTest {
     Verifier rsaVerifier = RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
 
     JWT jwt = new JWT().setSubject(UUID.randomUUID().toString())
-                       .addClaim("exp", ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).toInstant().toEpochMilli())
-                       .setAudience(UUID.randomUUID().toString())
-                       .addClaim("roles", new ArrayList<>(Arrays.asList("admin", "user")))
-                       .addClaim("iat", ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli())
-                       .setIssuer("inversoft.com");
+        .addClaim("exp", ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).toInstant().toEpochMilli())
+        .setAudience(UUID.randomUUID().toString())
+        .addClaim("roles", new ArrayList<>(Arrays.asList("admin", "user")))
+        .addClaim("iat", ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli())
+        .setIssuer("inversoft.com");
 
     long iterationCount = 250_000;
     for (Verifier verifier : Arrays.asList(hmacVerifier, rsaVerifier)) {
@@ -168,11 +169,11 @@ public class JWTTest extends BaseTest {
     Signer rsaSigner = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048.pem"))));
 
     JWT jwt = new JWT().setSubject(UUID.randomUUID().toString())
-                       .addClaim("exp", ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).toInstant().toEpochMilli())
-                       .setAudience(UUID.randomUUID().toString())
-                       .addClaim("roles", new ArrayList<>(Arrays.asList("admin", "user")))
-                       .addClaim("iat", ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli())
-                       .setIssuer("inversoft.com");
+        .addClaim("exp", ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).toInstant().toEpochMilli())
+        .setAudience(UUID.randomUUID().toString())
+        .addClaim("roles", new ArrayList<>(Arrays.asList("admin", "user")))
+        .addClaim("iat", ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli())
+        .setIssuer("inversoft.com");
 
     long iterationCount = 10_000;
     for (Signer signer : Arrays.asList(hmacSigner, rsaSigner)) {
@@ -373,8 +374,11 @@ public class JWTTest extends BaseTest {
   @Test
   public void test_HS256() {
     JWT jwt = new JWT().setSubject("123456789");
-    Signer signer = HMACSigner.newSHA256Signer("secret");
 
+    Signer signer = HMACSigner.newSHA256Signer("secret");
+    assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.qHdut1UR4-2FSAvh7U3YdeRR5r5boVqjIGQ16Ztp894");
+
+    signer = HMACSigner.newSHA256Signer("secret".getBytes(StandardCharsets.UTF_8));
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.qHdut1UR4-2FSAvh7U3YdeRR5r5boVqjIGQ16Ztp894");
   }
 
@@ -389,19 +393,27 @@ public class JWTTest extends BaseTest {
   @Test
   public void test_HS384() {
     JWT jwt = new JWT().setSubject("123456789");
-    Signer signer = HMACSigner.newSHA384Signer("secret");
 
+    Signer signer = HMACSigner.newSHA384Signer("secret");
     String encodedJWT = JWT.getEncoder().encode(jwt, signer);
     assertEquals(encodedJWT, "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.sCHKynlQkBveA063_Z-fwcXmRYp_lKQ0fRqGNzplb14qMUj5CV3CfXwluclTF17P");
-
     assertEquals(JWT.getDecoder().decode(encodedJWT, HMACVerifier.newVerifier("secret")).subject, jwt.subject);
+
+    signer = HMACSigner.newSHA384Signer("secret".getBytes(StandardCharsets.UTF_8));
+    encodedJWT = JWT.getEncoder().encode(jwt, signer);
+    assertEquals(encodedJWT, "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.sCHKynlQkBveA063_Z-fwcXmRYp_lKQ0fRqGNzplb14qMUj5CV3CfXwluclTF17P");
+    assertEquals(JWT.getDecoder().decode(encodedJWT, HMACVerifier.newVerifier("secret")).subject, jwt.subject);
+    assertEquals(JWT.getDecoder().decode(encodedJWT, HMACVerifier.newVerifier("secret".getBytes(StandardCharsets.UTF_8))).subject, jwt.subject);
   }
 
   @Test
   public void test_HS512() {
     JWT jwt = new JWT().setSubject("123456789");
-    Signer signer = HMACSigner.newSHA512Signer("secret");
 
+    Signer signer = HMACSigner.newSHA512Signer("secret");
+    assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.MgAi9gfGkep-IoFYPHMhHz6w2Kxf0u8TZ-wNeQOLPwc8emLNKOMqBU-5dJXeaY5-8wQ1CvZycWHbEilvHgN6Ug");
+
+    signer = HMACSigner.newSHA512Signer("secret".getBytes(StandardCharsets.UTF_8));
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.MgAi9gfGkep-IoFYPHMhHz6w2Kxf0u8TZ-wNeQOLPwc8emLNKOMqBU-5dJXeaY5-8wQ1CvZycWHbEilvHgN6Ug");
   }
 

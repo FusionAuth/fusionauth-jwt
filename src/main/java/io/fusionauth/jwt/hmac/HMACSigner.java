@@ -43,6 +43,17 @@ public class HMACSigner implements Signer {
 
   private final byte[] secret;
 
+  private HMACSigner(Algorithm algorithm, byte[] secret, String kid, CryptoProvider cryptoProvider) {
+    Objects.requireNonNull(algorithm);
+    Objects.requireNonNull(cryptoProvider);
+    Objects.requireNonNull(secret);
+
+    this.algorithm = algorithm;
+    this.cryptoProvider = cryptoProvider;
+    this.kid = kid;
+    this.secret = secret;
+  }
+
   private HMACSigner(Algorithm algorithm, String secret, String kid, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(algorithm);
     Objects.requireNonNull(cryptoProvider);
@@ -58,11 +69,10 @@ public class HMACSigner implements Signer {
    * Build a new HMAC signer using a SHA-256 hash.
    *
    * @param secret The secret used to generate the HMAC hash.
-   * @param kid    The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
    * @return a new HMAC signer.
    */
-  public static HMACSigner newSHA256Signer(String secret, String kid) {
-    return newSHA256Signer(secret, kid, new DefaultCryptoProvider());
+  public static HMACSigner newSHA256Signer(byte[] secret) {
+    return newSHA256Signer(secret, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -73,6 +83,28 @@ public class HMACSigner implements Signer {
    */
   public static HMACSigner newSHA256Signer(String secret) {
     return newSHA256Signer(secret, null, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Build a new HMAC signer using a SHA-256 hash.
+   *
+   * @param secret The secret used to generate the HMAC hash.
+   * @param kid    The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @return a new HMAC signer.
+   */
+  public static HMACSigner newSHA256Signer(byte[] secret, String kid) {
+    return newSHA256Signer(secret, kid, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Build a new HMAC signer using a SHA-256 hash.
+   *
+   * @param secret The secret used to generate the HMAC hash.
+   * @param kid    The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @return a new HMAC signer.
+   */
+  public static HMACSigner newSHA256Signer(String secret, String kid) {
+    return newSHA256Signer(secret, kid, new DefaultCryptoProvider());
   }
 
   /**
@@ -94,8 +126,51 @@ public class HMACSigner implements Signer {
    * @param cryptoProvider The crypto provider used to get the MAC digest algorithm.
    * @return a new HMAC signer.
    */
+  public static HMACSigner newSHA256Signer(byte[] secret, String kid, CryptoProvider cryptoProvider) {
+    return new HMACSigner(Algorithm.HS256, secret, kid, cryptoProvider);
+  }
+
+  /**
+   * Build a new HMAC signer using a SHA-256 hash.
+   *
+   * @param secret         The secret used to generate the HMAC hash.
+   * @param kid            The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @param cryptoProvider The crypto provider used to get the MAC digest algorithm.
+   * @return a new HMAC signer.
+   */
   public static HMACSigner newSHA256Signer(String secret, String kid, CryptoProvider cryptoProvider) {
     return new HMACSigner(Algorithm.HS256, secret, kid, cryptoProvider);
+  }
+
+  /**
+   * Build a new HMAC signer using a SHA-384 hash.
+   *
+   * @param secret The secret used to generate the HMAC hash.
+   * @return a new HMAC signer.
+   */
+  public static HMACSigner newSHA384Signer(byte[] secret) {
+    return newSHA384Signer(secret, null, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Build a new HMAC signer using a SHA-384 hash.
+   *
+   * @param secret The secret used to generate the HMAC hash.
+   * @return a new HMAC signer.
+   */
+  public static HMACSigner newSHA384Signer(String secret) {
+    return newSHA384Signer(secret, null, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Build a new HMAC signer using a SHA-384 hash.
+   *
+   * @param secret The secret used to generate the HMAC hash.
+   * @param kid    The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @return a new HMAC signer.
+   */
+  public static HMACSigner newSHA384Signer(byte[] secret, String kid) {
+    return newSHA384Signer(secret, kid, new DefaultCryptoProvider());
   }
 
   /**
@@ -107,16 +182,6 @@ public class HMACSigner implements Signer {
    */
   public static HMACSigner newSHA384Signer(String secret, String kid) {
     return newSHA384Signer(secret, kid, new DefaultCryptoProvider());
-  }
-
-  /**
-   * Build a new HMAC signer using a SHA-384 hash.
-   *
-   * @param secret The secret used to generate the HMAC hash.
-   * @return a new HMAC signer.
-   */
-  public static HMACSigner newSHA384Signer(String secret) {
-    return newSHA384Signer(secret, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -138,6 +203,18 @@ public class HMACSigner implements Signer {
    * @param cryptoProvider The crypto provider used to get the MAC digest algorithm.
    * @return a new HMAC signer.
    */
+  public static HMACSigner newSHA384Signer(byte[] secret, String kid, CryptoProvider cryptoProvider) {
+    return new HMACSigner(Algorithm.HS384, secret, kid, cryptoProvider);
+  }
+
+  /**
+   * Build a new HMAC signer using a SHA-384 hash.
+   *
+   * @param secret         The secret used to generate the HMAC hash.
+   * @param kid            The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @param cryptoProvider The crypto provider used to get the MAC digest algorithm.
+   * @return a new HMAC signer.
+   */
   public static HMACSigner newSHA384Signer(String secret, String kid, CryptoProvider cryptoProvider) {
     return new HMACSigner(Algorithm.HS384, secret, kid, cryptoProvider);
   }
@@ -146,11 +223,10 @@ public class HMACSigner implements Signer {
    * Build a new HMAC signer using a SHA-512 hash.
    *
    * @param secret The secret used to generate the HMAC hash.
-   * @param kid    The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
    * @return a new HMAC signer.
    */
-  public static HMACSigner newSHA512Signer(String secret, String kid) {
-    return newSHA512Signer(secret, kid, new DefaultCryptoProvider());
+  public static HMACSigner newSHA512Signer(byte[] secret) {
+    return newSHA512Signer(secret, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -166,12 +242,47 @@ public class HMACSigner implements Signer {
   /**
    * Build a new HMAC signer using a SHA-512 hash.
    *
+   * @param secret The secret used to generate the HMAC hash.
+   * @param kid    The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @return a new HMAC signer.
+   */
+  public static HMACSigner newSHA512Signer(byte[] secret, String kid) {
+    return newSHA512Signer(secret, kid, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Build a new HMAC signer using a SHA-512 hash.
+   *
+   * @param secret The secret used to generate the HMAC hash.
+   * @param kid    The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @return a new HMAC signer.
+   */
+  public static HMACSigner newSHA512Signer(String secret, String kid) {
+    return newSHA512Signer(secret, kid, new DefaultCryptoProvider());
+  }
+
+
+  /**
+   * Build a new HMAC signer using a SHA-512 hash.
+   *
    * @param secret         The secret used to generate the HMAC hash.
    * @param cryptoProvider The crypto provider used to get the MAC digest algorithm.
    * @return a new HMAC signer.
    */
   public static HMACSigner newSHA512Signer(String secret, CryptoProvider cryptoProvider) {
     return newSHA512Signer(secret, null, cryptoProvider);
+  }
+
+  /**
+   * Build a new HMAC signer using a SHA-512 hash.
+   *
+   * @param secret         The secret used to generate the HMAC hash.
+   * @param kid            The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @param cryptoProvider The crypto provider used to get the MAC digest algorithm.
+   * @return a new HMAC signer.
+   */
+  public static HMACSigner newSHA512Signer(byte[] secret, String kid, CryptoProvider cryptoProvider) {
+    return new HMACSigner(Algorithm.HS512, secret, kid, cryptoProvider);
   }
 
   /**

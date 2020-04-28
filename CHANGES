@@ -1,5 +1,9 @@
 FusionAuth JWT Changes
 
+Changes in 3.2.0
+
+ * Add new HMAC signer methods to take bytes.
+
 Changes in 3.1.7
 
  * Add option to provide your own crypto provider to support BC FIPS or other options.
