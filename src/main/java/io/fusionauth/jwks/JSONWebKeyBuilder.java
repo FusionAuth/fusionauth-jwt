@@ -39,13 +39,13 @@ import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECPoint;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
 
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P256;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P384;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P521;
+import static io.fusionauth.jwks.JWKUtils.base64EncodeUint;
 
 /**
  * @author Daniel DeGroff
@@ -191,31 +191,6 @@ public class JSONWebKeyBuilder {
       }
     }
     return key;
-  }
-
-  private String base64EncodeUint(BigInteger value, int minimumLength) {
-    if (value.signum() < 0) {
-      throw new JSONWebKeyBuilderException("Illegal parameter, cannot encode a negative number.", new IllegalArgumentException());
-    }
-
-    byte[] bytes = value.toByteArray();
-    if ((value.bitLength() % 8 == 0) && (bytes[0] == 0) && bytes.length > 1) {
-      bytes = Arrays.copyOfRange(bytes, 1, bytes.length);
-    }
-
-    if (minimumLength != -1) {
-      if (bytes.length < minimumLength) {
-        byte[] buf = new byte[minimumLength];
-        System.arraycopy(bytes, 0, buf, (minimumLength - bytes.length), bytes.length);
-        bytes = buf;
-      }
-    }
-
-    return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-  }
-
-  private String base64EncodeUint(BigInteger value) {
-    return base64EncodeUint(value, -1);
   }
 
   private int getCoordinateLength(ECKey key) {
