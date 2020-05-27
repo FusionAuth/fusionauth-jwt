@@ -96,7 +96,7 @@ target(name: "release", description: "Releases a full version of the project", d
 }
 
 target(name: "publish", description: "Publish to MVN repo", dependsOn: ["clean", "compile"]) {
-  if (new ProcessBuilder('mvn', 'deploy', '-Prelease').inheritIO().start().waitFor() != 0) {
+  if (new ProcessBuilder('mvn', 'clean', 'deploy', '-Prelease').inheritIO().start().waitFor() != 0) {
     fail("deploy failed")
   }
 }
