@@ -10,7 +10,7 @@ We are very interested in compensating anyone that can identify a security relat
 ## Features
  - JWT signing using HMAC, RSA and Elliptic Curve support
    - `HS256`, `HS384`, `HS512`, `RS256`, `RS384`, `RS512`, `ES256`, `ES384`, `ES512`
- - Modular crypto provider so you can drop in support for BC FIPS or other Java JCE security providers.   
+ - Modular crypto provider so you can drop in support for BC FIPS or other JCE security providers.   
  - PEM decoding / encoding
    - Decode PEM files to PrivateKey or PublicKey
      - Decode private EC keys un-encapsulated in PKCS#8, returned PEM will be in PKCS#8 form.
@@ -196,6 +196,24 @@ String json = jwk.toJSON();
   "n": "Auchby3lZKHbiAZrTkJh79hJvgC3W7STSS4y6UZEhhxx3m3W2hD8qCyw6BEyrciPpwou-vmeDN7qBSk2QKqTTjlg5Pkf8O4z8d9HAlBTUDg4p98qLFOF2EFWWTiFbQwAP2qODOIv9WCAM2rkXEPwGiF962XAoOwiSmldeDu7Uo5A-bnTi0z3oNu4qm_48kv90o9CMiELszE9jsfoH32WE71HDqhsRjVNddDJ81e5zxBN8UEmaR-gmWqa63laON2KANPugJP7PrYJ_PC9ilQfV3F1rDpqbvlFQkshohJ39VrVpEtSRmJ12nqTFuspXLApekOyic3J9jo6ZI7o3IdQmy3bpnJIT_U",
   "use": "sig"
 }
+```
+
+### Extract the Public Key from a JWK
+
+```json
+{
+  "e": "AQAB",
+  "kty": "RSA",
+  "n": "Auchby3lZKHbiAZrTkJh79hJvgC3W7STSS4y6UZEhhxx3m3W2hD8qCyw6BEyrciPpwou-vmeDN7qBSk2QKqTTjlg5Pkf8O4z8d9HAlBTUDg4p98qLFOF2EFWWTiFbQwAP2qODOIv9WCAM2rkXEPwGiF962XAoOwiSmldeDu7Uo5A-bnTi0z3oNu4qm_48kv90o9CMiELszE9jsfoH32WE71HDqhsRjVNddDJ81e5zxBN8UEmaR-gmWqa63laON2KANPugJP7PrYJ_PC9ilQfV3F1rDpqbvlFQkshohJ39VrVpEtSRmJ12nqTFuspXLApekOyic3J9jo6ZI7o3IdQmy3bpnJIT_U",
+  "use": "sig"
+}
+```
+
+```java
+String json = { ... example above ... }
+byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+JSONWebKey jwk = Mapper.deserialize(bytes, JSONWebKey.class);
+Publickey publicKey = JSONWebKey.parse(jwk);
 ```
 
 ### Convert a Private Key to JWK

@@ -74,7 +74,7 @@ public class JSONWebKeyParserTest extends BaseTest {
     expected.x = x;
     expected.y = y;
 
-    PublicKey publicKey = JSONWebKeyParser.parse(expected);
+    PublicKey publicKey = JSONWebKey.parse(expected);
     assertNotNull(publicKey);
 
     // Compare to the original expected key
@@ -96,7 +96,7 @@ public class JSONWebKeyParserTest extends BaseTest {
     expected.e = exponent;
     expected.n = modulus;
 
-    PublicKey publicKey = JSONWebKeyParser.parse(expected);
+    PublicKey publicKey = JSONWebKey.parse(expected);
     assertNotNull(publicKey);
 
     // Compare to the original expected key
@@ -144,7 +144,7 @@ public class JSONWebKeyParserTest extends BaseTest {
     JSONWebKey expected = JSONWebKey.build(keyPair.publicKey);
     expected.alg = RS256;
 
-    PublicKey publicKey = JSONWebKeyParser.parse(expected);
+    PublicKey publicKey = JSONWebKey.parse(expected);
     assertNotNull(publicKey);
 
     // Compare to the original expected key

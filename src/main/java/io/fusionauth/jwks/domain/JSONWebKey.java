@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fusionauth.jwks.JSONWebKeyBuilder;
 import io.fusionauth.jwks.JSONWebKeyBuilderException;
+import io.fusionauth.jwks.JSONWebKeyParser;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.Buildable;
 import io.fusionauth.jwt.domain.KeyType;
@@ -171,6 +172,16 @@ public class JSONWebKey implements Buildable<JSONWebKey> {
    */
   public static JSONWebKey build(String encodedPEM) {
     return new JSONWebKeyBuilder().build(encodedPEM);
+  }
+
+  /**
+   * Build a public key from a JSON Web Key containing a public RSA or EC key.
+   *
+   * @param key a JSON web key containing a public key
+   * @return a public key
+   */
+  public static PublicKey parse(JSONWebKey key) {
+    return new JSONWebKeyParser().parse(key);
   }
 
   /**

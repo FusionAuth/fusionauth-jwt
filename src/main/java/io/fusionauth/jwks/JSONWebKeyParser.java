@@ -43,7 +43,7 @@ public class JSONWebKeyParser {
    * @param key the JSON web key
    * @return the public key
    */
-  public static PublicKey parse(JSONWebKey key) {
+  public PublicKey parse(JSONWebKey key) {
     Objects.requireNonNull(key);
 
     try {
