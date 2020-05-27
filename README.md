@@ -20,6 +20,7 @@ We are very interested in compensating anyone that can identify a security relat
    - Build JWK from Private Key
    - Build JWK from Public Key
    - Build JWK from PEM
+   - Parse public keys from a JSON Web Key
  - Helpers
    - Generate RSA Key Pairs in `2048`, `3072` or `4096` bit sizes
    - Generate EC Key Pairs in `256`, `384` and `521` bit sizes
@@ -34,23 +35,23 @@ We are very interested in compensating anyone that can identify a security relat
 <dependency>
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>3.2.0</version>
+  <version>3.3.0</version>
 </dependency>
  ```
 
 ### Gradle
 ```groovy
-implementation 'io.fusionauth:fusionauth-jwt:3.2.0'
+implementation 'io.fusionauth:fusionauth-jwt:3.3.0'
 ```
 
 ### Gradle Kotlin
 ```kotlin
-implementation("io.fusionauth:fusionauth-jwt:3.2.0")
+implementation("io.fusionauth:fusionauth-jwt:3.3.0")
 ```
 
 ### Savant 
 ```groovy
-dependency(id: "io.fusionauth:fusionauth-jwt:3.2.0")
+dependency(id: "io.fusionauth:fusionauth-jwt:3.3.0")
 ```
 
 For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/3.1.6/jar).

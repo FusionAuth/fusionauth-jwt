@@ -1,5 +1,9 @@
 FusionAuth JWT Changes
 
+Changes in 3.3.0
+
+ * Add JSONWebKeyParser to extract public keys from a JSON Web key. This allows you to build JWT verifiers from publicly available JWKS endpoints.
+
 Changes in 3.2.0
 
  * Add new HMAC signer methods to take bytes.
