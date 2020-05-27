@@ -70,11 +70,11 @@ public class JSONWebKeyBuilderTest extends BaseTest {
     ECPublicKey ecPublic_p256 = PEM.decode(Paths.get("src/test/resources/ec_public_key_p_256.pem")).getPublicKey();
     assertJSONEquals(JSONWebKey.build(ecPublic_p256), "src/test/resources/jwk/ec_public_key_p_256.json");
 
-    //     EC 384 Public key
+    // EC 384 Public key
     ECPublicKey ecPublic_p384 = PEM.decode(Paths.get("src/test/resources/ec_public_key_p_384.pem")).getPublicKey();
     assertJSONEquals(JSONWebKey.build(ecPublic_p384), "src/test/resources/jwk/ec_public_key_p_384.json");
 
-    //     EC 521 Public key
+    // EC 521 Public key
     ECPublicKey ecPublic_p512 = PEM.decode(Paths.get("src/test/resources/ec_public_key_p_521.pem")).getPublicKey();
     assertJSONEquals(JSONWebKey.build(ecPublic_p512), "src/test/resources/jwk/ec_public_key_p_521.json");
 
@@ -88,8 +88,8 @@ public class JSONWebKeyBuilderTest extends BaseTest {
     // EC 256 Public key
     ECPublicKey ecPublic_p256 = PEM.decode(Paths.get("src/test/resources/ec_public_key_p_256.pem")).getPublicKey();
     assertJSONEquals(JSONWebKey.build(ecPublic_p256)
-                               .add("more", "cowbell")
-                               .add("boom", "goes the dynamite"), "src/test/resources/jwk/extra_properties.json");
+        .add("more", "cowbell")
+        .add("boom", "goes the dynamite"), "src/test/resources/jwk/extra_properties.json");
   }
 
   @Test

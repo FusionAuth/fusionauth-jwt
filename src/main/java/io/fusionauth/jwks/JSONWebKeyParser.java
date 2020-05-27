@@ -20,8 +20,13 @@ import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.domain.Algorithm;
 
 import java.math.BigInteger;
+import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
 import java.security.PublicKey;
+import java.security.spec.ECGenParameterSpec;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPoint;
+import java.security.spec.ECPublicKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Objects;
 
@@ -32,20 +37,48 @@ import static io.fusionauth.jwks.JWKUtils.base64DecodeUint;
  */
 public class JSONWebKeyParser {
 
+  /**
+   * Parse a JSON Web Key and extract the the public key.
+   *
+   * @param key the JSON web key
+   * @return the public key
+   */
   public static PublicKey parse(JSONWebKey key) {
     Objects.requireNonNull(key);
 
-    // RSA Public key
-    if (key.alg == Algorithm.RS256 || key.alg == Algorithm.RS384 || key.alg == Algorithm.RS512) {
-      try {
+    try {
+      // RSA Public key
+      if (key.alg == Algorithm.RS256 || key.alg == Algorithm.RS384 || key.alg == Algorithm.RS512) {
         BigInteger modulus = base64DecodeUint(key.n);
         BigInteger publicExponent = base64DecodeUint(key.e);
         return KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
-      } catch (Exception e) {
-        throw new JSONWebKeyParserException("Failed to parse the provided JSON Web Key", e);
+      } else if (key.alg == Algorithm.ES256 || key.alg == Algorithm.ES384 || key.alg == Algorithm.ES512) {
+        // EC Public key
+        AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
+        switch (key.crv) {
+          case "P-256":
+            parameters.init(new ECGenParameterSpec("secp256r1"));
+            break;
+          case "P-384":
+            parameters.init(new ECGenParameterSpec("secp384r1"));
+            break;
+          case "P-521":
+            parameters.init(new ECGenParameterSpec("secp521r1"));
+            break;
+          default:
+            throw new UnsupportedOperationException("Unsupported EC algorithm. Support algorithms include P-256, P-384 and P-521.");
+        }
+
+        ECParameterSpec ecParameterSpec = parameters.getParameterSpec(ECParameterSpec.class);
+        BigInteger x = base64DecodeUint(key.x);
+        BigInteger y = base64DecodeUint(key.y);
+        ECPoint ecPoint = new ECPoint(x, y);
+        return KeyFactory.getInstance("EC").generatePublic(new ECPublicKeySpec(ecPoint, ecParameterSpec));
       }
+    } catch (Exception e) {
+      throw new JSONWebKeyParserException("Failed to parse the provided JSON Web Key", e);
     }
 
-    throw new UnsupportedOperationException("Only RSA JSON Web Keys may be parsed.");
+    throw new UnsupportedOperationException("Only RSA or EC JSON Web Keys may be parsed.");
   }
 }
