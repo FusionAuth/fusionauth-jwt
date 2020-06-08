@@ -1,5 +1,9 @@
 FusionAuth JWT Changes
 
+Changes in 3.4.0
+
+ * Add JSON Web Key Set helpers to download keys from JWKS endpoints. See JSONWebKeySetHelper.
+
 Changes in 3.3.1
 
  * Add static method on JSONWebKey to use new JSONWebKeyParser class.

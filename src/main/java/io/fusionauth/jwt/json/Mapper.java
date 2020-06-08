@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fusionauth.jwt.InvalidJWTException;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Serialize and de-serialize JWT header and payload.
@@ -38,6 +39,14 @@ public class Mapper {
       return OBJECT_MAPPER.readValue(bytes, type);
     } catch (IOException e) {
       throw new InvalidJWTException("The JWT could not be de-serialized.", e);
+    }
+  }
+
+  public static <T> T deserialize(InputStream is, Class<T> type) throws InvalidJWTException {
+    try {
+      return OBJECT_MAPPER.readValue(is, type);
+    } catch (IOException e) {
+      throw new InvalidJWTException("The input stream could not be de-serialized.", e);
     }
   }
 
