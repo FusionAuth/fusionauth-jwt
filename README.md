@@ -21,6 +21,7 @@ We are very interested in compensating anyone that can identify a security relat
    - Build JWK from Public Key
    - Build JWK from PEM
    - Parse public keys from a JSON Web Key
+   - Retrieve JWK from JWKS endpoints
  - Helpers
    - Generate RSA Key Pairs in `2048`, `3072` or `4096` bit sizes
    - Generate EC Key Pairs in `256`, `384` and `521` bit sizes
@@ -35,23 +36,23 @@ We are very interested in compensating anyone that can identify a security relat
 <dependency>
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>3.3.1</version>
+  <version>3.4.0</version>
 </dependency>
  ```
 
 ### Gradle
 ```groovy
-implementation 'io.fusionauth:fusionauth-jwt:3.3.1'
+implementation 'io.fusionauth:fusionauth-jwt:3.4.0'
 ```
 
 ### Gradle Kotlin
 ```kotlin
-implementation("io.fusionauth:fusionauth-jwt:3.3.1")
+implementation("io.fusionauth:fusionauth-jwt:3.4.0")
 ```
 
 ### Savant 
 ```groovy
-dependency(id: "io.fusionauth:fusionauth-jwt:3.3.1")
+dependency(id: "io.fusionauth:fusionauth-jwt:3.4.0")
 ```
 
 For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/3.1.6/jar).
@@ -181,6 +182,19 @@ Verifier verifier = ECVerifier.newVerifier(Paths.get("public_key.pem"), new BCFI
 ```
 
 ## JSON Web Keys
+
+### Retrieve JSON Web Keys from a JWKS endpoint
+
+```java
+// Retrieve JSON Web Keys using a known JWKS endpoint
+List<JSONWebKey> keys = JSONWebKeySetHelper.retrieveKeysFromJWKS("https://www.googleapis.com/oauth2/v3/certs");
+
+// Retrieve JSON Web Keys using a well known OpenID Connect configuration endpoint
+List<JSONWebKey> keys = JSONWebKeySetHelper.retrieveKeysFromWellKnownConfiguration("https://accounts.google.com/.well-known/openid-configuration");
+
+// Retrieve JSON Web Keys using an OpenID Connect issuer endpoint
+List<JSONWebKey> keys = JSONWebKeySetHelper.retrieveKeysFromIssuer("https://accounts.google.com");
+```
 
 ### Convert a Public Key to JWK
 
