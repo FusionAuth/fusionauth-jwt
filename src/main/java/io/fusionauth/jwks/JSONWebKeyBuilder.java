@@ -62,10 +62,11 @@ public class JSONWebKeyBuilder {
     PEM pem = PEM.decode(encodedPEM);
     if (pem.privateKey != null) {
       return build(pem.privateKey);
+    } else if (pem.certificate != null) {
+      // Prefer the certificate if available
+      return build(pem.certificate);
     } else if (pem.publicKey != null) {
       return build(pem.publicKey);
-    } else if (pem.certificate != null) {
-      return build(pem.certificate);
     }
 
     throw new JSONWebKeyBuilderException("The provided PEM did not contain a public or private key.");

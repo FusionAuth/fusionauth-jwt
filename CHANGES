@@ -1,5 +1,9 @@
 FusionAuth JWT Changes
 
+Changes in 3.4.1
+
+ * Modify JSONWebKeyBuilder.build when taking a PEM to prefer a certificate over a public key to ensure we get the x5t in the output.
+
 Changes in 3.4.0
 
  * Add JSON Web Key Set helpers to download keys from JWKS endpoints. See JSONWebKeySetHelper.
