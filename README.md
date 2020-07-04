@@ -60,7 +60,7 @@ implementation("io.fusionauth:fusionauth-jwt:3.5.0")
 dependency(id: "io.fusionauth:fusionauth-jwt:3.5.0")
 ```
 
-For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/3.1.6/jar).
+For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/3.5.0/jar).
  
 ## Example Code:
 
