@@ -26,7 +26,7 @@ import static org.testng.Assert.assertNotNull;
 /**
  * @author Daniel DeGroff
  */
-public class RSAPSASignerTest extends BaseTest {
+public class RSAPSSSignerTest extends BaseTest {
   @Test
   public void test_private_pem_parsing() {
     // No kid

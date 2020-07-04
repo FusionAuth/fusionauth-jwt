@@ -21,7 +21,7 @@ import io.fusionauth.jwt.ec.ECSigner;
 import io.fusionauth.jwt.ec.ECVerifier;
 import io.fusionauth.jwt.hmac.HMACSigner;
 import io.fusionauth.jwt.hmac.HMACVerifier;
-import io.fusionauth.jwt.rsa.RSAPSAVerifier;
+import io.fusionauth.jwt.rsa.RSAPSSVerifier;
 import io.fusionauth.jwt.rsa.RSAPSSSigner;
 import io.fusionauth.jwt.rsa.RSASigner;
 import io.fusionauth.jwt.rsa.RSAVerifier;
@@ -437,7 +437,7 @@ public class JWTTest extends BaseTest {
     String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 
     // Verify the JWT
-    Verifier verifier = RSAPSAVerifier.newVerifier(Paths.get("src/test/resources/rsa_public_key_2048.pem"));
+    Verifier verifier = RSAPSSVerifier.newVerifier(Paths.get("src/test/resources/rsa_public_key_2048.pem"));
     JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
 
     assertEquals(actual.subject, jwt.subject);
@@ -453,7 +453,7 @@ public class JWTTest extends BaseTest {
     String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 
     // Verify the JWT
-    Verifier verifier = RSAPSAVerifier.newVerifier(Paths.get("src/test/resources/rsa_public_key_2048.pem"));
+    Verifier verifier = RSAPSSVerifier.newVerifier(Paths.get("src/test/resources/rsa_public_key_2048.pem"));
     JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
 
     assertEquals(actual.subject, jwt.subject);
@@ -469,7 +469,7 @@ public class JWTTest extends BaseTest {
     String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 
     // Verify the JWT
-    Verifier verifier = RSAPSAVerifier.newVerifier(Paths.get("src/test/resources/rsa_public_key_3072.pem"));
+    Verifier verifier = RSAPSSVerifier.newVerifier(Paths.get("src/test/resources/rsa_public_key_3072.pem"));
     JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
 
     assertEquals(actual.subject, jwt.subject);

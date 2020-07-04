@@ -14,7 +14,6 @@
  * language governing permissions and limitations under the License.
  */
 
-
 package io.fusionauth.jwt;
 
 import java.lang.annotation.Retention;
@@ -22,6 +21,11 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.METHOD;
 
+/**
+ * Test marker annotation to indicate the test should be only be run when a particular algorithm is available.
+ *
+ * @author Daniel DeGroff
+ */
 @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
 @Target({METHOD})
 public @interface RequiresAlgorithm {

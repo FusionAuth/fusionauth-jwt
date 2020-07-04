@@ -23,6 +23,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.security.Signature;
 
+/**
+ * Test NG transformer used to disable tests at runtime.
+ *
+ * @author Daniel DeGroff
+ */
 @SuppressWarnings("unused")
 public class TestNGAnnotationTransformer implements IAnnotationTransformer {
   private static boolean RSAProbabilisticSignatureSchemaAvailable;

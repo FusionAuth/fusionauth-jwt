@@ -40,7 +40,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * @author Daniel DeGroff
  */
-public class RSAPSAVerifierTest extends BaseTest {
+public class RSAPSSVerifierTest extends BaseTest {
   @Test
   public void test_public_pem_parsing() {
     Arrays.asList(
@@ -51,13 +51,13 @@ public class RSAPSAVerifierTest extends BaseTest {
         "rsa_public_key_4096.pem")
         .forEach(fileName -> {
           // Take a String arg
-          assertRSAPSAVerifier(RSAPSAVerifier.newVerifier(getPath(fileName)));
+          assertRSAPSAVerifier(RSAPSSVerifier.newVerifier(getPath(fileName)));
           // Take a Path arg
-          assertRSAPSAVerifier(RSAPSAVerifier.newVerifier(readFile(fileName)));
+          assertRSAPSAVerifier(RSAPSSVerifier.newVerifier(readFile(fileName)));
           // Take a byte[] arg
-          assertRSAPSAVerifier(RSAPSAVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
+          assertRSAPSAVerifier(RSAPSSVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
           // Take a public key arg
-          assertRSAPSAVerifier(RSAPSAVerifier.newVerifier((RSAPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
+          assertRSAPSAVerifier(RSAPSSVerifier.newVerifier((RSAPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
         });
 
     // Public key parsing also works with private keys since the public key is encoded in the private
@@ -68,20 +68,20 @@ public class RSAPSAVerifierTest extends BaseTest {
         "rsa_private_key_4096.pem")
         .forEach((fileName -> {
           // Take a String arg
-          assertRSAPSAVerifier(RSAPSAVerifier.newVerifier(getPath(fileName)));
+          assertRSAPSAVerifier(RSAPSSVerifier.newVerifier(getPath(fileName)));
           // Take a Path arg
-          assertRSAPSAVerifier(RSAPSAVerifier.newVerifier(readFile(fileName)));
+          assertRSAPSAVerifier(RSAPSSVerifier.newVerifier(readFile(fileName)));
           // Take a byte[] arg
-          assertRSAPSAVerifier(RSAPSAVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
+          assertRSAPSAVerifier(RSAPSSVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
           // Take a public key arg
-          assertRSAPSAVerifier(RSAPSAVerifier.newVerifier((RSAPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
+          assertRSAPSAVerifier(RSAPSSVerifier.newVerifier((RSAPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
         }));
   }
 
   @Test
   public void test_rsa_1024_pem() {
     try {
-      RSAPSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_1024.pem"))));
+      RSAPSSVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_1024.pem"))));
       Assert.fail("Expected [InvalidKeyLengthException] exception");
     } catch (InvalidKeyLengthException ignore) {
     } catch (Exception e) {
@@ -104,7 +104,7 @@ public class RSAPSAVerifierTest extends BaseTest {
         "-----END PUBLIC KEY-----";
 
 
-    Verifier verifier = RSAPSAVerifier.newVerifier(publicKeyPEM);
+    Verifier verifier = RSAPSSVerifier.newVerifier(publicKeyPEM);
     JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
     assertNotNull(jwt);
     assertEquals(jwt.subject, "1234567890");

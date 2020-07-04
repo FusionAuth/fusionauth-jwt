@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2020, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,12 +44,12 @@ import java.util.Objects;
  *
  * @author Daniel DeGroff
  */
-public class RSAPSAVerifier implements Verifier {
+public class RSAPSSVerifier implements Verifier {
   private final RSAPublicKey publicKey;
 
   private final CryptoProvider cryptoProvider;
 
-  private RSAPSAVerifier(RSAPublicKey publicKey, CryptoProvider cryptoProvider) {
+  private RSAPSSVerifier(RSAPublicKey publicKey, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(publicKey);
     Objects.requireNonNull(cryptoProvider);
 
@@ -58,7 +58,7 @@ public class RSAPSAVerifier implements Verifier {
     assertValidKeyLength();
   }
 
-  private RSAPSAVerifier(String publicKey, CryptoProvider cryptoProvider) {
+  private RSAPSSVerifier(String publicKey, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(publicKey);
     Objects.requireNonNull(cryptoProvider);
 
@@ -78,7 +78,7 @@ public class RSAPSAVerifier implements Verifier {
    * @param publicKey The RSA public key object.
    * @return a new instance of the RSA verifier.
    */
-  public static RSAPSAVerifier newVerifier(RSAPublicKey publicKey) {
+  public static RSAPSSVerifier newVerifier(RSAPublicKey publicKey) {
     return newVerifier(publicKey, new DefaultCryptoProvider());
   }
 
@@ -89,9 +89,9 @@ public class RSAPSAVerifier implements Verifier {
    * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
    * @return a new instance of the RSA verifier.
    */
-  public static RSAPSAVerifier newVerifier(RSAPublicKey publicKey, CryptoProvider cryptoProvider) {
+  public static RSAPSSVerifier newVerifier(RSAPublicKey publicKey, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(publicKey);
-    return new RSAPSAVerifier(publicKey, cryptoProvider);
+    return new RSAPSSVerifier(publicKey, cryptoProvider);
   }
 
   /**
@@ -100,7 +100,7 @@ public class RSAPSAVerifier implements Verifier {
    * @param publicKey The RSA public key PEM.
    * @return a new instance of the RSA verifier.
    */
-  public static RSAPSAVerifier newVerifier(String publicKey) {
+  public static RSAPSSVerifier newVerifier(String publicKey) {
     return newVerifier(publicKey, new DefaultCryptoProvider());
   }
 
@@ -111,9 +111,9 @@ public class RSAPSAVerifier implements Verifier {
    * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
    * @return a new instance of the RSA verifier.
    */
-  public static RSAPSAVerifier newVerifier(String publicKey, CryptoProvider cryptoProvider) {
+  public static RSAPSSVerifier newVerifier(String publicKey, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(publicKey);
-    return new RSAPSAVerifier(publicKey, cryptoProvider);
+    return new RSAPSSVerifier(publicKey, cryptoProvider);
   }
 
   /**
@@ -122,7 +122,7 @@ public class RSAPSAVerifier implements Verifier {
    * @param path The path to the RSA public key PEM.
    * @return a new instance of the RSA verifier.
    */
-  public static RSAPSAVerifier newVerifier(Path path) {
+  public static RSAPSSVerifier newVerifier(Path path) {
     return newVerifier(path, new DefaultCryptoProvider());
   }
 
@@ -133,11 +133,11 @@ public class RSAPSAVerifier implements Verifier {
    * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
    * @return a new instance of the RSA verifier.
    */
-  public static RSAPSAVerifier newVerifier(Path path, CryptoProvider cryptoProvider) {
+  public static RSAPSSVerifier newVerifier(Path path, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(path);
 
     try {
-      return new RSAPSAVerifier(new String(Files.readAllBytes(path)), cryptoProvider);
+      return new RSAPSSVerifier(new String(Files.readAllBytes(path)), cryptoProvider);
     } catch (IOException e) {
       throw new JWTVerifierException("Unable to read the file from path [" + path.toAbsolutePath().toString() + "]", e);
     }
@@ -149,9 +149,9 @@ public class RSAPSAVerifier implements Verifier {
    * @param bytes The bytes of the RSA public key PEM.
    * @return a new instance of the RSA verifier.
    */
-  public static RSAPSAVerifier newVerifier(byte[] bytes) {
+  public static RSAPSSVerifier newVerifier(byte[] bytes) {
     Objects.requireNonNull(bytes);
-    return new RSAPSAVerifier((new String(bytes)), new DefaultCryptoProvider());
+    return new RSAPSSVerifier((new String(bytes)), new DefaultCryptoProvider());
   }
 
   @Override
