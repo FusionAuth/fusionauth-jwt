@@ -13,7 +13,8 @@ We are very interested in compensating anyone that can identify a security relat
  - JWT signing using RSA-PSS signatures
    - `PS256`, `PS384`, `PS512`
    - Requires Java 8 update 251 or greater, or any version that includes support RSASSA-PSS
-   - https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8146293  
+   - https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8146293
+   - Available in versions >= 3.5.0 (yet to be released)  
  - Modular crypto provider so you can drop in support for BC FIPS or other JCE security providers.   
  - PEM decoding / encoding
    - Decode PEM files to PrivateKey or PublicKey
