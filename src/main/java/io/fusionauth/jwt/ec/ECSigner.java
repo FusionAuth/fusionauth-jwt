@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.interfaces.ECPrivateKey;
@@ -213,8 +212,12 @@ public class ECSigner implements Signer {
     Objects.requireNonNull(message);
 
     try {
+      // In later versions of the JDK you can request a non DER encoded signature so we don't have to re-encode it.
+      // - We could revisit this in the future if we want to depend on a later version of Java.
+      //   To request the version we want, you can append "inP1363Format" to the algorithm name.
+      //   Example : ES256inP1363Format instead of ES256.
       Signature signature = cryptoProvider.getSignatureInstance(algorithm.getName());
-      signature.initSign(privateKey, new SecureRandom());
+      signature.initSign(privateKey);
       signature.update((message).getBytes(StandardCharsets.UTF_8));
       byte[] derEncoded = signature.sign();
 

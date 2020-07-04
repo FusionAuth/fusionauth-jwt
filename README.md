@@ -10,6 +10,10 @@ We are very interested in compensating anyone that can identify a security relat
 ## Features
  - JWT signing using HMAC, RSA and Elliptic Curve support
    - `HS256`, `HS384`, `HS512`, `RS256`, `RS384`, `RS512`, `ES256`, `ES384`, `ES512`
+ - JWT signing using RSA-PSS signatures
+   - `PS256`, `PS384`, `PS512`
+   - Requires Java 8 update 251 or greater, or any version that includes support RSASSA-PSS
+   - https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8146293  
  - Modular crypto provider so you can drop in support for BC FIPS or other JCE security providers.   
  - PEM decoding / encoding
    - Decode PEM files to PrivateKey or PublicKey

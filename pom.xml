@@ -6,7 +6,7 @@
 
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>3.4.1</version>
+  <version>3.5.0</version>
   <packaging>jar</packaging>
 
   <name>FusionAuth JWT</name>
@@ -93,6 +93,19 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M5</version>
+        <configuration>
+          <properties>
+            <property>
+              <name>listener</name>
+              <value>io.fusionauth.jwt.TestNGAnnotationTransformer</value>
+            </property>
+          </properties>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>

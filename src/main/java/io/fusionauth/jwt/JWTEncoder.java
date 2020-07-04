@@ -70,6 +70,6 @@ public class JWTEncoder {
   }
 
   private String base64Encode(byte[] bytes) {
-    return new String(Base64.getUrlEncoder().withoutPadding().encode(bytes));
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
   }
 }

@@ -89,11 +89,17 @@ public class RSAVerifierTest extends BaseTest {
     assertFalse(verifier.canVerify(Algorithm.ES256));
     assertFalse(verifier.canVerify(Algorithm.ES384));
     assertFalse(verifier.canVerify(Algorithm.ES512));
-    assertTrue(verifier.canVerify(Algorithm.RS256));
-    assertTrue(verifier.canVerify(Algorithm.RS384));
-    assertTrue(verifier.canVerify(Algorithm.RS512));
+
     assertFalse(verifier.canVerify(Algorithm.HS256));
     assertFalse(verifier.canVerify(Algorithm.HS384));
     assertFalse(verifier.canVerify(Algorithm.HS512));
+
+    assertFalse(verifier.canVerify(Algorithm.PS256));
+    assertFalse(verifier.canVerify(Algorithm.PS384));
+    assertFalse(verifier.canVerify(Algorithm.PS512));
+
+    assertTrue(verifier.canVerify(Algorithm.RS256));
+    assertTrue(verifier.canVerify(Algorithm.RS384));
+    assertTrue(verifier.canVerify(Algorithm.RS512));
   }
 }

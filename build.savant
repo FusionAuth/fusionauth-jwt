@@ -17,7 +17,7 @@
 savantVersion = "1.0.0"
 jacksonVersion = "2.10.3"
 
-project(group: "io.fusionauth", name: "fusionauth-jwt", version: "3.4.1", licenses: ["ApacheV2_0"]) {
+project(group: "io.fusionauth", name: "fusionauth-jwt", version: "3.5.0", licenses: ["ApacheV2_0"]) {
 
   workflow {
     standard()
@@ -49,7 +49,7 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "3.4.1", licens
  */
 dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:1.0.2")
 java = loadPlugin(id: "org.savantbuild.plugin:java:1.0.2")
-javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.5")
+javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.7")
 groovy = loadPlugin(id: "org.savantbuild.plugin:groovy:${savantVersion}")
 idea = loadPlugin(id: "org.savantbuild.plugin:idea:${savantVersion}")
 release = loadPlugin(id: "org.savantbuild.plugin:release-git:${savantVersion}")
@@ -80,6 +80,7 @@ target(name: "jar", description: "JARs the project", dependsOn: ["compile"]) {
 target(name: "test", description: "Runs the project's tests", dependsOn: ["jar"]) {
   // Uncomment to debug
 //    javaTestNG.settings.jvmArguments += "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"
+  javaTestNG.settings.listeners = [ "io.fusionauth.jwt.TestNGAnnotationTransformer" ]
   javaTestNG.test()
 }
 

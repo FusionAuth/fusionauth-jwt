@@ -43,23 +43,23 @@ public class ECVerifierTest extends BaseTest {
         "ec_public_key_p_256.pem",
         "ec_public_key_p_384.pem",
         "ec_public_key_p_521.pem")
-          .forEach(fileName -> {
-            // Take a Path arg
-            assertECVerifier(ECVerifier.newVerifier(getPath(fileName)));
-            // Take a String arg
-            assertECVerifier(ECVerifier.newVerifier(readFile(fileName)));
-            // Take a byte[] arg
-            assertECVerifier(ECVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
-            // Take a public key arg
-            assertECVerifier(ECVerifier.newVerifier((ECPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
-          });
+        .forEach(fileName -> {
+          // Take a Path arg
+          assertECVerifier(ECVerifier.newVerifier(getPath(fileName)));
+          // Take a String arg
+          assertECVerifier(ECVerifier.newVerifier(readFile(fileName)));
+          // Take a byte[] arg
+          assertECVerifier(ECVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
+          // Take a public key arg
+          assertECVerifier(ECVerifier.newVerifier((ECPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
+        });
 
     // Public key parsing fails with private keys w/out an encoded public key
     Arrays.asList(
         "ec_private_key_p_256.pem",
         "ec_private_key_p_384.pem",
         "ec_private_key_p_521.pem")
-          .forEach(this::assertFailed);
+        .forEach(this::assertFailed);
 
     // Public key parsing works with private keys when the private key contains a public key
     Arrays.asList(
@@ -69,16 +69,16 @@ public class ECVerifierTest extends BaseTest {
         "ec_private_secp384r1_p_384_openssl_pkcs8.pem",
         "ec_private_secp521r1_p_512_openssl.pem",
         "ec_private_secp521r1_p_512_openssl_pkcs8.pem")
-          .forEach(fileName -> {
-            // Take a Path arg
-            assertECVerifier(ECVerifier.newVerifier(getPath(fileName)));
-            // Take a String arg
-            assertECVerifier(ECVerifier.newVerifier(readFile(fileName)));
-            // Take a byte[] arg
-            assertECVerifier(ECVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
-            // Take a public key arg
-            assertECVerifier(ECVerifier.newVerifier((ECPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
-          });
+        .forEach(fileName -> {
+          // Take a Path arg
+          assertECVerifier(ECVerifier.newVerifier(getPath(fileName)));
+          // Take a String arg
+          assertECVerifier(ECVerifier.newVerifier(readFile(fileName)));
+          // Take a byte[] arg
+          assertECVerifier(ECVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
+          // Take a public key arg
+          assertECVerifier(ECVerifier.newVerifier((ECPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
+        });
 
   }
 
@@ -86,12 +86,19 @@ public class ECVerifierTest extends BaseTest {
     assertTrue(verifier.canVerify(Algorithm.ES256));
     assertTrue(verifier.canVerify(Algorithm.ES384));
     assertTrue(verifier.canVerify(Algorithm.ES512));
-    assertFalse(verifier.canVerify(Algorithm.RS256));
-    assertFalse(verifier.canVerify(Algorithm.RS384));
-    assertFalse(verifier.canVerify(Algorithm.RS512));
+
     assertFalse(verifier.canVerify(Algorithm.HS256));
     assertFalse(verifier.canVerify(Algorithm.HS384));
     assertFalse(verifier.canVerify(Algorithm.HS512));
+
+    assertFalse(verifier.canVerify(Algorithm.PS256));
+    assertFalse(verifier.canVerify(Algorithm.PS384));
+    assertFalse(verifier.canVerify(Algorithm.PS512));
+
+    assertFalse(verifier.canVerify(Algorithm.RS256));
+    assertFalse(verifier.canVerify(Algorithm.RS384));
+    assertFalse(verifier.canVerify(Algorithm.RS512));
+
   }
 
   private void assertFailed(String fileName) {
