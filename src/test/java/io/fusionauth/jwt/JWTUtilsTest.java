@@ -16,9 +16,11 @@
 
 package io.fusionauth.jwt;
 
+import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.domain.KeyPair;
+import io.fusionauth.jwt.domain.KeyType;
 import io.fusionauth.jwt.hmac.HMACSigner;
 import io.fusionauth.pem.domain.PEM;
 import org.testng.annotations.Test;
@@ -247,6 +249,26 @@ public class JWTUtilsTest {
     assertEquals(JWTUtils.convertThumbprintToFingerprint("vDT213a_AF5eRdElKZla9-9dpc8"), "BC34F6D776BF005E5E45D12529995AF7EF5DA5CF");
     // Convert x5t#256 --> HEX SHA-256 Fingerprint
     assertEquals(JWTUtils.convertThumbprintToFingerprint("tIFNLfPYY14sM0DLTp6T-BZ3yPaPUPKc8Hnh6evXTeM"), "B4814D2DF3D8635E2C3340CB4E9E93F81677C8F68F50F29CF079E1E9EBD74DE3");
+  }
+
+  @Test
+  public void jws_kid() {
+    JSONWebKey rsaKey = new JSONWebKey();
+    rsaKey.kty = KeyType.RSA;
+    rsaKey.n = "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw";
+    rsaKey.e = "AQAB";
+
+    assertEquals("nMGlFRw9Y5POaSOaIaRBc9P2nfA", JWTUtils.generateJWS_kid("SHA-1", rsaKey));
+    assertEquals("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs", JWTUtils.generateJWS_kid("SHA-256", rsaKey));
+
+    JSONWebKey ecKey = new JSONWebKey();
+    ecKey.kty = KeyType.EC;
+    ecKey.crv = "P-256";
+    ecKey.x = "MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4";
+    ecKey.y = "4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM";
+
+    assertEquals("VHriznG7vJAFpXMXRmGgAkA5sEE", JWTUtils.generateJWS_kid("SHA-1", ecKey));
+    assertEquals("cn-I_WNMClehiVp51i_0VpOENW1upEerA8sEam5hn-s", JWTUtils.generateJWS_kid("SHA-256", ecKey));
   }
 
   private void assertPrefix(String key, String prefix) {
