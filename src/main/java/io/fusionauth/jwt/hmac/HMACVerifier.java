@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -155,7 +156,7 @@ public class HMACVerifier implements Verifier {
       mac.init(new SecretKeySpec(secret, algorithm.getName()));
       byte[] actualSignature = mac.doFinal(message);
 
-      if (!Arrays.equals(signature, actualSignature)) {
+      if (!MessageDigest.isEqual(signature, actualSignature)) {
         throw new InvalidJWTSignatureException();
       }
     } catch (InvalidKeyException | NoSuchAlgorithmException e) {
