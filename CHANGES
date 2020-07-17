@@ -1,5 +1,12 @@
 FusionAuth JWT Changes
 
+Changes in 3.5.1
+
+ * Add time constant HMAC equality check.
+
+  See https://github.com/FusionAuth/fusionauth-jwt/issues/17
+  See https://github.com/FusionAuth/fusionauth-jwt/pull/20
+
 Changes in 3.5.0
 
  * Initial support for RSA Probabilistic Signature Schema (RSASSA-PSS) algorithms PS256, PS384 and PS512.

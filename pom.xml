@@ -6,7 +6,7 @@
 
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>3.5.0</version>
+  <version>3.5.1</version>
   <packaging>jar</packaging>
 
   <name>FusionAuth JWT</name>
