@@ -14,7 +14,7 @@ We are very interested in compensating anyone that can identify a security relat
    - `PS256`, `PS384`, `PS512`
    - Requires Java 8 update 251 or greater, or any version that includes support RSASSA-PSS
    - https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8146293
-   - Available in versions >= 3.5.0
+   - Available in versions >= 3.5.1
  - Modular crypto provider so you can drop in support for BC FIPS or other JCE security providers.   
  - PEM decoding / encoding
    - Decode PEM files to PrivateKey or PublicKey
@@ -41,26 +41,26 @@ We are very interested in compensating anyone that can identify a security relat
 <dependency>
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>3.5.0</version>
+  <version>3.5.1</version>
 </dependency>
  ```
 
 ### Gradle
 ```groovy
-implementation 'io.fusionauth:fusionauth-jwt:3.5.0'
+implementation 'io.fusionauth:fusionauth-jwt:3.5.1'
 ```
 
 ### Gradle Kotlin
 ```kotlin
-implementation("io.fusionauth:fusionauth-jwt:3.5.0")
+implementation("io.fusionauth:fusionauth-jwt:3.5.1")
 ```
 
 ### Savant 
 ```groovy
-dependency(id: "io.fusionauth:fusionauth-jwt:3.5.0")
+dependency(id: "io.fusionauth:fusionauth-jwt:3.5.1")
 ```
 
-For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/3.5.0/jar).
+For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/3.5.1/jar).
  
 ## Example Code:
 
