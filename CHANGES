@@ -1,5 +1,10 @@
 FusionAuth JWT Changes
 
+Changes in 3.5.3
+
+ * Add JWK Thumbprint
+   Added via https://github.com/FusionAuth/fusionauth-jwt/issues/18, thanks to @jamietanna for the PR.
+
 Changes in 3.5.2
 
  * Fix JWK parsing to use the kty field instead of the alg field.

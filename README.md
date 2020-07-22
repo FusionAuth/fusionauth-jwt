@@ -29,7 +29,8 @@ We are very interested in compensating anyone that can identify a security relat
  - Helpers
    - Generate RSA Key Pairs in `2048`, `3072` or `4096` bit sizes
    - Generate EC Key Pairs in `256`, `384` and `521` bit sizes
-   - Generate `x5t` and `x5t#256` values from X.509 Certificates 
+   - Generate `x5t` and `x5t#256` values from X.509 Certificates
+   - Generate JWK thumbprint using `SHA-1` or `SHA-256` 
    - Generate ideal HMAC secret lengths for `SHA-256`, `SHA-384` and `SHA-512`
    - Generate the `at_hash` and `c_hash` claims for OpenID Connect
 
