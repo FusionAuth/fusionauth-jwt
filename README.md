@@ -34,7 +34,7 @@ We are very interested in compensating anyone that can identify a security relat
    - Generate ideal HMAC secret lengths for `SHA-256`, `SHA-384` and `SHA-512`
    - Generate the `at_hash` and `c_hash` claims for OpenID Connect
 
-## Get it
+## Get it 
 
 ### Maven
  ```xml
