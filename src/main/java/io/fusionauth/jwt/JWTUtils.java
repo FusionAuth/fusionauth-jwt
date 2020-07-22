@@ -16,6 +16,7 @@
 
 package io.fusionauth.jwt;
 
+import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.domain.Header;
 import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.domain.KeyPair;
@@ -157,6 +158,40 @@ public class JWTUtils {
    */
   public static KeyPair generate521_ECKeyPair() {
     return generateKeyPair(521, KeyType.EC);
+  }
+
+  /**
+   * Generate the JWK Thumbprint as per RFC7638.
+   *
+   * @param algorithm the algorithm used to calculate the hash of the thumbprint, generally SHA-1 or SHA-256.
+   * @param key       the {@link JSONWebKey} to determine the thumbprint for
+   * @return the base64url-encoded JWK Thumbprint
+   */
+  public static String generateJWS_kid(String algorithm, JSONWebKey key) {
+    StringBuilder builder = new StringBuilder();
+    switch (key.kty) {
+      case EC:
+        builder.append("{\"crv\":\"");
+        builder.append(key.crv);
+        builder.append("\",\"kty\":\"");
+        builder.append(key.kty);
+        builder.append("\",\"x\":\"");
+        builder.append(key.x);
+        builder.append("\",\"y\":\"");
+        builder.append(key.y);
+        builder.append("\"}");
+        break;
+      case RSA:
+        builder.append("{\"e\":\"");
+        builder.append(key.e);
+        builder.append("\",\"kty\":\"");
+        builder.append(key.kty);
+        builder.append("\",\"n\":\"");
+        builder.append(key.n);
+        builder.append("\"}");
+        break;
+    }
+    return digest(algorithm, builder.toString().getBytes());
   }
 
   /**
