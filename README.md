@@ -41,26 +41,26 @@ We are very interested in compensating anyone that can identify a security relat
 <dependency>
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>3.5.2</version>
+  <version>3.5.3</version>
 </dependency>
  ```
 
 ### Gradle
 ```groovy
-implementation 'io.fusionauth:fusionauth-jwt:3.5.2'
+implementation 'io.fusionauth:fusionauth-jwt:3.5.3'
 ```
 
 ### Gradle Kotlin
 ```kotlin
-implementation("io.fusionauth:fusionauth-jwt:3.5.2")
+implementation("io.fusionauth:fusionauth-jwt:3.5.3")
 ```
 
 ### Savant 
 ```groovy
-dependency(id: "io.fusionauth:fusionauth-jwt:3.5.2")
+dependency(id: "io.fusionauth:fusionauth-jwt:3.5.3")
 ```
 
-For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/3.5.2/jar).
+For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/3.5.3/jar).
  
 ## Example Code:
 
