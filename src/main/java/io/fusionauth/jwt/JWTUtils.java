@@ -30,7 +30,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
+
+import static io.fusionauth.jwt.domain.KeyType.EC;
 
 /**
  * Helper to generate new HMAC secrets, EC and RSA public / private key pairs and other fun things.
@@ -121,7 +125,7 @@ public class JWTUtils {
    * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
    */
   public static KeyPair generate256_ECKeyPair() {
-    return generateKeyPair(256, KeyType.EC);
+    return generateKeyPair(256, EC);
   }
 
   /**
@@ -139,7 +143,7 @@ public class JWTUtils {
    * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
    */
   public static KeyPair generate384_ECKeyPair() {
-    return generateKeyPair(384, KeyType.EC);
+    return generateKeyPair(384, EC);
   }
 
   /**
@@ -157,41 +161,51 @@ public class JWTUtils {
    * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
    */
   public static KeyPair generate521_ECKeyPair() {
-    return generateKeyPair(521, KeyType.EC);
+    return generateKeyPair(521, EC);
   }
 
   /**
-   * Generate the JWK Thumbprint as per RFC7638.
+   * Generate the JWK Thumbprint as per RFC 7638.
    *
    * @param algorithm the algorithm used to calculate the hash of the thumbprint, generally SHA-1 or SHA-256.
    * @param key       the {@link JSONWebKey} to determine the thumbprint for
    * @return the base64url-encoded JWK Thumbprint
    */
   public static String generateJWS_kid(String algorithm, JSONWebKey key) {
-    StringBuilder builder = new StringBuilder();
-    switch (key.kty) {
-      case EC:
-        builder.append("{\"crv\":\"");
-        builder.append(key.crv);
-        builder.append("\",\"kty\":\"");
-        builder.append(key.kty);
-        builder.append("\",\"x\":\"");
-        builder.append(key.x);
-        builder.append("\",\"y\":\"");
-        builder.append(key.y);
-        builder.append("\"}");
-        break;
-      case RSA:
-        builder.append("{\"e\":\"");
-        builder.append(key.e);
-        builder.append("\",\"kty\":\"");
-        builder.append(key.kty);
-        builder.append("\",\"n\":\"");
-        builder.append(key.n);
-        builder.append("\"}");
-        break;
+    Map<String, Object> thumbPrint = new LinkedHashMap<>(4);
+
+    if (key.kty == EC) {
+      thumbPrint.put("crv", key.crv);
+      thumbPrint.put("kty", key.kty);
+      thumbPrint.put("x", key.x);
+      thumbPrint.put("y", key.y);
+    } else {
+      thumbPrint.put("e", key.e);
+      thumbPrint.put("kty", key.kty);
+      thumbPrint.put("n", key.n);
     }
-    return digest(algorithm, builder.toString().getBytes());
+
+    return digest(algorithm, Mapper.serialize(thumbPrint));
+  }
+
+  /**
+   * Generate the JWK SHA-1 Thumbprint as per RFC 7638.
+   *
+   * @param key the {@link JSONWebKey} to determine the thumbprint for
+   * @return the base64url-encoded JWK Thumbprint
+   */
+  public static String generateJWS_kid(JSONWebKey key) {
+    return generateJWS_kid("SHA-1", key);
+  }
+
+  /**
+   * Generate the JWK SHA-256 Thumbprint as per RFC 7638.
+   *
+   * @param key the {@link JSONWebKey} to determine the thumbprint for
+   * @return the base64url-encoded JWK Thumbprint
+   */
+  public static String generateJWS_kid_S256(JSONWebKey key) {
+    return generateJWS_kid("SHA-256", key);
   }
 
   /**
