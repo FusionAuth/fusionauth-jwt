@@ -1,4 +1,4 @@
-## FusionAuth JWT ![semver 2.0.0 compliant](http://img.shields.io/badge/semver-2.0.0-brightgreen.svg?style=flat-square) ![Tests (with Maven)](https://github.com/ju57u5/fusionauth-jwt/workflows/Tests%20(with%20Maven)/badge.svg)
+## FusionAuth JWT ![semver 2.0.0 compliant](http://img.shields.io/badge/semver-2.0.0-brightgreen.svg?style=flat-square) ![Tests (with Maven)](https://github.com/FusionAuth/fusionauth-jwt/workflows/Tests/badge.svg)
 FusionAuth JWT is intended to be fast and easy to use. FusionAuth JWT has a single external dependency on Jackson, no Bouncy Castle, Apache Commons or Guava.
 
 ## Security disclosures
