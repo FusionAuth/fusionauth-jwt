@@ -17,7 +17,7 @@
 package io.fusionauth.jwks;
 
 import io.fusionauth.jwks.domain.JSONWebKey;
-import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.jwt.domain.KeyType;
 
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
@@ -48,11 +48,11 @@ public class JSONWebKeyParser {
 
     try {
       // RSA Public key
-      if (key.alg == Algorithm.RS256 || key.alg == Algorithm.RS384 || key.alg == Algorithm.RS512) {
+      if (key.kty == KeyType.RSA) {
         BigInteger modulus = base64DecodeUint(key.n);
         BigInteger publicExponent = base64DecodeUint(key.e);
         return KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
-      } else if (key.alg == Algorithm.ES256 || key.alg == Algorithm.ES384 || key.alg == Algorithm.ES512) {
+      } else if (key.kty == KeyType.EC) {
         // EC Public key
         AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
         switch (key.crv) {

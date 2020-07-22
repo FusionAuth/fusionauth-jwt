@@ -1,5 +1,10 @@
 FusionAuth JWT Changes
 
+Changes in 3.5.2
+
+ * Fix JWK parsing to use the kty field instead of the alg field.
+   Resolves https://github.com/FusionAuth/fusionauth-jwt/issues/22
+
 Changes in 3.5.1
 
  * Add time constant HMAC equality check.
