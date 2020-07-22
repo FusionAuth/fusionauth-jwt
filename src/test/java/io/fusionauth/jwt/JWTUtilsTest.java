@@ -38,6 +38,7 @@ import static io.fusionauth.pem.domain.PEM.X509_PUBLIC_KEY_PREFIX;
 import static io.fusionauth.pem.domain.PEM.X509_PUBLIC_KEY_SUFFIX;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 /**
  * @author Daniel DeGroff
@@ -221,6 +222,11 @@ public class JWTUtilsTest {
     String hmac512 = JWTUtils.generateSHA512_HMACSecret();
     assertEquals(hmac512.length(), 88);
     assertEquals(Base64.getDecoder().decode(hmac512.getBytes(StandardCharsets.UTF_8)).length, 64);
+  }
+
+  @Test
+  public void test_fail() {
+    fail("I hope this fails.");
   }
 
   @Test
