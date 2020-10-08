@@ -38,7 +38,6 @@ import static io.fusionauth.pem.domain.PEM.X509_PUBLIC_KEY_PREFIX;
 import static io.fusionauth.pem.domain.PEM.X509_PUBLIC_KEY_SUFFIX;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
 
 /**
  * @author Daniel DeGroff

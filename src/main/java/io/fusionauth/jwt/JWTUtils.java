@@ -211,23 +211,33 @@ public class JWTUtils {
   /**
    * Generate the <code>x5t</code> - the X.509 certificate thumbprint to be used in JWT header.
    *
+   * @param encodedCertificate the Base64 encoded certificate
+   * @return an x5t hash.
+   */
+  public static String generateJWS_x5t(String encodedCertificate) {
+    return generateJWS_x5t("SHA-1", encodedCertificate);
+  }
+
+  /**
+   * Generate the <code>x5t</code> - the X.509 certificate thumbprint to be used in JWT header.
+   *
    * @param algorithm          the algorithm used to calculate the hash, generally SHA-1 or SHA-256.
    * @param encodedCertificate the Base64 encoded certificate
    * @return an x5t hash.
    */
   public static String generateJWS_x5t(String algorithm, String encodedCertificate) {
     byte[] bytes = Base64.getDecoder().decode(encodedCertificate.getBytes(StandardCharsets.UTF_8));
-    return digest(algorithm, bytes);
+    return generateJWS_x5t(algorithm, bytes);
   }
 
   /**
    * Generate the <code>x5t</code> - the X.509 certificate thumbprint to be used in JWT header.
    *
-   * @param encodedCertificate the Base64 encoded certificate
+   * @param derEncodedCertificate the DER encoded certificate
    * @return an x5t hash.
    */
-  public static String generateJWS_x5t(String encodedCertificate) {
-    return generateJWS_x5t("SHA-1", encodedCertificate);
+  public static String generateJWS_x5t(byte[] derEncodedCertificate) {
+    return generateJWS_x5t("SHA-1", derEncodedCertificate);
   }
 
   /**
@@ -239,16 +249,6 @@ public class JWTUtils {
    */
   public static String generateJWS_x5t(String algorithm, byte[] derEncodedCertificate) {
     return digest(algorithm, derEncodedCertificate);
-  }
-
-  /**
-   * Generate the <code>x5t</code> - the X.509 certificate thumbprint to be used in JWT header.
-   *
-   * @param derEncodedCertificate the DER encoded certificate
-   * @return an x5t hash.
-   */
-  public static String generateJWS_x5t(byte[] derEncodedCertificate) {
-    return digest("SHA-1", derEncodedCertificate);
   }
 
   /**
