@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,14 @@ package io.fusionauth.jwks;
 
 import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.domain.KeyType;
+import io.fusionauth.pem.PEMEncoder;
+import io.fusionauth.pem.domain.PEM;
 
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
 import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
@@ -51,7 +54,30 @@ public class JSONWebKeyParser {
       if (key.kty == KeyType.RSA) {
         BigInteger modulus = base64DecodeUint(key.n);
         BigInteger publicExponent = base64DecodeUint(key.e);
-        return KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
+        PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
+
+        // If an x5c is found in the key, verify the public key
+        if (key.x5c != null && key.x5c.size() > 0) {
+          // The first key in this array MUST contain the public key.
+          // >  https://tools.ietf.org/html/rfc7517#section-4.7
+          String encodedCertificate = key.x5c.get(0);
+          String pem = new PEMEncoder().parseEncodedCertificate(encodedCertificate);
+          PublicKey actual = PEM.decode(pem).publicKey;
+          if (!(actual instanceof RSAPublicKey)) {
+            throw new JSONWebKeyParserException("The public key found in the [x5c] property does not match the expected key type specified by the [kty] property.");
+          }
+
+          RSAPublicKey rsaPublicKey = (RSAPublicKey) actual;
+          if (!rsaPublicKey.getModulus().equals(modulus)) {
+            throw new JSONWebKeyParserException("Expected a modulus value of [" + modulus + "] but found [" + rsaPublicKey.getModulus() + "].  The certificate found in [x5c] does not match the [n] property.");
+          }
+
+          if (!rsaPublicKey.getPublicExponent().equals(publicExponent)) {
+            throw new JSONWebKeyParserException("Expected a public exponent value of [" + publicExponent + "] but found [" + rsaPublicKey.getPublicExponent() + "].  The certificate found in [x5c] does not match the [e] property.");
+          }
+        }
+
+        return publicKey;
       } else if (key.kty == KeyType.EC) {
         // EC Public key
         AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
@@ -75,6 +101,8 @@ public class JSONWebKeyParser {
         ECPoint ecPoint = new ECPoint(x, y);
         return KeyFactory.getInstance("EC").generatePublic(new ECPublicKeySpec(ecPoint, ecParameterSpec));
       }
+    } catch (JSONWebKeyParserException e) {
+      throw e;
     } catch (Exception e) {
       throw new JSONWebKeyParserException("Failed to parse the provided JSON Web Key", e);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECPoint;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Objects;
 
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P256;
@@ -185,6 +186,7 @@ public class JSONWebKeyBuilder {
       key.alg = Algorithm.fromName(((X509Certificate) certificate).getSigAlgName());
       try {
         String encodedCertificate = new String(Base64.getEncoder().encode(certificate.getEncoded()));
+        key.x5c = Collections.singletonList(encodedCertificate);
         key.x5t = JWTUtils.generateJWS_x5t(encodedCertificate);
         key.x5t_256 = JWTUtils.generateJWS_x5t("SHA-256", encodedCertificate);
       } catch (CertificateEncodingException e) {

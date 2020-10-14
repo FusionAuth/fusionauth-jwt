@@ -1,5 +1,10 @@
 FusionAuth JWT Changes
 
+Changes in 3.6.0
+
+ * Add the x5c to the JSON Web Key Builder
+ * When provided, use the x5c JSON Web Key property to verify the public key modulus and exponent.
+
 Changes in 3.5.3
 
  * Add JWK Thumbprint

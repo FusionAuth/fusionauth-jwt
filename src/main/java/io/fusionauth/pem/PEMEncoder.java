@@ -32,7 +32,9 @@ import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.interfaces.ECPrivateKey;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 import static io.fusionauth.pem.domain.PEM.X509_CERTIFICATE_PREFIX;
 import static io.fusionauth.pem.domain.PEM.X509_CERTIFICATE_SUFFIX;
@@ -44,6 +46,38 @@ import static io.fusionauth.pem.domain.PEM.X509_CERTIFICATE_SUFFIX;
  */
 public class PEMEncoder {
   private static final Base64.Encoder Base64_MIME_Encoder = Base64.getMimeEncoder(64, new byte[]{'\n'});
+
+  private String removeLineReturns(String str) {
+    if (str == null) {
+      return null;
+    }
+
+    return str.replaceAll("\\r\\n|\\r|\\n", "");
+  }
+
+  /**
+   * Attempt to covert a ASN.1 DER encoded X.509 certificate into a PEM encoded string.
+   *
+   * @param derEncoded base64 ASN.1 DER encoded bytes of an X.509 certificate
+   * @return a PEM encoded certificate
+   */
+  public String parseEncodedCertificate(String derEncoded) {
+    return PEM.X509_CERTIFICATE_PREFIX + "\n" + chopIt(derEncoded) + "\n" + PEM.X509_CERTIFICATE_SUFFIX;
+  }
+
+  private String chopIt(String s) {
+    List<String> lines = new ArrayList<>();
+
+    // The incoming string may or may not contain line returns, normalize first and then re-encode to 64 characters wide
+    String normalized = removeLineReturns(s);
+
+    for (int i = 0; i < normalized.length(); ) {
+      lines.add(normalized.substring(i, Math.min(i + 64, normalized.length())));
+      i = i + 64;
+    }
+
+    return String.join("\n", lines);
+  }
 
   /**
    * Encode the provided keys in a PEM format and return a string. If both private and public keys are provided a private
