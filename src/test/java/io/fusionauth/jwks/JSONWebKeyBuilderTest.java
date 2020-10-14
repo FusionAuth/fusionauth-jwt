@@ -71,13 +71,25 @@ public class JSONWebKeyBuilderTest extends BaseTest {
     ECPublicKey ecPublic_p256 = PEM.decode(Paths.get("src/test/resources/ec_public_key_p_256.pem")).getPublicKey();
     assertJSONEquals(JSONWebKey.build(ecPublic_p256), "src/test/resources/jwk/ec_public_key_p_256.json");
 
+    // EC 256 Certificate
+    Certificate ec_certificate_p256 = PEM.decode(Paths.get("src/test/resources/ec_certificate_p_256.pem")).getCertificate();
+    assertJSONEquals(JSONWebKey.build(ec_certificate_p256), "src/test/resources/jwk/ec_certificate_p_256.json");
+
     // EC 384 Public key
     ECPublicKey ecPublic_p384 = PEM.decode(Paths.get("src/test/resources/ec_public_key_p_384.pem")).getPublicKey();
     assertJSONEquals(JSONWebKey.build(ecPublic_p384), "src/test/resources/jwk/ec_public_key_p_384.json");
 
+    // EC 384 Certificate
+    Certificate ec_certificate_p384 = PEM.decode(Paths.get("src/test/resources/ec_certificate_p_384.pem")).getCertificate();
+    assertJSONEquals(JSONWebKey.build(ec_certificate_p384), "src/test/resources/jwk/ec_certificate_p_384.json");
+
     // EC 521 Public key
     ECPublicKey ecPublic_p512 = PEM.decode(Paths.get("src/test/resources/ec_public_key_p_521.pem")).getPublicKey();
     assertJSONEquals(JSONWebKey.build(ecPublic_p512), "src/test/resources/jwk/ec_public_key_p_521.json");
+
+    // EC 521 Certificate
+    Certificate ec_certificate_p512 = PEM.decode(Paths.get("src/test/resources/ec_certificate_p_521.pem")).getCertificate();
+    assertJSONEquals(JSONWebKey.build(ec_certificate_p512), "src/test/resources/jwk/ec_certificate_p_521.json");
 
     // EC Reference P-521
     ECPublicKey ec521key = PEM.decode(Paths.get("src/test/resources/ec_public_p_521_reference.pem")).getPublicKey();
