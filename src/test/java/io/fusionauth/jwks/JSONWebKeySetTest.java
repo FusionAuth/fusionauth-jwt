@@ -31,9 +31,11 @@ public class JSONWebKeySetTest {
   public void test() {
     // Retrieve keys using the issuer, well known openid-configuration endpoint and well known JWKS endpoint, all should be equal.
     List<JSONWebKey> keys1 = JSONWebKeySetHelper.retrieveKeysFromIssuer("https://accounts.google.com");
-    List<JSONWebKey> keys2 = JSONWebKeySetHelper.retrieveKeysFromWellKnownConfiguration("https://accounts.google.com/.well-known/openid-configuration");
-    List<JSONWebKey> keys3 = JSONWebKeySetHelper.retrieveKeysFromJWKS("https://www.googleapis.com/oauth2/v3/certs");
+    List<JSONWebKey> keys2 = JSONWebKeySetHelper.retrieveKeysFromIssuer("https://accounts.google.com/"); // Handle trailing slash
+    List<JSONWebKey> keys3 = JSONWebKeySetHelper.retrieveKeysFromWellKnownConfiguration("https://accounts.google.com/.well-known/openid-configuration");
+    List<JSONWebKey> keys4 = JSONWebKeySetHelper.retrieveKeysFromJWKS("https://www.googleapis.com/oauth2/v3/certs");
     assertEquals(keys1, keys2);
     assertEquals(keys2, keys3);
+    assertEquals(keys3, keys4);
   }
 }

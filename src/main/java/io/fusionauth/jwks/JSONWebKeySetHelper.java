@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -32,6 +33,11 @@ import java.util.function.Function;
  */
 public class JSONWebKeySetHelper {
   public static List<JSONWebKey> retrieveKeysFromIssuer(String endpoint) {
+    Objects.requireNonNull(endpoint);
+    if (endpoint.endsWith("/")) {
+      endpoint = endpoint.substring(0, endpoint.length() - 1);
+    }
+
     return retrieveKeysFromWellKnownConfiguration(endpoint + "/.well-known/openid-configuration");
   }
 
