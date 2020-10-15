@@ -123,11 +123,11 @@ public class JSONWebKeyBuilderTest extends BaseTest {
     assertJSONEquals(JSONWebKey.build(x509PublicKey), "src/test/resources/jwk/rsa_public_key_x509.json");
 
     // X.509 PEM encoded
-    Certificate cert1 = PEM.decode(Paths.get("src/test/resources/rsa_public_certificate_2048.pem")).certificate;
-    assertJSONEquals(JSONWebKey.build(cert1), "src/test/resources/jwk/rsa_public_certificate_2048.json");
+    Certificate cert1 = PEM.decode(Paths.get("src/test/resources/rsa_certificate_2048.pem")).certificate;
+    assertJSONEquals(JSONWebKey.build(cert1), "src/test/resources/jwk/rsa_certificate_2048.json");
 
     // Perform the same test again using a PEM version of the certificate to ensure we get the x5t
-    assertJSONEquals(JSONWebKey.build(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_certificate_2048.pem")))), "src/test/resources/jwk/rsa_public_certificate_2048.json");
+    assertJSONEquals(JSONWebKey.build(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_certificate_2048.pem")))), "src/test/resources/jwk/rsa_certificate_2048.json");
 
     // X509 certificate with a chain, not yet calculating the x5c chain
     Certificate cert2 = PEM.decode(Paths.get("src/test/resources/rsa_certificate_gd_bundle_g2.pem")).certificate;

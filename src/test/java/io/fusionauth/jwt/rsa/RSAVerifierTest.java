@@ -40,7 +40,7 @@ public class RSAVerifierTest extends BaseTest {
   @Test
   public void test_public_pem_parsing() {
     Arrays.asList(
-        "rsa_public_certificate_2048.pem",
+        "rsa_certificate_2048.pem",
         "rsa_public_key_2048.pem",
         "rsa_public_key_2048_with_meta.pem",
         "rsa_public_key_3072.pem",
