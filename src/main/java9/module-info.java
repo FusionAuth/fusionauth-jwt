@@ -10,6 +10,7 @@ module io.fusionauth {
 	exports io.fusionauth.jwt.rsa;
 	exports io.fusionauth.jwt;
 	exports io.fusionauth.pem;
+	exports io.fusionauth.security;
 
 	requires com.fasterxml.jackson.annotation;
 	requires com.fasterxml.jackson.core;
