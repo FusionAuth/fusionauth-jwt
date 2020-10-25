@@ -367,6 +367,17 @@ public class JWT {
     return expiration != null && expiration.isBefore(ZonedDateTime.now(ZoneOffset.UTC));
   }
 
+    /**
+     * Return true if this JWT is expired.
+     *
+     * @param atTime time of expiration check.
+     * @return true if expired, false if not.
+     */
+    @JsonIgnore
+    public boolean isExpired(ZonedDateTime atTime) {
+        return expiration != null && expiration.isBefore(atTime);
+    }
+
   /**
    * Return true if this JWT is un-available for processing.
    *

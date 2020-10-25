@@ -40,10 +40,7 @@ import java.nio.file.Paths;
 import java.security.Security;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -884,4 +881,21 @@ public class JWTTest extends BaseTest {
 
     assertEquals(actualJWT1.expiration, expectedJWT.expiration);
   }
+
+    @Test
+    public void test_expirationLeeway() {
+        ZonedDateTime expiration = ZonedDateTime.parse("2007-12-03T10:15:30+01:00[Europe/Paris]");
+        JWT expectedJWT = new JWT().setExpiration(expiration);
+        ZonedDateTime testTime =  expiration.minusMinutes(10);
+        Clock fixed = Clock.fixed(testTime.toInstant(),expiration.getZone());
+        JWTDecoder fixedTimeDecoder = new JWTDecoder(fixed);
+        Signer signer = HMACSigner.newSHA256Signer("secret");
+        Verifier verifier = HMACVerifier.newVerifier("secret");
+        String encodedJWT1 = JWT.getEncoder().encode(expectedJWT, signer);
+
+        JWT decodedJWT = fixedTimeDecoder.decode(encodedJWT1, verifier);
+
+        assertEquals(false, decodedJWT.isExpired(testTime));
+
+    }
 }

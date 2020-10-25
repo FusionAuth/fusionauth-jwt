@@ -22,6 +22,7 @@ import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.json.Mapper;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
@@ -32,7 +33,31 @@ import java.util.function.Function;
  * @author Daniel DeGroff
  */
 public class JWTDecoder {
-  /**
+
+    /**
+     * Given system time.
+     *
+     * Used for expiration checks.
+     */
+    private final Clock time;
+
+    /**
+     * Create  JWTDecoder with a given test time
+     *
+     * @param time time provided
+     */
+    public JWTDecoder(Clock time) {
+        this.time = time;
+    }
+
+    /**
+     * Create standard JWTDecoder
+     */
+    public JWTDecoder() {
+        this(Clock.systemDefaultZone());
+    }
+
+    /**
    * Decode the JWT using one of they provided verifiers. One more verifiers may be provided, the first verifier found
    * supporting the algorithm reported by the JWT header will be utilized.
    * <p>
@@ -184,7 +209,7 @@ public class JWTDecoder {
     JWT jwt = Mapper.deserialize(base64Decode(parts[1]), JWT.class);
 
     // Verify expiration claim
-    if (jwt.isExpired()) {
+    if (jwt.isExpired(time.instant().atZone(time.getZone()))){
       throw new JWTExpiredException();
     }
 
