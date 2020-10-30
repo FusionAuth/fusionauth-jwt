@@ -653,8 +653,21 @@ public class JWTTest extends BaseTest {
     expectException(JWTUnavailableForProcessingException.class, ()
         -> JWT.getDecoder().withClockSkew(59).decode(encodedJWT, verifier));
 
+    // Not allowed to be used until 60 seconds from now, skew equal to future availability minus 1 second
+    // - Use an override function to modify the 'clock' instead of the skew
+    expectException(JWTUnavailableForProcessingException.class, ()
+        -> JWT.getDecoder()
+        .withIsUnavailableForProcessingFunction(jwt -> jwt.notBefore != null && jwt.notBefore.isAfter(ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(59)))
+        .decode(encodedJWT, verifier));
+
     // Allow for 60 seconds of skew, ok.
     JWT actual = JWT.getDecoder().withClockSkew(60).decode(encodedJWT, verifier);
+    assertEquals(actual.subject, "1234567890");
+
+    // Use an override function to modify the 'clock' instead of the skew
+    actual = JWT.getDecoder()
+        .withIsUnavailableForProcessingFunction(jwt -> jwt.notBefore != null && jwt.notBefore.isAfter(ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(60)))
+        .decode(encodedJWT, verifier);
     assertEquals(actual.subject, "1234567890");
   }
 
@@ -677,8 +690,20 @@ public class JWTTest extends BaseTest {
     expectException(JWTExpiredException.class, ()
         -> JWT.getDecoder().withClockSkew(60).decode(encodedJWT, verifier));
 
+    // Expired still, use an override function to modify the 'clock' instead of the skew
+    expectException(JWTExpiredException.class, ()
+        -> JWT.getDecoder()
+        .withIsExpiredFunction(jwt -> jwt.expiration != null && jwt.expiration.isBefore(ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(60)))
+        .decode(encodedJWT, verifier));
+
     // Allow for 61 seconds of skew, ok.
     JWT actual = JWT.getDecoder().withClockSkew(61).decode(encodedJWT, verifier);
+    assertEquals(actual.subject, "1234567890");
+
+    // Use an override function to just modify the 'clock' instead
+    actual = JWT.getDecoder()
+        .withIsExpiredFunction(jwt -> jwt.expiration != null && jwt.expiration.isBefore(ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(61)))
+        .decode(encodedJWT, verifier);
     assertEquals(actual.subject, "1234567890");
   }
 

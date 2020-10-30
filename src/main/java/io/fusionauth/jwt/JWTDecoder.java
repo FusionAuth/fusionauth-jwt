@@ -33,6 +33,8 @@ import java.util.function.Function;
  */
 public class JWTDecoder {
   private int clockSkew = 0;
+  private Function<JWT, Boolean> isExpired = jwt -> jwt.isExpired(clockSkew);
+  private Function<JWT, Boolean> isUnavailableForProcessing = jwt -> jwt.isUnavailableForProcessing(clockSkew);
 
   /**
    * Decode the JWT using one of they provided verifiers. One more verifiers may be provided, the first verifier found
@@ -197,16 +199,38 @@ public class JWTDecoder {
     JWT jwt = Mapper.deserialize(base64Decode(parts[1]), JWT.class);
 
     // Verify expiration claim
-    if (jwt.isExpired(clockSkew)) {
+    if (isExpired.apply(jwt)) {
       throw new JWTExpiredException();
     }
 
     // Verify the notBefore claim
-    if (jwt.isUnavailableForProcessing(clockSkew)) {
+    if (isUnavailableForProcessing.apply(jwt)) {
       throw new JWTUnavailableForProcessingException();
     }
 
     return jwt;
+  }
+
+  /**
+   * Override the default unavailable for processing check.
+   *
+   * @param isUnavailableForProcessing a function that returns true if the JWT is unavailable for processing.
+   * @return this
+   */
+  public JWTDecoder withIsUnavailableForProcessingFunction(Function<JWT, Boolean> isUnavailableForProcessing) {
+    this.isUnavailableForProcessing = isUnavailableForProcessing;
+    return this;
+  }
+
+  /**
+   * Override the default expiration check.
+   *
+   * @param isExpired a function that returns true if the JWT is expired.
+   * @return this
+   */
+  public JWTDecoder withIsExpiredFunction(Function<JWT, Boolean> isExpired) {
+    this.isExpired = isExpired;
+    return this;
   }
 
   /**
