@@ -364,29 +364,29 @@ public class JWT {
    */
   @JsonIgnore
   public boolean isExpired() {
-    return expiration != null && expiration.isBefore(ZonedDateTime.now(ZoneOffset.UTC));
+    return isExpired(ZonedDateTime.now(ZoneOffset.UTC));
   }
 
   /**
    * Return true if this JWT is expired.
    *
-   * @param clockSkew the number of seconds of clock skew allowed when calculating the expiration.
+   * @param now the 'now' you wish to use.
    * @return true if expired, false if not.
    */
   @JsonIgnore
-  public boolean isExpired(int clockSkew) {
-    return expiration != null && expiration.isBefore(ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(clockSkew));
+  public boolean isExpired(ZonedDateTime now) {
+    return expiration != null && expiration.isBefore(now);
   }
 
   /**
    * Return true if this JWT is un-available for processing.
    *
-   * @param clockSkew the number of seconds of clock skew allowed when calculating the notBefore instant.
+   * @param now the 'now' you wish to use.
    * @return true if un-available, false if not.
    */
   @JsonIgnore
-  public boolean isUnavailableForProcessing(int clockSkew) {
-    return notBefore != null && notBefore.isAfter(ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(clockSkew));
+  public boolean isUnavailableForProcessing(ZonedDateTime now) {
+    return notBefore != null && notBefore.isAfter(now);
   }
 
   /**
@@ -396,7 +396,7 @@ public class JWT {
    */
   @JsonIgnore
   public boolean isUnavailableForProcessing() {
-    return notBefore != null && notBefore.isAfter(ZonedDateTime.now(ZoneOffset.UTC));
+    return isUnavailableForProcessing(ZonedDateTime.now(ZoneOffset.UTC));
   }
 
   public JWT setAudience(Object audience) {

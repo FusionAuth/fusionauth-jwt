@@ -211,12 +211,12 @@ public class JWTTest extends BaseTest {
     // Account for 59 seconds of skew, expired.
     assertTrue(new JWT()
         .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1))
-        .setSubject("123456789").isExpired(59));
+        .setSubject("123456789").isExpired(ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(59)));
 
     // Account for 61 seconds of skew, not expired.
     assertFalse(new JWT()
         .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1))
-        .setSubject("123456789").isExpired(61));
+        .setSubject("123456789").isExpired(ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(61)));
   }
 
   @Test
@@ -651,22 +651,28 @@ public class JWTTest extends BaseTest {
 
     // Not allowed to be used until 60 seconds from now, skew equal to future availability minus 1 second
     expectException(JWTUnavailableForProcessingException.class, ()
-        -> JWT.getDecoder().withClockSkew(59).decode(encodedJWT, verifier));
+        -> JWT.getDecoder()
+        .withClockSkew(59)
+        .decode(encodedJWT, verifier));
 
     // Not allowed to be used until 60 seconds from now, skew equal to future availability minus 1 second
-    // - Use an override function to modify the 'clock' instead of the skew
+    // - Use an override function to modify the 'now' instead of the skew
     expectException(JWTUnavailableForProcessingException.class, ()
         -> JWT.getDecoder()
-        .withIsUnavailableForProcessingFunction(jwt -> jwt.notBefore != null && jwt.notBefore.isAfter(ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(59)))
+        // Provide a 'now' that is 59 seconds in the future
+        .withNowSupplier(() -> ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(59))
         .decode(encodedJWT, verifier));
 
     // Allow for 60 seconds of skew, ok.
-    JWT actual = JWT.getDecoder().withClockSkew(60).decode(encodedJWT, verifier);
+    JWT actual = JWT.getDecoder()
+        .withClockSkew(60)
+        .decode(encodedJWT, verifier);
     assertEquals(actual.subject, "1234567890");
 
-    // Use an override function to modify the 'clock' instead of the skew
+    // Use an override function to modify the 'now' instead of the skew
     actual = JWT.getDecoder()
-        .withIsUnavailableForProcessingFunction(jwt -> jwt.notBefore != null && jwt.notBefore.isAfter(ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(60)))
+        // Provide a 'now' that is 60 seconds in the future
+        .withNowSupplier(() -> ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(60))
         .decode(encodedJWT, verifier);
     assertEquals(actual.subject, "1234567890");
   }
@@ -690,19 +696,21 @@ public class JWTTest extends BaseTest {
     expectException(JWTExpiredException.class, ()
         -> JWT.getDecoder().withClockSkew(60).decode(encodedJWT, verifier));
 
-    // Expired still, use an override function to modify the 'clock' instead of the skew
+    // Expired still, use an override function to modify the 'now' instead of the skew
     expectException(JWTExpiredException.class, ()
         -> JWT.getDecoder()
-        .withIsExpiredFunction(jwt -> jwt.expiration != null && jwt.expiration.isBefore(ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(60)))
+        // Provide a 'now' that is 60 seconds in the past.
+        .withNowSupplier(() -> ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(60))
         .decode(encodedJWT, verifier));
 
     // Allow for 61 seconds of skew, ok.
     JWT actual = JWT.getDecoder().withClockSkew(61).decode(encodedJWT, verifier);
     assertEquals(actual.subject, "1234567890");
 
-    // Use an override function to just modify the 'clock' instead
+    // Use an override function to just modify the 'now' instead
     actual = JWT.getDecoder()
-        .withIsExpiredFunction(jwt -> jwt.expiration != null && jwt.expiration.isBefore(ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(61)))
+        // Provide a 'now' that is 61 seconds in the past.
+        .withNowSupplier(() -> ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(61))
         .decode(encodedJWT, verifier);
     assertEquals(actual.subject, "1234567890");
   }

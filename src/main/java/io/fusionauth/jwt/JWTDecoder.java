@@ -22,19 +22,22 @@ import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.json.Mapper;
 
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author Daniel DeGroff
  */
 public class JWTDecoder {
+  private Supplier<ZonedDateTime> now = () -> ZonedDateTime.now(ZoneOffset.UTC);
+
   private int clockSkew = 0;
-  private Function<JWT, Boolean> isExpired = jwt -> jwt.isExpired(clockSkew);
-  private Function<JWT, Boolean> isUnavailableForProcessing = jwt -> jwt.isUnavailableForProcessing(clockSkew);
 
   /**
    * Decode the JWT using one of they provided verifiers. One more verifiers may be provided, the first verifier found
@@ -60,6 +63,17 @@ public class JWTDecoder {
     boolean allowNoneAlgorithm = verifiers.length == 0;
 
     return validate(encodedJWT, parts, header, verifier, allowNoneAlgorithm);
+  }
+
+  /**
+   * Provide your own instance of 'now' to allow for testing, or managing clock skew.
+   *
+   * @param now a 'now' supplier that will return a {@link ZonedDateTime}.
+   * @return this
+   */
+  public JWTDecoder withNowSupplier(Supplier<ZonedDateTime> now) {
+    this.now = now;
+    return this;
   }
 
   /**
@@ -199,38 +213,18 @@ public class JWTDecoder {
     JWT jwt = Mapper.deserialize(base64Decode(parts[1]), JWT.class);
 
     // Verify expiration claim
-    if (isExpired.apply(jwt)) {
+    ZonedDateTime nowMinusSkew = now.get().minusSeconds(clockSkew);
+    if (jwt.isExpired(nowMinusSkew)) {
       throw new JWTExpiredException();
     }
 
     // Verify the notBefore claim
-    if (isUnavailableForProcessing.apply(jwt)) {
+    ZonedDateTime nowPlusSkew = now.get().plusSeconds(clockSkew);
+    if (jwt.isUnavailableForProcessing(nowPlusSkew)) {
       throw new JWTUnavailableForProcessingException();
     }
 
     return jwt;
-  }
-
-  /**
-   * Override the default unavailable for processing check.
-   *
-   * @param isUnavailableForProcessing a function that returns true if the JWT is unavailable for processing.
-   * @return this
-   */
-  public JWTDecoder withIsUnavailableForProcessingFunction(Function<JWT, Boolean> isUnavailableForProcessing) {
-    this.isUnavailableForProcessing = isUnavailableForProcessing;
-    return this;
-  }
-
-  /**
-   * Override the default expiration check.
-   *
-   * @param isExpired a function that returns true if the JWT is expired.
-   * @return this
-   */
-  public JWTDecoder withIsExpiredFunction(Function<JWT, Boolean> isExpired) {
-    this.isExpired = isExpired;
-    return this;
   }
 
   /**
