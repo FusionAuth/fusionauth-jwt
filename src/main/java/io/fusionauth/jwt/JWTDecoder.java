@@ -32,6 +32,8 @@ import java.util.function.Function;
  * @author Daniel DeGroff
  */
 public class JWTDecoder {
+  private int clockSkew = 0;
+
   /**
    * Decode the JWT using one of they provided verifiers. One more verifiers may be provided, the first verifier found
    * supporting the algorithm reported by the JWT header will be utilized.
@@ -56,6 +58,17 @@ public class JWTDecoder {
     boolean allowNoneAlgorithm = verifiers.length == 0;
 
     return validate(encodedJWT, parts, header, verifier, allowNoneAlgorithm);
+  }
+
+  /**
+   * Specify the number of seconds allowed for clock skew used for calculating the expiration and not before instants of a JWT.
+   *
+   * @param clockSkew the number of seconds allowed for clock skew.
+   * @return this
+   */
+  public JWTDecoder withClockSkew(int clockSkew) {
+    this.clockSkew = clockSkew;
+    return this;
   }
 
   /**
@@ -184,12 +197,12 @@ public class JWTDecoder {
     JWT jwt = Mapper.deserialize(base64Decode(parts[1]), JWT.class);
 
     // Verify expiration claim
-    if (jwt.isExpired()) {
+    if (jwt.isExpired(clockSkew)) {
       throw new JWTExpiredException();
     }
 
     // Verify the notBefore claim
-    if (jwt.isUnavailableForProcessing()) {
+    if (jwt.isUnavailableForProcessing(clockSkew)) {
       throw new JWTUnavailableForProcessingException();
     }
 

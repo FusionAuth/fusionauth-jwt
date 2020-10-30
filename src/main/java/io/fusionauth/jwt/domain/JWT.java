@@ -368,6 +368,28 @@ public class JWT {
   }
 
   /**
+   * Return true if this JWT is expired.
+   *
+   * @param clockSkew the number of seconds of clock skew allowed when calculating the expiration.
+   * @return true if expired, false if not.
+   */
+  @JsonIgnore
+  public boolean isExpired(int clockSkew) {
+    return expiration != null && expiration.isBefore(ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(clockSkew));
+  }
+
+  /**
+   * Return true if this JWT is un-available for processing.
+   *
+   * @param clockSkew the number of seconds of clock skew allowed when calculating the notBefore instant.
+   * @return true if un-available, false if not.
+   */
+  @JsonIgnore
+  public boolean isUnavailableForProcessing(int clockSkew) {
+    return notBefore != null && notBefore.isAfter(ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(clockSkew));
+  }
+
+  /**
    * Return true if this JWT is un-available for processing.
    *
    * @return true if un-available, false if not.

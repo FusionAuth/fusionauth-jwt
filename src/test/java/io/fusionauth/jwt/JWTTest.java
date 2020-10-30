@@ -21,8 +21,8 @@ import io.fusionauth.jwt.ec.ECSigner;
 import io.fusionauth.jwt.ec.ECVerifier;
 import io.fusionauth.jwt.hmac.HMACSigner;
 import io.fusionauth.jwt.hmac.HMACVerifier;
-import io.fusionauth.jwt.rsa.RSAPSSVerifier;
 import io.fusionauth.jwt.rsa.RSAPSSSigner;
+import io.fusionauth.jwt.rsa.RSAPSSVerifier;
 import io.fusionauth.jwt.rsa.RSASigner;
 import io.fusionauth.jwt.rsa.RSAVerifier;
 import io.fusionauth.pem.domain.PEM;
@@ -207,6 +207,16 @@ public class JWTTest extends BaseTest {
     assertTrue(new JWT()
         .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1))
         .setSubject("123456789").isExpired());
+
+    // Account for 59 seconds of skew, expired.
+    assertTrue(new JWT()
+        .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1))
+        .setSubject("123456789").isExpired(59));
+
+    // Account for 61 seconds of skew, not expired.
+    assertFalse(new JWT()
+        .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1))
+        .setSubject("123456789").isExpired(61));
   }
 
   @Test
@@ -625,6 +635,51 @@ public class JWTTest extends BaseTest {
 
     expectException(JWTExpiredException.class, ()
         -> JWT.getDecoder().decode(encodedJWT, verifier));
+  }
+
+  @Test
+  public void test_notBefore_clockSkew() {
+    JWT expectedJWT = new JWT()
+        .setSubject("1234567890")
+        .setNotBefore(ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(60).truncatedTo(ChronoUnit.SECONDS))
+        .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).truncatedTo(ChronoUnit.SECONDS));
+
+    Signer signer = HMACSigner.newSHA256Signer("secret");
+    Verifier verifier = HMACVerifier.newVerifier("secret");
+
+    String encodedJWT = JWT.getEncoder().encode(expectedJWT, signer);
+
+    // Not allowed to be used until 60 seconds from now, skew equal to future availability minus 1 second
+    expectException(JWTUnavailableForProcessingException.class, ()
+        -> JWT.getDecoder().withClockSkew(59).decode(encodedJWT, verifier));
+
+    // Allow for 60 seconds of skew, ok.
+    JWT actual = JWT.getDecoder().withClockSkew(60).decode(encodedJWT, verifier);
+    assertEquals(actual.subject, "1234567890");
+  }
+
+  @Test
+  public void test_expiration_clockSkew() {
+    JWT expectedJWT = new JWT()
+        .setSubject("1234567890")
+        .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(60).truncatedTo(ChronoUnit.SECONDS));
+
+    Signer signer = HMACSigner.newSHA256Signer("secret");
+    Verifier verifier = HMACVerifier.newVerifier("secret");
+
+    String encodedJWT = JWT.getEncoder().encode(expectedJWT, signer);
+
+    // Expired still, skew equal to expiration duration minus 1 second
+    expectException(JWTExpiredException.class, ()
+        -> JWT.getDecoder().withClockSkew(59).decode(encodedJWT, verifier));
+
+    // Expired still, skew equal to expiration duration
+    expectException(JWTExpiredException.class, ()
+        -> JWT.getDecoder().withClockSkew(60).decode(encodedJWT, verifier));
+
+    // Allow for 61 seconds of skew, ok.
+    JWT actual = JWT.getDecoder().withClockSkew(61).decode(encodedJWT, verifier);
+    assertEquals(actual.subject, "1234567890");
   }
 
   @Test
