@@ -29,14 +29,11 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * @author Daniel DeGroff
  */
 public class JWTDecoder {
-  private Supplier<ZonedDateTime> now = () -> ZonedDateTime.now(ZoneOffset.UTC);
-
   private int clockSkew = 0;
 
   /**
@@ -63,17 +60,6 @@ public class JWTDecoder {
     boolean allowNoneAlgorithm = verifiers.length == 0;
 
     return validate(encodedJWT, parts, header, verifier, allowNoneAlgorithm);
-  }
-
-  /**
-   * Provide your own instance of 'now' to allow for testing, or managing clock skew.
-   *
-   * @param now a 'now' supplier that will return a {@link ZonedDateTime}.
-   * @return this
-   */
-  public JWTDecoder withNowSupplier(Supplier<ZonedDateTime> now) {
-    this.now = now;
-    return this;
   }
 
   /**
@@ -211,20 +197,28 @@ public class JWTDecoder {
 
     // Signature is valid or there is no signature to validate for an un-secured JWT, verify time based JWT claims
     JWT jwt = Mapper.deserialize(base64Decode(parts[1]), JWT.class);
+    ZonedDateTime now = now();
 
     // Verify expiration claim
-    ZonedDateTime nowMinusSkew = now.get().minusSeconds(clockSkew);
+    ZonedDateTime nowMinusSkew = now.minusSeconds(clockSkew);
     if (jwt.isExpired(nowMinusSkew)) {
       throw new JWTExpiredException();
     }
 
     // Verify the notBefore claim
-    ZonedDateTime nowPlusSkew = now.get().plusSeconds(clockSkew);
+    ZonedDateTime nowPlusSkew = now.plusSeconds(clockSkew);
     if (jwt.isUnavailableForProcessing(nowPlusSkew)) {
       throw new JWTUnavailableForProcessingException();
     }
 
     return jwt;
+  }
+
+  /**
+   * @return the 'now' to be used to validate 'exp' and 'nbf' claims.
+   */
+  protected ZonedDateTime now() {
+    return ZonedDateTime.now(ZoneOffset.UTC);
   }
 
   /**

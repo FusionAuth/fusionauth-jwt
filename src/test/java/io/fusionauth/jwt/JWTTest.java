@@ -656,11 +656,10 @@ public class JWTTest extends BaseTest {
         .decode(encodedJWT, verifier));
 
     // Not allowed to be used until 60 seconds from now, skew equal to future availability minus 1 second
-    // - Use an override function to modify the 'now' instead of the skew
+    // - Use a time machine to change 'now'
     expectException(JWTUnavailableForProcessingException.class, ()
-        -> JWT.getDecoder()
         // Provide a 'now' that is 59 seconds in the future
-        .withNowSupplier(() -> ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(59))
+        -> JWT.getTimeMachineDecoder(ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(59))
         .decode(encodedJWT, verifier));
 
     // Allow for 60 seconds of skew, ok.
@@ -669,10 +668,8 @@ public class JWTTest extends BaseTest {
         .decode(encodedJWT, verifier);
     assertEquals(actual.subject, "1234567890");
 
-    // Use an override function to modify the 'now' instead of the skew
-    actual = JWT.getDecoder()
-        // Provide a 'now' that is 60 seconds in the future
-        .withNowSupplier(() -> ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(60))
+    // Use a time machine to modify the 'now' instead of the skew
+    actual = JWT.getTimeMachineDecoder(ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(60))
         .decode(encodedJWT, verifier);
     assertEquals(actual.subject, "1234567890");
   }
@@ -690,27 +687,30 @@ public class JWTTest extends BaseTest {
 
     // Expired still, skew equal to expiration duration minus 1 second
     expectException(JWTExpiredException.class, ()
-        -> JWT.getDecoder().withClockSkew(59).decode(encodedJWT, verifier));
+        -> JWT.getDecoder()
+        .withClockSkew(59)
+        .decode(encodedJWT, verifier));
 
     // Expired still, skew equal to expiration duration
     expectException(JWTExpiredException.class, ()
-        -> JWT.getDecoder().withClockSkew(60).decode(encodedJWT, verifier));
-
-    // Expired still, use an override function to modify the 'now' instead of the skew
-    expectException(JWTExpiredException.class, ()
         -> JWT.getDecoder()
+        .withClockSkew(60)
+        .decode(encodedJWT, verifier));
+
+    // Expired still, use a time machine to modify the 'now' instead of the skew
+    expectException(JWTExpiredException.class, ()
         // Provide a 'now' that is 60 seconds in the past.
-        .withNowSupplier(() -> ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(60))
+        -> JWT.getTimeMachineDecoder(ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(60))
         .decode(encodedJWT, verifier));
 
     // Allow for 61 seconds of skew, ok.
-    JWT actual = JWT.getDecoder().withClockSkew(61).decode(encodedJWT, verifier);
+    JWT actual = JWT.getDecoder()
+        .withClockSkew(61)
+        .decode(encodedJWT, verifier);
     assertEquals(actual.subject, "1234567890");
 
-    // Use an override function to just modify the 'now' instead
-    actual = JWT.getDecoder()
-        // Provide a 'now' that is 61 seconds in the past.
-        .withNowSupplier(() -> ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(61))
+    // Use a time machine to modify the 'now' instead, provide a 'now' that is 61 seconds in the past.
+    actual = JWT.getTimeMachineDecoder(ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(61))
         .decode(encodedJWT, verifier);
     assertEquals(actual.subject, "1234567890");
   }
