@@ -119,6 +119,7 @@ public class JSONWebKeyParser {
       throw new JSONWebKeyParserException("Expected an x coordinate value of [" + expectedXCoordinate + "] but found [" + point.getAffineX() + "].  The certificate found in [x5c] does not match the [x] coordinate property.");
     }
 
+    //noinspection SuspiciousNameCombination
     if (!point.getAffineY().equals(expectedYCoordinate)) {
       throw new JSONWebKeyParserException("Expected a y coordinate value of [" + expectedYCoordinate + "] but found [" + point.getAffineY() + "].  The certificate found in [x5c] does not match the [y] coordinate property.");
     }
