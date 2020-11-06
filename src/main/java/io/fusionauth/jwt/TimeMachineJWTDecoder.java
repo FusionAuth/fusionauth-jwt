@@ -7,10 +7,10 @@ import java.time.ZonedDateTime;
  *
  * @author Daniel DeGroff
  */
-public class TimeMachineDecoder extends JWTDecoder {
+public class TimeMachineJWTDecoder extends JWTDecoder {
   private final ZonedDateTime now;
 
-  public TimeMachineDecoder(ZonedDateTime now) {
+  public TimeMachineJWTDecoder(ZonedDateTime now) {
     this.now = now;
   }
 

@@ -4,6 +4,11 @@ Changes in 3.6.0
 
  * Add the x5c to the JSON Web Key Builder
  * When provided, use the x5c JSON Web Key property to verify the public key modulus and exponent.
+ * Improve KeyUtils.getKeyLength to report the correct key length for some EC keys.
+ * Add support for clock skew in the JWT Decoder. See JWTDecoder.withClockSkew.
+ * Add TimeMachineJWTDecoder to support adjusting 'now' which may be helpful in tests to verify old JWTs.
+
+   Thanks to to @RockyMM and @jarekratajski for their help and contribution!
 
 Changes in 3.5.3
 

@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.fusionauth.jwt.JWTDecoder;
 import io.fusionauth.jwt.JWTEncoder;
-import io.fusionauth.jwt.TimeMachineDecoder;
+import io.fusionauth.jwt.TimeMachineJWTDecoder;
 import io.fusionauth.jwt.json.Mapper;
 import io.fusionauth.jwt.json.ZonedDateTimeSerializer;
 
@@ -134,13 +134,14 @@ public class JWT {
   /**
    * Return a JWT Decoder that allows you to go back or of forward in time. Use this at your own risk.
    * <p>
-   * Generally speaking, there should not be a use for this in production code since 'now' should always be 'now', but it may come in handy in a test.
+   * Generally speaking, there should not be a use for this in production code since 'now' should always be 'now',
+   * but it may come in handy in a test.
    *
    * @param now a 'now' that can be in the past, present or future.
    * @return a JWT decoder with time machine capability.
    */
   public static JWTDecoder getTimeMachineDecoder(ZonedDateTime now) {
-    return new TimeMachineDecoder(now);
+    return new TimeMachineJWTDecoder(now);
   }
 
   /**
@@ -293,6 +294,7 @@ public class JWT {
   }
 
   public List<Object> getList(String key) {
+    //noinspection unchecked
     return (List<Object>) otherClaims.get(key);
   }
 
@@ -306,6 +308,7 @@ public class JWT {
   }
 
   public Map<String, Object> getMap(String key) {
+    //noinspection unchecked
     return (Map<String, Object>) lookupClaim(key);
   }
 
