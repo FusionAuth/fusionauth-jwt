@@ -48,9 +48,11 @@ public class KeyUtils {
         return 521;
       }
 
-      // If bytes is not a multiple of 8, add one byte
-      if (bytes % 8 != 0) {
-        bytes = bytes + 1;
+      // If bytes is not a multiple of 8, add the difference to get to the next 8 byte boundary
+      int mod = bytes % 8;
+      // Adjust the length for a mod count of anything equal to or greater than 2.
+      if (mod >= 2) {
+        bytes = bytes + (8 - mod);
       }
 
       return ((bytes / 8) * 8) * 8;

@@ -23,6 +23,7 @@ import io.fusionauth.jwt.JWTUtils;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.KeyType;
 import io.fusionauth.pem.domain.PEM;
+import io.fusionauth.security.KeyUtils;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -38,7 +39,6 @@ import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.ECPoint;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Objects;
@@ -156,13 +156,13 @@ public class JSONWebKeyBuilder {
       ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
       key.crv = getCurveOID(ecPublicKey);
 
-      ECPoint point = ecPublicKey.getW();
-      int length = point.getAffineX().toByteArray().length;
-      key.alg = Algorithm.ES256;
-      if (length >= 63) {
-        key.alg = Algorithm.ES512;
-      } else if (length >= 47) {
+      int length = KeyUtils.getKeyLength(publicKey);
+      if (length == 256) {
+        key.alg = Algorithm.ES256;
+      } else if (length == 384) {
         key.alg = Algorithm.ES384;
+      } else {
+        key.alg = Algorithm.ES512;
       }
 
       int byteLength = getCoordinateLength(ecPublicKey);

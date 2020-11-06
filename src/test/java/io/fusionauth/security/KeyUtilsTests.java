@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
+import java.util.Base64;
 
 import static org.testng.Assert.assertEquals;
 
@@ -60,6 +61,8 @@ public class KeyUtilsTests {
   // Running 500 times to ensure we get consistency. EC keys can vary in length, but the "reported" size returned
   // from the .getKeyLength() should be consistent. Out of 500 tests (if we had an error in the logic) we may get 1-5
   // failures where the key is not an exact size and we have to figure out which key size it should be reported as.
+  // - For testing locally, you can ramp up this invocation count to 100k or something like that to prove that we have
+  //   consistency over time.
   @Test(dataProvider = "ecKeyLengths", invocationCount = 500)
   public void ec_getKeyLength(String algorithm, int keySize, int privateKeySize, int publicKeySize) throws Exception {
     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
@@ -68,6 +71,32 @@ public class KeyUtilsTests {
 
     assertEquals(KeyUtils.getKeyLength(keyPair.getPrivate()), privateKeySize);
     assertEquals(KeyUtils.getKeyLength(keyPair.getPublic()), publicKeySize);
+  }
+
+  // Failing tests
+  @Test
+  public void ec_getKeyLength_edgeCases() {
+    // Expect 256
+    assertEquals(length(Base64.getDecoder().decode("DNB60oX+xWMTHlJ7SIb+iF82+Z63d+8eCIT/fMlD")), 256);
+    assertEquals(length(Base64.getDecoder().decode("TWe6inYp+73PCZoTuqhsorCUhnI2aAlbJ0OSMCqF")), 256);
+    assertEquals(length(Base64.getDecoder().decode("TYiB2RgMiKmZWSIhigZUhkH8jhpZfH0/6iyMH2V2")), 256);
+    assertEquals(length(Base64.getDecoder().decode("UGg/Zd/jzBEs+B0eMcye0Pe9sKijJKwIBfXCQ3F")), 256);
+
+    // Expect 384
+    assertEquals(length(Base64.getDecoder().decode("a/GTpNnarc1oMRnsjo9UTCrQpK1hNGNvbSbu+t3TJXksngWwt0URBgBYZCBn6A==")), 384);
+    assertEquals(length(Base64.getDecoder().decode("F7jFw1gM0lg+PIKMpexZe97PfUHJ+BI0CBksNVOYNp9udXMf6HmkFuPTqm3l1Q==")), 384);
+    assertEquals(length(Base64.getDecoder().decode("bqVtyl7NwwmUkAk0GCHeQCFhiF4m7rzfYrkIp5BDPECwOMkJjgbAbBrJkqZwXA==")), 384);
+  }
+
+  // Copy of the logic from getKeyLength for testing
+  private int length(byte[] bytes) {
+    int length = bytes.length;
+    int mod = length % 8;
+    if (mod >= 2) {
+      length = length + (8 - mod);
+    }
+
+    return ((length / 8) * 8) * 8;
   }
 
   // Only run this test once, the RSA key lengths are predictable based upon the size of the modulus.
