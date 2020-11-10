@@ -39,7 +39,7 @@ public class Header {
   public Map<String, String> properties = new LinkedHashMap<>();
 
   @JsonProperty("typ")
-  public Type type = Type.JWT;
+  public String type = "JWT";
 
   public Header() {
   }
