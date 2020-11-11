@@ -1,5 +1,12 @@
 FusionAuth JWT Changes
 
+Changes in 4.0.0
+
+  * Change the JWT header type from a enum to a string to support other JWT types. This is a breaking
+    change so the major version has been incremented to version 4.0.0.
+
+    Thanks to @rsatrio for the PR. See https://github.com/FusionAuth/fusionauth-jwt/pull/26
+
 Changes in 3.6.0
 
  * Add the x5c to the JSON Web Key Builder

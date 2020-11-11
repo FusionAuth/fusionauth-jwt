@@ -16,6 +16,7 @@
 
 package io.fusionauth.jwt;
 
+import io.fusionauth.jwt.domain.Header;
 import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.ec.ECSigner;
 import io.fusionauth.jwt.ec.ECVerifier;
@@ -672,6 +673,13 @@ public class JWTTest extends BaseTest {
     actual = JWT.getTimeMachineDecoder(ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(60))
         .decode(encodedJWT, verifier);
     assertEquals(actual.subject, "1234567890");
+  }
+
+  @Test
+  public void test_headerType() {
+    String encodedJWT = "eyJhbGciOiJSUzI1NiIsImtpZCI6IkVCQTRGRDNDRUExMDREOTlBODkwODkyNEJBMjNDMEYwIiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE2MDUwMjIwMTUsImV4cCI6MTYwNTAyMjA5MCwiaXNzIjoiaHR0cHM6Ly9kZW1vLmlkZW50aXR5c2VydmVyLmlvIiwiYXVkIjoiYXBpIiwiY2xpZW50X2lkIjoibTJtLnNob3J0IiwianRpIjoiNDUzMTY3N0YwOTg2RTM0NEEyODI4NjVFQ0VBNTM1RjciLCJpYXQiOjE2MDUwMjIwMTUsInNjb3BlIjpbImFwaSJdfQ.qYX88SwfkdexCp_uZ6JeG1k7lJwHZU-Iq8W00P4xsH4MyB8zwkIL2QJ_P8ThfsTYswi1vdD5UJyqC8mbuvJsroq2dhMvml38YU-kunFlnbYoPR_Mah4Y_IZ-Fs48EaYF_kL3PA-0uG7eZDaQHIDBj3vnBdfcdIvfkE_hPzpWE6vLunArvrrMYe2--MkJnyThgqHBxKe2XAV2GfKkkJIceNSfpw8e_cVvc_Y3YVT4uKrURPYcZA_63fI7nHmCWaBvP5K77qzmDciICosp3jhyGUMfy7GzljHqnFDy_S-DHn5OL50DUImpuodKZ5RgFw2-ty7F0SrbEd1OqMhWtMuGcw";
+    Header header = JWTUtils.decodeHeader(encodedJWT);
+    assertEquals(header.type, "at+jwt");
   }
 
   @Test
