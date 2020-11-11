@@ -174,6 +174,35 @@ JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
 assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 ```
 
+#### Verify a JWT adjusting for Clock Skew
+```java
+// Build an EC verifier using an EC Public Key
+Verifier verifier = ECVerifier.newVerifier(Paths.get("public_key.pem"));
+
+// Verify and decode the encoded string JWT to a rich object and allow up to 60 seconds of clock skew when 
+// asserting the 'exp' and 'nbf' claims if they exist.
+JWT jwt = JWT.getDecoder().withClockSkew(60).decode(encodedJWT, verifier);
+
+// Assert the subject of the JWT is as expected
+assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
+```
+
+#### Verify an expired JWT in a test case
+In a scenario where you may have a hard coded JWT in a test case that you wish to validate, you may use the time machine JWT decoder. Ideally you would not hard code JWTs in your tests and instead generate a new one each time so that the JWT would pass the expiration check. If this is not possible, this option is provided.
+```java
+// Build an EC verifier using an EC Public Key
+Verifier verifier = ECVerifier.newVerifier(Paths.get("public_key.pem"));
+
+// Using the time machine decoder, you may adjust 'now' to any point in the past, or future.
+// Note, this is only provided for testing, and should not be used in production.
+ZonedDateTime thePast = ZonedDateTime.of(2019, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC) 
+JWT jwt = JWT.getTimeMachineDecoder(thePast).decode(encodedJWT, verifier);
+
+// Assert the subject of the JWT is as expected
+assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
+```
+
+
 ### Build a Signer, or a Verifier using a provided CryptoProvider
 
 This pattern is available on the HMAC, RSA and EC verifier and signers.
