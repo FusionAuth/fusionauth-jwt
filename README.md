@@ -179,15 +179,15 @@ assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 // Build an EC verifier using an EC Public Key
 Verifier verifier = ECVerifier.newVerifier(Paths.get("public_key.pem"));
 
-// Verify and decode the encoded string JWT to a rich object and allow up to 60 seconds of clock skew when 
-// asserting the 'exp' and 'nbf' claims if they exist.
+// Verify and decode the encoded string JWT to a rich object and allow up to 60 seconds
+// of clock skew when asserting the 'exp' and 'nbf' claims if they exist.
 JWT jwt = JWT.getDecoder().withClockSkew(60).decode(encodedJWT, verifier);
 
 // Assert the subject of the JWT is as expected
 assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 ```
 
-#### Verify an expired JWT in a test case
+#### Verify an expired JWT by going back in time
 In a scenario where you may have a hard coded JWT in a test case that you wish to validate, you may use the time machine JWT decoder. Ideally you would not hard code JWTs in your tests and instead generate a new one each time so that the JWT would pass the expiration check. If this is not possible, this option is provided.
 ```java
 // Build an EC verifier using an EC Public Key
