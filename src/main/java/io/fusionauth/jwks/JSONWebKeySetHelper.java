@@ -16,7 +16,6 @@
 
 package io.fusionauth.jwks;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.json.Mapper;
 
@@ -28,87 +27,119 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 /**
  * @author Daniel DeGroff
+ * 
+ * Changelog:
+ * 1. Refactor method to add option of using User-Defined HttpUrlConnection (Rizky Satrio)
  */
+
 public class JSONWebKeySetHelper {
-  public static List<JSONWebKey> retrieveKeysFromIssuer(String endpoint) {
-    Objects.requireNonNull(endpoint);
-    if (endpoint.endsWith("/")) {
-      endpoint = endpoint.substring(0, endpoint.length() - 1);
+    public static List<JSONWebKey> retrieveKeysFromIssuer(String endpoint) {
+        Objects.requireNonNull(endpoint);
+        if (endpoint.endsWith("/")) {
+            endpoint = endpoint.substring(0, endpoint.length() - 1);
+        }
+
+        return retrieveKeysFromWellKnownConfiguration(endpoint + "/.well-known/openid-configuration");
     }
 
-    return retrieveKeysFromWellKnownConfiguration(endpoint + "/.well-known/openid-configuration");
-  }
+    private static <T> T get(String endpoint, Function<InputStream, T> consumer,HttpURLConnection webConnection) {
 
-  private static <T> T get(String endpoint, Function<InputStream, T> consumer) {
-    HttpURLConnection httpURLConnection;
-    try {
-      httpURLConnection = (HttpURLConnection) new URL(endpoint).openConnection();
+        HttpURLConnection httpURLConnection;
 
-      httpURLConnection.setDoOutput(true);
-      httpURLConnection.setConnectTimeout(3_000);
-      httpURLConnection.setReadTimeout(2_000);
-      httpURLConnection.setRequestMethod("GET");
 
-      httpURLConnection.addRequestProperty("User-Agent", "fusionauth-jwt (https://github.com/FusionAuth/fusionauth-jwt)");
-      httpURLConnection.connect();
-    } catch (Exception e) {
-      throw new JSONWebKeySetException("Failed to connect to [" + endpoint + "].", e);
+        try {
+            if(webConnection==null) {
+                httpURLConnection = (HttpURLConnection) new URL(endpoint).openConnection();
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setConnectTimeout(3_000);
+                httpURLConnection.setReadTimeout(2_000);
+                httpURLConnection.addRequestProperty("User-Agent", "fusionauth-jwt (https://github.com/FusionAuth/fusionauth-jwt)");
+
+            }
+            else    {
+                httpURLConnection=webConnection;
+            }
+            
+            httpURLConnection.setRequestMethod("GET");
+
+
+            httpURLConnection.connect();
+        } catch (Exception e) {
+            throw new JSONWebKeySetException("Failed to connect to [" + endpoint + "].", e);
+        }
+
+        Connection connection = new Connection();
+        connection.connection = httpURLConnection;
+
+        try {
+            connection.status = httpURLConnection.getResponseCode();
+        } catch (Exception e) {
+            throw new JSONWebKeySetException("Failed to make a request to [" + endpoint + "].", e);
+        }
+
+        if (connection.status < 200 || connection.status > 299) {
+            throw new JSONWebKeySetException("Failed to make a request to [" + endpoint + "], a status code of [" + connection.status + "] was returned.");
+        }
+
+        try (InputStream is = new BufferedInputStream(connection.connection.getInputStream())) {
+            return consumer.apply(is);
+        } catch (Exception e) {
+            throw new JSONWebKeySetException("Failed to parse the response as JSON from [" + endpoint + "].", e);
+        }
     }
 
-    Connection connection = new Connection();
-    connection.connection = httpURLConnection;
+    private static List<JSONWebKey> retrieveKeysFromWellKnownConfiguration(String endpoint,HttpURLConnection a) {
+        return get(endpoint, is -> {
+            JsonNode response = Mapper.deserialize(is, JsonNode.class);
+            JsonNode jwksURI = response.at("/jwks_uri");
+            if (jwksURI.isMissingNode()) {
+                throw new JSONWebKeySetException("The well-known endpoint [" + endpoint + "] has not defined a JSON Web Key Set endpoint. Missing the [jwks_uri] property.");
+            }
 
-    try {
-      connection.status = httpURLConnection.getResponseCode();
-    } catch (Exception e) {
-      throw new JSONWebKeySetException("Failed to make a request to [" + endpoint + "].", e);
+            return retrieveKeysFromJWKS(jwksURI.asText());
+        },a);
     }
 
-    if (connection.status < 200 || connection.status > 299) {
-      throw new JSONWebKeySetException("Failed to make a request to [" + endpoint + "], a status code of [" + connection.status + "] was returned.");
+    public static List<JSONWebKey> retrieveKeysFromWellKnownConfiguration(String endpoint)  {
+        return retrieveKeysFromWellKnownConfiguration(endpoint,null);
     }
 
-    try (InputStream is = new BufferedInputStream(connection.connection.getInputStream())) {
-      return consumer.apply(is);
-    } catch (Exception e) {
-      throw new JSONWebKeySetException("Failed to parse the response as JSON from [" + endpoint + "].", e);
-    }
-  }
-
-  public static List<JSONWebKey> retrieveKeysFromWellKnownConfiguration(String endpoint) {
-    return get(endpoint, is -> {
-      JsonNode response = Mapper.deserialize(is, JsonNode.class);
-      JsonNode jwksURI = response.at("/jwks_uri");
-      if (jwksURI.isMissingNode()) {
-        throw new JSONWebKeySetException("The well-known endpoint [" + endpoint + "] has not defined a JSON Web Key Set endpoint. Missing the [jwks_uri] property.");
-      }
-
-      return retrieveKeysFromJWKS(jwksURI.asText());
-    });
-  }
-
-  public static List<JSONWebKey> retrieveKeysFromJWKS(String endpoint) {
-    return get(endpoint, is -> Mapper.deserialize(is, JSONWebKeySetResponse.class).keys);
-  }
-
-  private static class Connection {
-    public int status;
-    public HttpURLConnection connection;
-  }
-
-  public static class JSONWebKeySetException extends RuntimeException {
-    public JSONWebKeySetException(String message) {
-      super(message);
+    public static List<JSONWebKey> retrieveKeysFromWellKnownConfiguration(HttpURLConnection conn1)  {
+        return retrieveKeysFromWellKnownConfiguration(conn1.getURL().toString(),conn1);
     }
 
-    public JSONWebKeySetException(String message, Throwable cause) {
-      super(message, cause);
+    public static List<JSONWebKey> retrieveKeysFromJWKS(String endpoint) {
+        return  retrieveKeysFromJWKS( endpoint,null);
     }
-  }
 
-  private static class JSONWebKeySetResponse {
-    public List<JSONWebKey> keys;
-  }
+    public static List<JSONWebKey> retrieveKeysFromJWKS(HttpURLConnection a)    {
+        return  retrieveKeysFromJWKS( a.getURL().toString(),a);
+    }
+
+    private static List<JSONWebKey> retrieveKeysFromJWKS(String endpoint,HttpURLConnection a) {
+        return get(endpoint, is -> Mapper.deserialize(is, JSONWebKeySetResponse.class).keys,a);
+    }
+
+    private static class Connection {
+        public int status;
+        public HttpURLConnection connection;
+    }
+
+    public static class JSONWebKeySetException extends RuntimeException {
+        public JSONWebKeySetException(String message) {
+            super(message);
+        }
+
+        public JSONWebKeySetException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
+    private static class JSONWebKeySetResponse {
+        public List<JSONWebKey> keys;
+    }
 }
