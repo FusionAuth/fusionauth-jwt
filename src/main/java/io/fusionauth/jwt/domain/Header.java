@@ -59,23 +59,8 @@ public class Header {
     return properties;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Header)) return false;
-    Header header = (Header) o;
-    return algorithm == header.algorithm &&
-        Objects.equals(properties, header.properties) &&
-        type == header.type;
-  }
-
   public String get(String name) {
     return properties.get(name);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(algorithm, properties, type);
   }
 
   /**
@@ -98,5 +83,20 @@ public class Header {
   @Override
   public String toString() {
     return new String(Mapper.prettyPrint(this));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Header header = (Header) o;
+    return algorithm == header.algorithm &&
+        Objects.equals(properties, header.properties) &&
+        Objects.equals(type, header.type);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(algorithm, properties, type);
   }
 }
