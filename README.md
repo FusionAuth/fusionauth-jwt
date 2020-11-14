@@ -221,9 +221,11 @@ Verifier verifier = ECVerifier.newVerifier(Paths.get("public_key.pem"), new BCFI
 
 ```java
 // Retrieve JSON Web Keys using a known JWKS endpoint
+// - You may optionally provide a HttpURLConnection to this method instead of a string if you want to build your own connection.
 List<JSONWebKey> keys = JSONWebKeySetHelper.retrieveKeysFromJWKS("https://www.googleapis.com/oauth2/v3/certs");
 
 // Retrieve JSON Web Keys using a well known OpenID Connect configuration endpoint
+// - You may optionally provide a HttpURLConnection to this method instead of a string if you want to build your own connection.
 List<JSONWebKey> keys = JSONWebKeySetHelper.retrieveKeysFromWellKnownConfiguration("https://accounts.google.com/.well-known/openid-configuration");
 
 // Retrieve JSON Web Keys using an OpenID Connect issuer endpoint
