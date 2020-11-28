@@ -263,7 +263,7 @@ String json = jwk.toJSON();
 String json = { ... example above ... }
 byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
 JSONWebKey jwk = Mapper.deserialize(bytes, JSONWebKey.class);
-Publickey publicKey = JSONWebKey.parse(jwk);
+PublicKey publicKey = JSONWebKey.parse(jwk);
 ```
 
 ### Convert a Private Key to JWK
