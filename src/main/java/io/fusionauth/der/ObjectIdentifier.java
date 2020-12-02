@@ -16,7 +16,7 @@
 
 package io.fusionauth.der;
 
-import io.fusionauth.jwt.domain.Buildable;
+import io.fusionauth.domain.Buildable;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -156,11 +156,11 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
       if (index == 0) {
         if (node < 0x50) {
           sb.append(node / 40)
-            .append('.')
-            .append(node % 40);
+              .append('.')
+              .append(node % 40);
         } else {
           sb.append("2.")
-            .append(node - 80);
+              .append(node - 80);
         }
       } else {
         sb.append(node);

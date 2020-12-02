@@ -1,6 +1,6 @@
 package io.fusionauth.jwt.hmac;
 
-import io.fusionauth.jwt.BaseTest;
+import io.fusionauth.jwt.BaseJWTTest;
 import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.Algorithm;
 import org.testng.annotations.Test;
@@ -11,7 +11,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * @author Daniel DeGroff
  */
-public class HMACVerifierTest extends BaseTest {
+public class HMACVerifierTest extends BaseJWTTest {
   @Test
   public void canVerify() {
     Verifier verifier = HMACVerifier.newVerifier("secret");

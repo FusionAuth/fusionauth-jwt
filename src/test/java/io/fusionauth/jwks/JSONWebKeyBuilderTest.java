@@ -17,7 +17,7 @@
 package io.fusionauth.jwks;
 
 import io.fusionauth.jwks.domain.JSONWebKey;
-import io.fusionauth.jwt.BaseTest;
+import io.fusionauth.jwt.BaseJWTTest;
 import io.fusionauth.pem.domain.PEM;
 import org.testng.annotations.Test;
 
@@ -33,7 +33,7 @@ import java.util.Arrays;
 /**
  * @author Daniel DeGroff
  */
-public class JSONWebKeyBuilderTest extends BaseTest {
+public class JSONWebKeyBuilderTest extends BaseJWTTest {
   @Test
   public void add_named_properties() {
     Arrays.asList(

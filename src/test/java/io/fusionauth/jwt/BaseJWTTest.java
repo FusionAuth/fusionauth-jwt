@@ -16,6 +16,7 @@
 
 package io.fusionauth.jwt;
 
+import io.fusionauth.BaseTest;
 import io.fusionauth.jwt.json.Mapper;
 import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 import org.testng.Assert;
@@ -37,7 +38,7 @@ import static org.testng.Assert.fail;
 /**
  * @author Daniel DeGroff
  */
-public abstract class BaseTest {
+public abstract class BaseJWTTest extends BaseTest {
   @SuppressWarnings({"unchecked", "rawtypes"})
   private static Map<String, Object> deepSort(Map<String, Object> response) {
     Map<String, Object> sorted = new TreeMap<>();

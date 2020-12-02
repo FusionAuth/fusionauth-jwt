@@ -16,7 +16,7 @@
 
 package io.fusionauth.pem.domain;
 
-import io.fusionauth.jwt.domain.Buildable;
+import io.fusionauth.domain.Buildable;
 import io.fusionauth.pem.PEMDecoder;
 import io.fusionauth.pem.PEMEncoder;
 

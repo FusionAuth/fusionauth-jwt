@@ -20,11 +20,11 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.fusionauth.domain.Buildable;
 import io.fusionauth.jwks.JSONWebKeyBuilder;
 import io.fusionauth.jwks.JSONWebKeyBuilderException;
 import io.fusionauth.jwks.JSONWebKeyParser;
 import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.jwt.domain.Buildable;
 import io.fusionauth.jwt.domain.KeyType;
 import io.fusionauth.jwt.json.Mapper;
 

@@ -19,7 +19,7 @@ package io.fusionauth.jwks;
 import io.fusionauth.jwks.domain.JSONWebKey;
 import org.testng.annotations.Test;
 
-import javax.net.ssl.HttpsURLConnection;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
@@ -43,13 +43,13 @@ public class JSONWebKeySetTest {
     List<JSONWebKey> keys3 = JSONWebKeySetHelper.retrieveKeysFromWellKnownConfiguration("https://accounts.google.com/.well-known/openid-configuration");
 
     // Provide a URL connection to the well-known OIDC discovery document that will contain a URL to the JWKS endpoint
-    List<JSONWebKey> keys4 = JSONWebKeySetHelper.retrieveKeysFromWellKnownConfiguration((HttpsURLConnection) new URL("https://accounts.google.com/.well-known/openid-configuration").openConnection());
+    List<JSONWebKey> keys4 = JSONWebKeySetHelper.retrieveKeysFromWellKnownConfiguration((HttpURLConnection) new URL("https://accounts.google.com/.well-known/openid-configuration").openConnection());
 
     // Provide the URL to the JWKS endpoint
     List<JSONWebKey> keys5 = JSONWebKeySetHelper.retrieveKeysFromJWKS("https://www.googleapis.com/oauth2/v3/certs");
 
     // Provide a URL connection to the JWKS endpoint
-    List<JSONWebKey> keys6 = JSONWebKeySetHelper.retrieveKeysFromJWKS((HttpsURLConnection) new URL("https://www.googleapis.com/oauth2/v3/certs").openConnection());
+    List<JSONWebKey> keys6 = JSONWebKeySetHelper.retrieveKeysFromJWKS((HttpURLConnection) new URL("https://www.googleapis.com/oauth2/v3/certs").openConnection());
 
     assertEquals(keys1, keys2);
     assertEquals(keys2, keys3);

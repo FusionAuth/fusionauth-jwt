@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2020, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,21 @@
  * language governing permissions and limitations under the License.
  */
 
-package io.fusionauth.jwt.domain;
+package io.fusionauth.http;
 
-import java.util.function.Consumer;
+import io.fusionauth.domain.Buildable;
+
+import java.nio.file.Path;
 
 /**
  * @author Daniel DeGroff
  */
-@SuppressWarnings("unchecked")
-public interface Buildable<T> {
-  default T with(Consumer<T> consumer) {
-    consumer.accept((T) this);
-    return (T) this;
-  }
+public class ExpectedResponse implements Buildable<ExpectedResponse> {
+  public String contentType = "application/json";
+
+  public String response;
+
+  public Path responseFile;
+
+  public int status = 200;
 }

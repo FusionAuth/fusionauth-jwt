@@ -16,7 +16,7 @@
 
 package io.fusionauth.der;
 
-import io.fusionauth.jwt.BaseTest;
+import io.fusionauth.jwt.BaseJWTTest;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -24,7 +24,7 @@ import static org.testng.Assert.assertEquals;
 /**
  * @author Daniel DeGroff
  */
-public class ObjectIdentifierTest extends BaseTest {
+public class ObjectIdentifierTest extends BaseJWTTest {
   @Test
   public void decode() throws Exception {
     // EC

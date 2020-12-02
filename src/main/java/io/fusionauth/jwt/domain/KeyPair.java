@@ -16,6 +16,7 @@
 
 package io.fusionauth.jwt.domain;
 
+import io.fusionauth.domain.Buildable;
 import io.fusionauth.pem.domain.PEM;
 
 import java.util.Objects;

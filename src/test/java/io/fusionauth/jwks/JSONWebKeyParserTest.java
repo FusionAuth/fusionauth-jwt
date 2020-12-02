@@ -17,7 +17,7 @@
 package io.fusionauth.jwks;
 
 import io.fusionauth.jwks.domain.JSONWebKey;
-import io.fusionauth.jwt.BaseTest;
+import io.fusionauth.jwt.BaseJWTTest;
 import io.fusionauth.jwt.JWTUtils;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.KeyPair;
@@ -43,7 +43,7 @@ import static org.testng.Assert.fail;
 /**
  * @author Daniel DeGroff
  */
-public class JSONWebKeyParserTest extends BaseTest {
+public class JSONWebKeyParserTest extends BaseJWTTest {
   @DataProvider(name = "rsaPublicKeys")
   public Object[][] rsaPublicKeys() {
     return new Object[][]{

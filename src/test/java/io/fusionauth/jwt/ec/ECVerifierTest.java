@@ -16,7 +16,7 @@
 
 package io.fusionauth.jwt.ec;
 
-import io.fusionauth.jwt.BaseTest;
+import io.fusionauth.jwt.BaseJWTTest;
 import io.fusionauth.jwt.MissingPublicKeyException;
 import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.Algorithm;
@@ -36,7 +36,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * @author Daniel DeGroff
  */
-public class ECVerifierTest extends BaseTest {
+public class ECVerifierTest extends BaseJWTTest {
   @Test
   public void test_public_pem_parsing() {
     Arrays.asList(

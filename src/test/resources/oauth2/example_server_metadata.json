@@ -1,0 +1,101 @@
+{
+  "issuer": "https://server.example.com",
+  "authorization_endpoint": "https://server.example.com/authorize",
+  "token_endpoint": "https://server.example.com/token",
+  "jwks_uri": "https://server.example.com/jwks.json",
+  "registration_endpoint": "https://server.example.com/register",
+  "scopes_supported": [
+    "openid",
+    "profile",
+    "email",
+    "address",
+    "phone",
+    "offline_access"
+  ],
+  "response_types_supported": [
+    "code",
+    "code token"
+  ],
+  "response_modes_supported": [
+    "query",
+    "fragment",
+    "form_post"
+  ],
+  "grant_types_supported": [
+    "authorization_code",
+    "implicit"
+  ],
+  "token_endpoint_auth_methods_supported": [
+    "client_secret_basic",
+    "client_secret_post",
+    "none"
+  ],
+  "token_endpoint_auth_signing_alg_values_supported": [
+    "ES256",
+    "ES384",
+    "ES512",
+    "HS256",
+    "HS384",
+    "HS512",
+    "PS256",
+    "PS384",
+    "PS512",
+    "RS256",
+    "RS384",
+    "RS512"
+  ],
+  "service_documentation": "http://server.example.com/service_documentation.html",
+  "ui_locales_supported": [
+    "en-US",
+    "en-GB",
+    "en-CA",
+    "fr-FR",
+    "fr-CA"
+  ],
+  "op_policy_uri": "https://server.example.com/policy",
+  "op_tos_uri": "https://server.example.com/eula",
+  "revocation_endpoint": "https://server.example.com/revoke",
+  "revocation_endpoint_auth_methods_supported": [
+    "client_secret_basic",
+    "client_secret_post",
+    "none"
+  ],
+  "revocation_endpoint_auth_signing_alg_values_supported": [
+    "ES256",
+    "ES384",
+    "ES512",
+    "HS256",
+    "HS384",
+    "HS512",
+    "PS256",
+    "PS384",
+    "PS512",
+    "RS256",
+    "RS384",
+    "RS512"
+  ],
+  "introspection_endpoint": "https://server.example.com/introspect",
+  "introspection_endpoint_auth_methods_supported": [
+    "client_secret_basic",
+    "client_secret_post",
+    "none"
+  ],
+  "introspection_endpoint_auth_signing_alg_values_supported": [
+    "ES256",
+    "ES384",
+    "ES512",
+    "HS256",
+    "HS384",
+    "HS512",
+    "PS256",
+    "PS384",
+    "PS512",
+    "RS256",
+    "RS384",
+    "RS512"
+  ],
+  "code_challenge_methods_supported": [
+    "S256"
+  ],
+  "userinfo_endpoint": "https://server.example.com/userinfo"
+}

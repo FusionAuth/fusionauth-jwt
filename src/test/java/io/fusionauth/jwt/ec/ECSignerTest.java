@@ -16,7 +16,7 @@
 
 package io.fusionauth.jwt.ec;
 
-import io.fusionauth.jwt.BaseTest;
+import io.fusionauth.jwt.BaseJWTTest;
 import io.fusionauth.pem.domain.PEM;
 import io.fusionauth.security.BCFIPSCryptoProvider;
 import org.testng.annotations.Test;
@@ -38,7 +38,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * @author Daniel DeGroff
  */
-public class ECSignerTest extends BaseTest {
+public class ECSignerTest extends BaseJWTTest {
   @Test
   public void round_trip_raw1() throws Exception {
     // Generate a key-pair and sign and verify a message

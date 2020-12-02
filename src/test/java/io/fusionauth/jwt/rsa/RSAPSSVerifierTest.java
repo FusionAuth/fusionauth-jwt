@@ -16,7 +16,7 @@
 
 package io.fusionauth.jwt.rsa;
 
-import io.fusionauth.jwt.BaseTest;
+import io.fusionauth.jwt.BaseJWTTest;
 import io.fusionauth.jwt.InvalidKeyLengthException;
 import io.fusionauth.jwt.RequiresAlgorithm;
 import io.fusionauth.jwt.Verifier;
@@ -40,7 +40,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * @author Daniel DeGroff
  */
-public class RSAPSSVerifierTest extends BaseTest {
+public class RSAPSSVerifierTest extends BaseJWTTest {
   @Test
   public void test_public_pem_parsing() {
     Arrays.asList(

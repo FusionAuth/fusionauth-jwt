@@ -16,7 +16,7 @@
 
 package io.fusionauth.jwt.rsa;
 
-import io.fusionauth.jwt.BaseTest;
+import io.fusionauth.jwt.BaseJWTTest;
 import io.fusionauth.security.BCFIPSCryptoProvider;
 import org.testng.annotations.Test;
 
@@ -26,7 +26,7 @@ import static org.testng.Assert.assertNotNull;
 /**
  * @author Daniel DeGroff
  */
-public class RSASignerTest extends BaseTest {
+public class RSASignerTest extends BaseJWTTest {
   @Test
   public void test_private_pem_parsing() {
     // No kid

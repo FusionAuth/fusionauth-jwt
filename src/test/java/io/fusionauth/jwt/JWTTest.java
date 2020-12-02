@@ -61,7 +61,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * @author Daniel DeGroff
  */
-public class JWTTest extends BaseTest {
+public class JWTTest extends BaseJWTTest {
   @Test(enabled = false)
   public void buildSignerPerformance() throws Exception {
     long iterationCount = 500_000;

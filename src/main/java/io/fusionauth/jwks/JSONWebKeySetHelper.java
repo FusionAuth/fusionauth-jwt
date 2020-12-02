@@ -17,22 +17,18 @@
 package io.fusionauth.jwks;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.fusionauth.http.AbstractHttpHelper;
 import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.json.Mapper;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * @author Daniel DeGroff
  */
-public class JSONWebKeySetHelper {
+public class JSONWebKeySetHelper extends AbstractHttpHelper {
   /**
    * Retrieve a list of JSON Web Keys from the JWK endpoint using the OIDC issuer as a starting point.
    *
@@ -48,34 +44,6 @@ public class JSONWebKeySetHelper {
     return retrieveKeysFromWellKnownConfiguration(issuer + "/.well-known/openid-configuration");
   }
 
-  private static <T> T get(HttpURLConnection urlConnection, Function<InputStream, T> consumer) {
-    String endpoint = urlConnection.getURL().toString();
-
-    try {
-      urlConnection.setRequestMethod("GET");
-      urlConnection.connect();
-    } catch (Exception e) {
-      throw new JSONWebKeySetException("Failed to connect to [" + endpoint + "].", e);
-    }
-
-    int status;
-    try {
-      status = urlConnection.getResponseCode();
-    } catch (Exception e) {
-      throw new JSONWebKeySetException("Failed to make a request to [" + endpoint + "].", e);
-    }
-
-    if (status < 200 || status > 299) {
-      throw new JSONWebKeySetException("Failed to make a request to [" + endpoint + "], a status code of [" + status + "] was returned.");
-    }
-
-    try (InputStream is = new BufferedInputStream(urlConnection.getInputStream())) {
-      return consumer.apply(is);
-    } catch (Exception e) {
-      throw new JSONWebKeySetException("Failed to parse the response as JSON from [" + endpoint + "].", e);
-    }
-  }
-
   /**
    * Retrieve JSON Web Keys from an OpenID Connect well known discovery endpoint. Use this method if you want to resolve the JWKS endpoint from the OpenID Connect discovery document and you want to build your own HTTP URL Connection.
    *
@@ -83,16 +51,18 @@ public class JSONWebKeySetHelper {
    * @return a list of JSON Web Keys
    */
   public static List<JSONWebKey> retrieveKeysFromWellKnownConfiguration(HttpURLConnection httpURLConnection) {
-    return get(httpURLConnection, is -> {
-      JsonNode response = Mapper.deserialize(is, JsonNode.class);
-      JsonNode jwksURI = response.at("/jwks_uri");
-      if (jwksURI.isMissingNode()) {
-        String endpoint = httpURLConnection.getURL().toString();
-        throw new JSONWebKeySetException("The well-known endpoint [" + endpoint + "] has not defined a JSON Web Key Set endpoint. Missing the [jwks_uri] property.");
-      }
+    return get(httpURLConnection,
+        is -> {
+          JsonNode response = Mapper.deserialize(is, JsonNode.class);
+          JsonNode jwksURI = response.at("/jwks_uri");
+          if (jwksURI.isMissingNode()) {
+            String endpoint = httpURLConnection.getURL().toString();
+            throw new JSONWebKeySetException("The well-known endpoint [" + endpoint + "] has not defined a JSON Web Key Set endpoint. Missing the [jwks_uri] property.");
+          }
 
-      return retrieveKeysFromJWKS(jwksURI.asText());
-    });
+          return retrieveKeysFromJWKS(jwksURI.asText());
+        },
+        JSONWebKeyBuilderException::new);
   }
 
   /**
@@ -122,20 +92,10 @@ public class JSONWebKeySetHelper {
    * @return a list of JSON Web Keys
    */
   public static List<JSONWebKey> retrieveKeysFromJWKS(HttpURLConnection httpURLConnection) {
-    return get(httpURLConnection, is -> Mapper.deserialize(is, JSONWebKeySetResponse.class).keys);
-  }
-
-  private static HttpURLConnection buildURLConnection(String endpoint) {
-    try {
-      HttpURLConnection urlConnection = (HttpURLConnection) new URL(endpoint).openConnection();
-      urlConnection.setDoOutput(true);
-      urlConnection.setConnectTimeout(3_000);
-      urlConnection.setReadTimeout(2_000);
-      urlConnection.addRequestProperty("User-Agent", "fusionauth-jwt (https://github.com/FusionAuth/fusionauth-jwt)");
-      return urlConnection;
-    } catch (IOException e) {
-      throw new JSONWebKeySetException("Failed to build connection to [" + endpoint + "].", e);
-    }
+    return get(
+        httpURLConnection,
+        is -> Mapper.deserialize(is, JSONWebKeySetResponse.class).keys,
+        JSONWebKeyBuilderException::new);
   }
 
   public static class JSONWebKeySetException extends RuntimeException {
