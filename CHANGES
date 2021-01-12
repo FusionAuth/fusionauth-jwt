@@ -1,5 +1,23 @@
 FusionAuth JWT Changes
 
+Changes in 4.1.0
+
+ * Upgraded Jackson Core to 2.12.1. This upgrade addresses CVE-2020-14060, CVE-2020-14061, CVE-2020-14062, CVE-2020-14195 and CVE-2020-24616 and CVE-2020-24750.
+
+    See https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2020-14060
+    See https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2020-14061
+    See https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2020-14062
+    See https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2020-14195
+    See https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2020-24616
+    See https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2020-24750
+
+    Resolves https://github.com/FusionAuth/fusionauth-jwt/issues/29
+
+  * Initial support for OAuth2 Authorization Server Metadata.
+
+    Resolves https://github.com/FusionAuth/fusionauth-jwt/issues/23
+    Thanks to @jamietanna for his contribution.
+
 Changes in 4.0.1
 
   * Added ability to provide your own HttpURLConnection to the JSONWebKeySetHelper helper methods.
