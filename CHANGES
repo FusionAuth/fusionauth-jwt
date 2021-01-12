@@ -12,6 +12,7 @@ Changes in 4.1.0
     See https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2020-24750
 
     Resolves https://github.com/FusionAuth/fusionauth-jwt/issues/29
+    Thanks to @rvillane for opening the issue.
 
   * Initial support for OAuth2 Authorization Server Metadata.
 
