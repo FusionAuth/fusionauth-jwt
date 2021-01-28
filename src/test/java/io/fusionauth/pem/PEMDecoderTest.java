@@ -127,6 +127,27 @@ public class PEMDecoderTest {
   }
 
   @Test
+  public void certificates() throws Exception {
+    List<String> files = Arrays.asList(
+        "rsa_certificate_1024.pem",
+        "rsa_certificate_2048.pem"
+    );
+
+    for (String f : files) {
+      String message = "For file [" + f + "]";
+      String encodedPEM = new String(Files.readAllBytes(Paths.get("src/test/resources/" + f)));
+      assertTrue(encodedPEM.contains(PEM.X509_CERTIFICATE_PREFIX), message);
+
+      PEM pem = PEM.decode(encodedPEM);
+      assertNull(pem.privateKey, message);
+      assertNotNull(pem.certificate, message);
+      assertNotNull(pem.publicKey, message);
+      assertEquals(pem.publicKey.getFormat(), "X.509", message);
+      assertEquals(pem.certificate.getType(), "X.509", message);
+    }
+  }
+
+  @Test
   public void public_x509() throws Exception {
     List<String> files = Arrays.asList(
         "ec_public_key_p_256.pem",
