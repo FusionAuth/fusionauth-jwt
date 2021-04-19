@@ -46,7 +46,7 @@ public abstract class AbstractHttpHelper {
     try {
       HttpURLConnection urlConnection = (HttpURLConnection) new URL(endpoint).openConnection();
       urlConnection.setDoOutput(true);
-      urlConnection.setConnectTimeout(3_000);
+      urlConnection.setConnectTimeout(4_000);
       urlConnection.setReadTimeout(2_000);
       urlConnection.addRequestProperty("User-Agent", "fusionauth-jwt (https://github.com/FusionAuth/fusionauth-jwt)");
       return urlConnection;

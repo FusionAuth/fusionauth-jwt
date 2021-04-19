@@ -24,6 +24,7 @@ import io.fusionauth.jwt.json.Mapper;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * @author Daniel DeGroff
@@ -36,12 +37,23 @@ public class JSONWebKeySetHelper extends AbstractHttpHelper {
    * @return a list of keys or an empty set if no keys were found at the endpoint.
    */
   public static List<JSONWebKey> retrieveKeysFromIssuer(String issuer) {
+    return retrieveKeysFromIssuer(issuer, null);
+  }
+
+  /**
+   * Retrieve a list of JSON Web Keys from the JWK endpoint using the OIDC issuer as a starting point.
+   *
+   * @param issuer   the OIDC issuer used to resolve the OpenID Connect discovery document which will be used to resolve the JWKS endpoint.
+   * @param consumer an optional consumer to modify the HTTP URL Connection before making the request.
+   * @return a list of keys or an empty set if no keys were found at the endpoint.
+   */
+  public static List<JSONWebKey> retrieveKeysFromIssuer(String issuer, Consumer<HttpURLConnection> consumer) {
     Objects.requireNonNull(issuer);
     if (issuer.endsWith("/")) {
       issuer = issuer.substring(0, issuer.length() - 1);
     }
 
-    return retrieveKeysFromWellKnownConfiguration(issuer + "/.well-known/openid-configuration");
+    return retrieveKeysFromWellKnownConfiguration(issuer + "/.well-known/openid-configuration", consumer);
   }
 
   /**
@@ -72,7 +84,23 @@ public class JSONWebKeySetHelper extends AbstractHttpHelper {
    * @return a list of JSON Web Keys
    */
   public static List<JSONWebKey> retrieveKeysFromWellKnownConfiguration(String endpoint) {
-    return retrieveKeysFromWellKnownConfiguration(buildURLConnection(endpoint));
+    return retrieveKeysFromWellKnownConfiguration(endpoint, null);
+  }
+
+  /**
+   * Retrieve JSON Web Keys from an OpenID Connect well known discovery endpoint. Use this method if you want to resolve the JWKS endpoint from the OpenID Connect discovery document.
+   *
+   * @param endpoint the OpenID Connect well known discovery endpoint used to resolve the JWKS endpoint.
+   * @param consumer an optional consumer to modify the HTTP URL Connection before making the request.
+   * @return a list of JSON Web Keys
+   */
+  public static List<JSONWebKey> retrieveKeysFromWellKnownConfiguration(String endpoint, Consumer<HttpURLConnection> consumer) {
+    HttpURLConnection connection = buildURLConnection(endpoint);
+    if (consumer != null) {
+      consumer.accept(connection);
+    }
+
+    return retrieveKeysFromWellKnownConfiguration(connection);
   }
 
   /**
@@ -82,6 +110,22 @@ public class JSONWebKeySetHelper extends AbstractHttpHelper {
    * @return a list of JSON Web Keys
    */
   public static List<JSONWebKey> retrieveKeysFromJWKS(String endpoint) {
+    return retrieveKeysFromJWKS(endpoint, null);
+  }
+
+  /**
+   * Retrieve JSON Web Keys from a JSON Web Key Set (JWKS) endpoint. Use this method if you know the specific JWKS URL.
+   *
+   * @param endpoint the JWKS endpoint.
+   * @param consumer an optional consumer to modify the HTTP URL Connection before making the request.
+   * @return a list of JSON Web Keys
+   */
+  public static List<JSONWebKey> retrieveKeysFromJWKS(String endpoint, Consumer<HttpURLConnection> consumer) {
+    HttpURLConnection connection = buildURLConnection(endpoint);
+    if (consumer != null) {
+      consumer.accept(connection);
+    }
+
     return retrieveKeysFromJWKS(buildURLConnection(endpoint));
   }
 

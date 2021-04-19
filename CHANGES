@@ -1,5 +1,14 @@
 FusionAuth JWT Changes
 
+Changes in 4.2.0
+
+ * Upgraded Jackson Core to 2.12.2.
+
+ * Added additional methods for JSONWebKeySetHelper to modify the HTTP connection allowing you to modify timeout values.
+
+   Resolves https://github.com/FusionAuth/fusionauth-jwt/issues/31
+   Thanks to @alienintheheights for the suggestion.
+
 Changes in 4.1.0
 
  * Upgraded Jackson Core to 2.12.1. This upgrade addresses CVE-2020-14060, CVE-2020-14061, CVE-2020-14062, CVE-2020-14195 and CVE-2020-24616 and CVE-2020-24750.
