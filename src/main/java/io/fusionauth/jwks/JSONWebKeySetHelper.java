@@ -126,7 +126,7 @@ public class JSONWebKeySetHelper extends AbstractHttpHelper {
       consumer.accept(connection);
     }
 
-    return retrieveKeysFromJWKS(buildURLConnection(endpoint));
+    return retrieveKeysFromJWKS(connection);
   }
 
   /**

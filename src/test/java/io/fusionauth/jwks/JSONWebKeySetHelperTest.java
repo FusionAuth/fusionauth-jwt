@@ -28,7 +28,7 @@ import static org.testng.Assert.assertEquals;
 /**
  * @author Daniel DeGroff
  */
-public class JSONWebKeySetTest {
+public class JSONWebKeySetHelperTest {
   @Test
   public void test() throws Exception {
     // Retrieve keys using the issuer, well known openid-configuration endpoint and well known JWKS endpoint, all should be equal.
