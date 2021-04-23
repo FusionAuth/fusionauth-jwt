@@ -1,5 +1,9 @@
 FusionAuth JWT Changes
 
+Changes in 4.2.1
+
+ * Bump optional dep bc-fips to 1.0.2
+
 Changes in 4.2.0
 
  * Upgraded Jackson Core to 2.12.2.
