@@ -49,11 +49,11 @@
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.savant/cache/org/bouncycastle/bc-fips/1.0.2/bc-fips-1.0.2.jar!/" />
+          <root url="jar://$USER_HOME$/.savant/cache/org/bouncycastle/bc-fips/1.0.2+P1/bc-fips-1.0.2+P1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.savant/cache/org/bouncycastle/bc-fips/1.0.2/bc-fips-1.0.2-src.jar!/" />
+          <root url="jar://$USER_HOME$/.savant/cache/org/bouncycastle/bc-fips/1.0.2+P1/bc-fips-1.0.2+P1-src.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

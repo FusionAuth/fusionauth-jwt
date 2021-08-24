@@ -1,5 +1,12 @@
 FusionAuth JWT Changes
 
+Changes in 4.2.2
+
+ * Bump optional dep bc-fips to 1.0.2.1 (1.0.2+P1)
+
+    See https://github.com/advisories/GHSA-6xx3-rg99-gc3p
+    See https://nvd.nist.gov/vuln/detail/CVE-2020-15522
+
 Changes in 4.2.1
 
  * Bump optional dep bc-fips to 1.0.2
