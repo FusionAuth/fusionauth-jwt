@@ -50,6 +50,22 @@ public class RSAPSSSigner implements Signer {
 
   private final RSAPrivateKey privateKey;
 
+  private RSAPSSSigner(Algorithm algorithm, RSAPrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
+    Objects.requireNonNull(algorithm);
+    Objects.requireNonNull(cryptoProvider);
+    Objects.requireNonNull(privateKey);
+
+    this.algorithm = algorithm;
+    this.cryptoProvider = cryptoProvider;
+    this.kid = kid;
+
+    this.privateKey = privateKey;
+    int keyLength = this.privateKey.getModulus().bitLength();
+    if (keyLength < 2048) {
+      throw new InvalidKeyLengthException("Key length of [" + keyLength + "] is less than the required key length of 2048 bits.");
+    }
+  }
+
   private RSAPSSSigner(Algorithm algorithm, String privateKey, String kid, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(algorithm);
     Objects.requireNonNull(cryptoProvider);
@@ -74,21 +90,32 @@ public class RSAPSSSigner implements Signer {
    * Build a new RSA signer using a SHA-256 hash.
    *
    * @param privateKey The private key PEM expected to be in PKCS#1 or PKCS#8 format.
-   * @param kid        The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
    * @return a new RSA signer.
    */
-  public static RSAPSSSigner newSHA256Signer(String privateKey, String kid) {
-    return newSHA256Signer(privateKey, kid, new DefaultCryptoProvider());
+  public static RSAPSSSigner newSHA256Signer(String privateKey) {
+    return new RSAPSSSigner(Algorithm.PS256, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
    * Build a new RSA signer using a SHA-256 hash.
    *
    * @param privateKey The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @param kid        The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
    * @return a new RSA signer.
    */
-  public static RSAPSSSigner newSHA256Signer(String privateKey) {
-    return newSHA256Signer(privateKey, null, new DefaultCryptoProvider());
+  public static RSAPSSSigner newSHA256Signer(String privateKey, String kid) {
+    return new RSAPSSSigner(Algorithm.PS256, privateKey, kid, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-256 hash.
+   *
+   * @param privateKey     The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
+   * @return a new RSA signer.
+   */
+  public static RSAPSSSigner newSHA256Signer(String privateKey, CryptoProvider cryptoProvider) {
+    return new RSAPSSSigner(Algorithm.PS256, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -106,12 +133,55 @@ public class RSAPSSSigner implements Signer {
   /**
    * Build a new RSA signer using a SHA-256 hash.
    *
-   * @param privateKey     The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @param privateKey The private key.
+   * @return a new RSA signer.
+   */
+  public static RSAPSSSigner newSHA256Signer(RSAPrivateKey privateKey) {
+    return new RSAPSSSigner(Algorithm.PS256, privateKey, null, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-256 hash.
+   *
+   * @param privateKey The private key.
+   * @param kid        The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @return a new RSA signer.
+   */
+  public static RSAPSSSigner newSHA256Signer(RSAPrivateKey privateKey, String kid) {
+    return new RSAPSSSigner(Algorithm.PS256, privateKey, kid, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-256 hash.
+   *
+   * @param privateKey     The private key.
    * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
    * @return a new RSA signer.
    */
-  public static RSAPSSSigner newSHA256Signer(String privateKey, CryptoProvider cryptoProvider) {
+  public static RSAPSSSigner newSHA256Signer(RSAPrivateKey privateKey, CryptoProvider cryptoProvider) {
     return new RSAPSSSigner(Algorithm.PS256, privateKey, null, cryptoProvider);
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-256 hash.
+   *
+   * @param privateKey     The private key.
+   * @param kid            The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
+   * @return a new RSA signer.
+   */
+  public static RSAPSSSigner newSHA256Signer(RSAPrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
+    return new RSAPSSSigner(Algorithm.PS256, privateKey, kid, cryptoProvider);
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-384 hash.
+   *
+   * @param privateKey The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @return a new RSA signer.
+   */
+  public static RSAPSSSigner newSHA384Signer(String privateKey) {
+    return new RSAPSSSigner(Algorithm.PS384, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -122,17 +192,18 @@ public class RSAPSSSigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSAPSSSigner newSHA384Signer(String privateKey, String kid) {
-    return newSHA384Signer(privateKey, kid, new DefaultCryptoProvider());
+    return new RSAPSSSigner(Algorithm.PS384, privateKey, kid, new DefaultCryptoProvider());
   }
 
   /**
    * Build a new RSA signer using a SHA-384 hash.
    *
-   * @param privateKey The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @param privateKey     The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
    * @return a new RSA signer.
    */
-  public static RSAPSSSigner newSHA384Signer(String privateKey) {
-    return newSHA384Signer(privateKey, null, new DefaultCryptoProvider());
+  public static RSAPSSSigner newSHA384Signer(String privateKey, CryptoProvider cryptoProvider) {
+    return new RSAPSSSigner(Algorithm.PS384, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -150,12 +221,55 @@ public class RSAPSSSigner implements Signer {
   /**
    * Build a new RSA signer using a SHA-384 hash.
    *
-   * @param privateKey     The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @param privateKey The private key.
+   * @return a new RSA signer.
+   */
+  public static RSAPSSSigner newSHA384Signer(RSAPrivateKey privateKey) {
+    return new RSAPSSSigner(Algorithm.PS384, privateKey, null, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-384 hash.
+   *
+   * @param privateKey The private key.
+   * @param kid        The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @return a new RSA signer.
+   */
+  public static RSAPSSSigner newSHA384Signer(RSAPrivateKey privateKey, String kid) {
+    return new RSAPSSSigner(Algorithm.PS384, privateKey, kid, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-384 hash.
+   *
+   * @param privateKey     The private key.
    * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
    * @return a new RSA signer.
    */
-  public static RSAPSSSigner newSHA384Signer(String privateKey, CryptoProvider cryptoProvider) {
+  public static RSAPSSSigner newSHA384Signer(RSAPrivateKey privateKey, CryptoProvider cryptoProvider) {
     return new RSAPSSSigner(Algorithm.PS384, privateKey, null, cryptoProvider);
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-384 hash.
+   *
+   * @param privateKey     The private key.
+   * @param kid            The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
+   * @return a new RSA signer.
+   */
+  public static RSAPSSSigner newSHA384Signer(RSAPrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
+    return new RSAPSSSigner(Algorithm.PS384, privateKey, kid, cryptoProvider);
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-512 hash.
+   *
+   * @param privateKey The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @return a new RSA signer.
+   */
+  public static RSAPSSSigner newSHA512Signer(String privateKey) {
+    return new RSAPSSSigner(Algorithm.PS512, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -166,17 +280,18 @@ public class RSAPSSSigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSAPSSSigner newSHA512Signer(String privateKey, String kid) {
-    return newSHA512Signer(privateKey, kid, new DefaultCryptoProvider());
+    return new RSAPSSSigner(Algorithm.PS512, privateKey, kid, new DefaultCryptoProvider());
   }
 
   /**
    * Build a new RSA signer using a SHA-512 hash.
    *
-   * @param privateKey The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @param privateKey     The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
    * @return a new RSA signer.
    */
-  public static RSAPSSSigner newSHA512Signer(String privateKey) {
-    return newSHA512Signer(privateKey, null, new DefaultCryptoProvider());
+  public static RSAPSSSigner newSHA512Signer(String privateKey, CryptoProvider cryptoProvider) {
+    return new RSAPSSSigner(Algorithm.PS512, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -194,12 +309,45 @@ public class RSAPSSSigner implements Signer {
   /**
    * Build a new RSA signer using a SHA-512 hash.
    *
-   * @param privateKey     The private key PEM expected to be in PKCS#1 or PKCS#8 format.
+   * @param privateKey The private key.
+   * @return a new RSA signer.
+   */
+  public static RSAPSSSigner newSHA512Signer(RSAPrivateKey privateKey) {
+    return new RSAPSSSigner(Algorithm.PS512, privateKey, null, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-512 hash.
+   *
+   * @param privateKey The private key.
+   * @param kid        The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @return a new RSA signer.
+   */
+  public static RSAPSSSigner newSHA512Signer(RSAPrivateKey privateKey, String kid) {
+    return new RSAPSSSigner(Algorithm.PS512, privateKey, kid, new DefaultCryptoProvider());
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-512 hash.
+   *
+   * @param privateKey     The private key.
    * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
    * @return a new RSA signer.
    */
-  public static RSAPSSSigner newSHA512Signer(String privateKey, CryptoProvider cryptoProvider) {
+  public static RSAPSSSigner newSHA512Signer(RSAPrivateKey privateKey, CryptoProvider cryptoProvider) {
     return new RSAPSSSigner(Algorithm.PS512, privateKey, null, cryptoProvider);
+  }
+
+  /**
+   * Build a new RSA signer using a SHA-512 hash.
+   *
+   * @param privateKey     The private key.
+   * @param kid            The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @param cryptoProvider The crypto provider used to get the RSA signature Algorithm.
+   * @return a new RSA signer.
+   */
+  public static RSAPSSSigner newSHA512Signer(RSAPrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
+    return new RSAPSSSigner(Algorithm.PS512, privateKey, kid, cryptoProvider);
   }
 
   @Override
