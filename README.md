@@ -41,23 +41,23 @@ We are very interested in compensating anyone that can identify a security relat
 <dependency>
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>4.2.2</version>
+  <version>4.3.0</version>
 </dependency>
  ```
 
 ### Gradle
 ```groovy
-implementation 'io.fusionauth:fusionauth-jwt:4.2.2'
+implementation 'io.fusionauth:fusionauth-jwt:4.3.0'
 ```
 
 ### Gradle Kotlin
 ```kotlin
-implementation("io.fusionauth:fusionauth-jwt:4.2.2")
+implementation("io.fusionauth:fusionauth-jwt:4.3.0")
 ```
 
 ### Savant 
 ```groovy
-dependency(id: "io.fusionauth:fusionauth-jwt:4.2.2")
+dependency(id: "io.fusionauth:fusionauth-jwt:4.3.0")
 ```
 
 For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/4.0.1/jar).
@@ -104,7 +104,7 @@ assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 
 #### Sign and encode a JWT using RSA
 ```java
-// Build an RSA signer using a SHA-256 hash
+// Build an RSA signer using a SHA-256 hash. A signer may also be built using the PrivateKey object.
 Signer signer = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
 
 // Build a new JWT with an issuer(iss), issued at(iat), subject(sub) and expiration(exp)
@@ -128,7 +128,7 @@ Signer signer = RSASigner.newSHA512Signer(new String(Files.readAllBytes(Paths.ge
 
 #### Verify and decode a JWT using RSA
 ```java
-// Build an RSA verifier using an RSA Public Key
+// Build an RSA verifier using an RSA Public Key. A verifier may also be built using the PublicKey object.
 Verifier verifier = RSAVerifier.newVerifier(Paths.get("public_key.pem"));
 
 // Verify and decode the encoded string JWT to a rich object
@@ -140,7 +140,7 @@ assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 
 #### Sign and encode a JWT using EC
 ```java
-// Build an EC signer using a SHA-256 hash
+// Build an EC signer using a SHA-256 hash. A signer may also be built using the PrivateKey object.
 Signer signer = ECSigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
 
 // Build a new JWT with an issuer(iss), issued at(iat), subject(sub) and expiration(exp)
@@ -164,7 +164,7 @@ Signer signer = ECSigner.newSHA512Signer(new String(Files.readAllBytes(Paths.get
 
 #### Verify and decode a JWT using EC
 ```java
-// Build an EC verifier using an EC Public Key
+// Build an EC verifier using an EC Public Key. A verifier may also be built using the PublicKey object.
 Verifier verifier = ECVerifier.newVerifier(Paths.get("public_key.pem"));
 
 // Verify and decode the encoded string JWT to a rich object

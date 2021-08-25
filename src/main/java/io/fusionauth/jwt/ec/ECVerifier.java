@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.interfaces.ECPublicKey;
@@ -44,12 +45,15 @@ public class ECVerifier implements Verifier {
 
   private final CryptoProvider cryptoProvider;
 
-  private ECVerifier(ECPublicKey publicKey, CryptoProvider cryptoProvider) {
+  private ECVerifier(PublicKey publicKey, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(publicKey);
     Objects.requireNonNull(cryptoProvider);
 
     this.cryptoProvider = cryptoProvider;
-    this.publicKey = publicKey;
+    if (!(publicKey instanceof ECPublicKey)) {
+      throw new InvalidKeyTypeException("Expecting a public key of type [ECPublicKey], but found [" + publicKey.getClass().getSimpleName() + "].");
+    }
+    this.publicKey = (ECPublicKey) publicKey;
   }
 
   private ECVerifier(String publicKey, CryptoProvider cryptoProvider) {
@@ -63,7 +67,7 @@ public class ECVerifier implements Verifier {
     }
 
     if (!(pem.publicKey instanceof ECPublicKey)) {
-      throw new InvalidKeyTypeException("Expecting an EC public key, but found " + pem.publicKey.getAlgorithm() + " / " + pem.publicKey.getFormat() + "");
+      throw new InvalidKeyTypeException("Expecting a public key of type [ECPublicKey], but found [" + pem.publicKey.getClass().getSimpleName() + "].");
     }
 
     this.publicKey = pem.getPublicKey();
@@ -76,7 +80,7 @@ public class ECVerifier implements Verifier {
    * @return a new instance of the EC verifier.
    */
   public static ECVerifier newVerifier(String publicKey) {
-    return newVerifier(publicKey, new DefaultCryptoProvider());
+    return new ECVerifier(publicKey, new DefaultCryptoProvider());
   }
 
   /**
@@ -85,8 +89,8 @@ public class ECVerifier implements Verifier {
    * @param publicKey The EC public key object.
    * @return a new instance of the EC verifier.
    */
-  public static ECVerifier newVerifier(ECPublicKey publicKey) {
-    return newVerifier(publicKey, new DefaultCryptoProvider());
+  public static ECVerifier newVerifier(PublicKey publicKey) {
+    return new ECVerifier(publicKey, new DefaultCryptoProvider());
   }
 
   /**
@@ -118,7 +122,6 @@ public class ECVerifier implements Verifier {
    * @return a new instance of the EC verifier.
    */
   public static ECVerifier newVerifier(String publicKey, CryptoProvider cryptoProvider) {
-    Objects.requireNonNull(publicKey);
     return new ECVerifier(publicKey, cryptoProvider);
   }
 
@@ -129,8 +132,7 @@ public class ECVerifier implements Verifier {
    * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
    * @return a new instance of the EC verifier.
    */
-  public static ECVerifier newVerifier(ECPublicKey publicKey, CryptoProvider cryptoProvider) {
-    Objects.requireNonNull(publicKey);
+  public static ECVerifier newVerifier(PublicKey publicKey, CryptoProvider cryptoProvider) {
     return new ECVerifier(publicKey, cryptoProvider);
   }
 

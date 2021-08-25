@@ -1,5 +1,13 @@
 FusionAuth JWT Changes
 
+Changes in 4.3.0
+
+ * Take PublicKey instead of RSAPublicKey or ECPublicKey on verifier methods and then validate the key to ensure the correct type.
+ * Support taking a PrivatKey object when building a signer in addition to a PEM.
+
+   Resolves https://github.com/FusionAuth/fusionauth-jwt/issues/35
+   Thanks to @tommed for the request.
+
 Changes in 4.2.2
 
  * Bump optional dep bc-fips to 1.0.2.1 (1.0.2+P1)
