@@ -17,6 +17,7 @@
 package io.fusionauth.jwt.rsa;
 
 import io.fusionauth.jwt.InvalidKeyLengthException;
+import io.fusionauth.jwt.InvalidKeyTypeException;
 import io.fusionauth.jwt.JWTSigningException;
 import io.fusionauth.jwt.MissingPrivateKeyException;
 import io.fusionauth.jwt.Signer;
@@ -77,6 +78,10 @@ public class RSAPSSSigner implements Signer {
     PEM pem = PEM.decode(privateKey);
     if (pem.privateKey == null) {
       throw new MissingPrivateKeyException("The provided PEM encoded string did not contain a private key.");
+    }
+
+    if (!(pem.privateKey instanceof RSAPrivateKey)) {
+      throw new InvalidKeyTypeException("Expecting an RSA private key, but found " + pem.privateKey.getAlgorithm() + " / " + pem.privateKey.getFormat() + " [" + pem.privateKey.getClass().getSimpleName() + "]");
     }
 
     this.privateKey = pem.getPrivateKey();
