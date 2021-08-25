@@ -64,6 +64,8 @@ public class JWTDecoder {
 
   /**
    * Specify the number of seconds allowed for clock skew used for calculating the expiration and not before instants of a JWT.
+   * <p>
+   * The default value is <code>0</code>.
    *
    * @param clockSkew the number of seconds allowed for clock skew.
    * @return this

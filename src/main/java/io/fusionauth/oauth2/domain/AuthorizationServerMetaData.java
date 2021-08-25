@@ -51,10 +51,6 @@ public class AuthorizationServerMetaData {
 
   public String op_tos_uri;
 
-  /**
-   * This Map will contain all the claims that aren't specifically defined in the specification. These still might be
-   * IANA registered claims, but are not known JWT specification claims.
-   */
   @JsonAnySetter
   public Map<String, Object> otherClaims = new LinkedHashMap<>();
 

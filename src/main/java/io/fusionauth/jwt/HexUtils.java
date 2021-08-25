@@ -20,6 +20,7 @@ package io.fusionauth.jwt;
  * @author Daniel DeGroff
  */
 public class HexUtils {
+  @SuppressWarnings("SpellCheckingInspection")
   private final static char[] HEX = "0123456789ABCDEF".toCharArray();
 
   public static String fromBytes(byte[] bytes) {
