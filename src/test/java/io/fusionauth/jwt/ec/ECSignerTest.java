@@ -17,6 +17,7 @@
 package io.fusionauth.jwt.ec;
 
 import io.fusionauth.jwt.BaseJWTTest;
+import io.fusionauth.jwt.InvalidKeyTypeException;
 import io.fusionauth.pem.domain.PEM;
 import io.fusionauth.security.BCFIPSCryptoProvider;
 import org.testng.annotations.Test;
@@ -34,11 +35,30 @@ import java.security.spec.ECGenParameterSpec;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 /**
  * @author Daniel DeGroff
  */
 public class ECSignerTest extends BaseJWTTest {
+  @Test
+  public void test_invalidKey() {
+    // RSA private key cannot be used for an EC signer
+    try {
+      ECSigner.newSHA256Signer(readFile("rsa_private_key_2048.pem"));
+      fail("Expected exception.");
+    } catch (InvalidKeyTypeException e) {
+      assertEquals(e.getMessage(), "Expecting a private key of type [ECPrivateKey], but found [RSAPrivateCrtKeyImpl].");
+    }
+
+    try {
+      ECSigner.newSHA256Signer(PEM.decode(readFile("rsa_private_key_2048.pem")).privateKey);
+      fail("Expected exception.");
+    } catch (InvalidKeyTypeException e) {
+      assertEquals(e.getMessage(), "Expecting a private key of type [ECPrivateKey], but found [RSAPrivateCrtKeyImpl].");
+    }
+  }
+
   @Test
   public void round_trip_raw1() throws Exception {
     // Generate a key-pair and sign and verify a message
