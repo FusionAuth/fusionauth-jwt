@@ -17,7 +17,7 @@
 package io.fusionauth.jwt;
 
 /**
- * An un-secured JWT is may not be decoded.
+ * An un-secured JWT may not be decoded.
  *
  * @author Daniel DeGroff
  */
