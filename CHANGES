@@ -1,5 +1,12 @@
 FusionAuth JWT Changes
 
+Changes in 4.3.1
+
+ * Modify `JSONWebKeySetResponse` to be public in support of JPMS.
+
+   Resolves https://github.com/FusionAuth/fusionauth-jwt/issues/36
+   Thanks to @XakepSDK for raising the issue.
+
 Changes in 4.3.0
 
  * Take PublicKey instead of RSAPublicKey or ECPublicKey on verifier methods and then validate the key to ensure the correct type.
