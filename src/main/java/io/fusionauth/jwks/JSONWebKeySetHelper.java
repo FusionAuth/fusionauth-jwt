@@ -152,7 +152,9 @@ public class JSONWebKeySetHelper extends AbstractHttpHelper {
     }
   }
 
-  private static class JSONWebKeySetResponse {
+  // Note, with the introduction of the Java Platform Module System (JPMS), private classes are no longer visible via
+  // reflection. To ensure Jackson can de-serialize this class, it must be public.
+  public static class JSONWebKeySetResponse {
     public List<JSONWebKey> keys;
   }
 }
