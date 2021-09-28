@@ -1,5 +1,13 @@
 FusionAuth JWT Changes
 
+Changes in 5.0.0
+
+  * Correct JWT header to be a Sting, Object map to support embedded JWK.
+    This is a potentially a breaking change.
+
+   Resolves https://github.com/FusionAuth/fusionauth-jwt/issues/38
+   Thanks to @tommed for opening the issue.
+
 Changes in 4.3.1
 
  * Modify `JSONWebKeySetResponse` to be public in support of JPMS.

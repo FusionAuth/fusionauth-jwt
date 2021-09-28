@@ -87,7 +87,7 @@ public class JWTDecoder {
    * @return a decoded JWT.
    */
   public JWT decode(String encodedJWT, Map<String, Verifier> verifiers) {
-    return decode(encodedJWT, verifiers, h -> h.get("kid"));
+    return decode(encodedJWT, verifiers, h -> h.getString("kid"));
   }
 
   /**
@@ -234,7 +234,7 @@ public class JWTDecoder {
    */
   private void verifySignature(Verifier verifier, Header header, String signature, String encodedJWT) {
     // The message comprises the first two segments of the entire JWT, the signature is the last segment.
-    int index = encodedJWT.lastIndexOf(".");
+    int index = encodedJWT.lastIndexOf('.');
     byte[] message = encodedJWT.substring(0, index).getBytes(StandardCharsets.UTF_8);
 
     byte[] signatureBytes = base64Decode(signature);

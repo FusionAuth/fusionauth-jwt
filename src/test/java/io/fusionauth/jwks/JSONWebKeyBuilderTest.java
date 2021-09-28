@@ -18,6 +18,11 @@ package io.fusionauth.jwks;
 
 import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.BaseJWTTest;
+import io.fusionauth.jwt.JWTUtils;
+import io.fusionauth.jwt.Signer;
+import io.fusionauth.jwt.domain.Header;
+import io.fusionauth.jwt.domain.JWT;
+import io.fusionauth.jwt.rsa.RSASigner;
 import io.fusionauth.pem.domain.PEM;
 import org.testng.annotations.Test;
 
@@ -29,6 +34,9 @@ import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
+import java.util.Map;
+
+import static org.testng.Assert.assertEquals;
 
 /**
  * @author Daniel DeGroff
@@ -110,6 +118,29 @@ public class JSONWebKeyBuilderTest extends BaseJWTTest {
     // RSA private key
     RSAPrivateKey privateKey = PEM.decode(Paths.get("src/test/resources/rsa_private_key_jwk_control.pem")).getPrivateKey();
     assertJSONEquals(JSONWebKey.build(privateKey), "src/test/resources/jwk/rsa_private_key_jwk_control.json");
+  }
+
+  @Test
+  public void embedded_jwk() {
+    JWT jwt = new JWT();
+    jwt.addClaim("foo", "bar");
+
+    RSAPrivateKey privateKey = PEM.decode(Paths.get("src/test/resources/rsa_private_key_2048.pem")).getPrivateKey();
+    RSAPublicKey publicKey = PEM.decode(Paths.get("src/test/resources/rsa_public_key_2048.pem")).getPublicKey();
+    JSONWebKey jwk = JSONWebKey.build(publicKey);
+
+    Signer signer = RSASigner.newSHA256Signer(privateKey);
+    String encodedJWT = JWT.getEncoder().encode(jwt, signer, h -> {
+      h.set("cty", "application/json");
+      h.set("jwk", jwk);
+    });
+
+    Header header = JWTUtils.decodeHeader(encodedJWT);
+    assertEquals(header.get("cty"), "application/json");
+    assertEquals(((Map<?, ?>) header.get("jwk")).get("e"), jwk.e);
+    assertEquals(((Map<?, ?>) header.get("jwk")).get("kty"), jwk.kty.name());
+    assertEquals(((Map<?, ?>) header.get("jwk")).get("n"), jwk.n);
+    assertEquals(((Map<?, ?>) header.get("jwk")).get("use"), jwk.use);
   }
 
   @Test

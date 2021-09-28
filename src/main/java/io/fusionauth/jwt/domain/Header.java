@@ -36,7 +36,7 @@ public class Header {
   public Algorithm algorithm;
 
   @JsonIgnore
-  public Map<String, String> properties = new LinkedHashMap<>();
+  public Map<String, Object> properties = new LinkedHashMap<>();
 
   @JsonProperty("typ")
   public String type = "JWT";
@@ -55,11 +55,24 @@ public class Header {
    * @return a map of properties to be serialized as if they were actual properties of this class.
    */
   @JsonAnyGetter
-  public Map<String, String> anyGetter() {
+  public Map<String, Object> anyGetter() {
     return properties;
   }
 
-  public String get(String name) {
+  /**
+   * @param name the name of the key
+   * @return the string value of the object found by the requested key.
+   */
+  public String getString(String name) {
+    Object result = properties.get(name);
+    return result != null ? result.toString() : null;
+  }
+
+  /**
+   * @param name the name of the key
+   * @return the string value of the object found by the requested key.
+   */
+  public Object get(String name) {
     return properties.get(name);
   }
 
@@ -71,7 +84,7 @@ public class Header {
    * @return this.
    */
   @JsonAnySetter
-  public Header set(String name, String value) {
+  public Header set(String name, Object value) {
     if (name == null || value == null) {
       return this;
     }
