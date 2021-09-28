@@ -2,7 +2,7 @@ FusionAuth JWT Changes
 
 Changes in 5.0.0
 
-  * Correct JWT header to be a Sting, Object map to support embedded JWK.
+  * Correct JWT header to be a String, Object map to support embedded JWK.
     This is a potentially a breaking change.
 
    Resolves https://github.com/FusionAuth/fusionauth-jwt/issues/38
