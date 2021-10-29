@@ -33,6 +33,15 @@ public class DerOutputStream {
     return os.toByteArray();
   }
 
+  public DerOutputStream writeValue(byte[] bytes) throws DerEncodingException {
+    try {
+      os.write(bytes);
+      return this;
+    } catch (IOException e) {
+      throw new DerEncodingException(e);
+    }
+  }
+
   public DerOutputStream writeValue(DerValue value) throws DerEncodingException {
     try {
       os.write(value.tag.rawByte);

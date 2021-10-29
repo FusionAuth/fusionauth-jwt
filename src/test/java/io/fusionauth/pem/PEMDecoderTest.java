@@ -148,6 +148,20 @@ public class PEMDecoderTest {
   }
 
   @Test
+  public void x509_includes_privateKey() throws Exception {
+    String encodedPEM = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_certificate_contains_private_key_2048.pem")));
+    assertTrue(encodedPEM.contains(PEM.X509_CERTIFICATE_PREFIX));
+
+    PEM pem = PEM.decode(encodedPEM);
+    assertNotNull(pem.privateKey);
+    assertEquals(pem.privateKey.getFormat(), "PKC#1");
+    assertNotNull(pem.certificate);
+    assertNotNull(pem.publicKey);
+    assertEquals(pem.publicKey.getFormat(), "X.509");
+    assertEquals(pem.certificate.getType(), "X.509");
+  }
+
+  @Test
   public void public_x509() throws Exception {
     List<String> files = Arrays.asList(
         "ec_public_key_p_256.pem",

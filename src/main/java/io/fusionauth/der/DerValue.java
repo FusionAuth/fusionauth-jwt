@@ -18,16 +18,35 @@ package io.fusionauth.der;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.TimeZone;
+
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 /**
  * @author Daniel DeGroff
  */
 public class DerValue {
-  private final DerInputStream value;
+  private static final SimpleDateFormat UTC_DATE_FORMAT;
+  private static final SimpleDateFormat GENERALIZED_DATE_FORMAT;
 
+  static {
+    GENERALIZED_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss'Z'", Locale.US);
+    GENERALIZED_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+    UTC_DATE_FORMAT = new SimpleDateFormat("yyMMddHHmmss'Z'", Locale.US);
+    UTC_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+  }
+
+  private final DerInputStream value;
   public Tag tag;
+
 
   public DerValue(Tag tag, byte[] value) {
     this.tag = tag;
@@ -44,9 +63,43 @@ public class DerValue {
     this.value = new DerInputStream(integer.toByteArray());
   }
 
+  public DerValue(Tag tag, DerOutputStream os) {
+    this.tag = tag;
+    this.value = new DerInputStream(os.toByteArray());
+  }
+
   public DerValue(int tag, DerOutputStream os) {
     this.tag = new Tag(tag);
     this.value = new DerInputStream(os.toByteArray());
+  }
+
+  public static DerValue newBitString(byte[] bytes) {
+    return new DerValue(Tag.BitString, ByteBuffer.allocate(bytes.length + 1)
+        // All bytes are used, no ignore byte
+        .put((byte) 0)
+        // Original byte array
+        .put(bytes)
+        .array());
+  }
+
+  public static DerValue newGeneralizedTime(Date date) {
+    return new DerValue(Tag.GeneralizedTime, GENERALIZED_DATE_FORMAT.format(date).getBytes(ISO_8859_1));
+  }
+
+  public static DerValue newUTCTime(Date date) {
+    return new DerValue(Tag.UTCTime, UTC_DATE_FORMAT.format(date).getBytes(ISO_8859_1));
+  }
+
+  public static DerValue newNull() {
+    return new DerValue(Tag.Null, new byte[]{});
+  }
+
+  public static DerValue newASCIIString(String s) {
+    return new DerValue(Tag.PrintableString, s.getBytes(StandardCharsets.US_ASCII));
+  }
+
+  public static DerValue newUTF8String(String s) {
+    return new DerValue(Tag.UTFString, s.getBytes(StandardCharsets.UTF_8));
   }
 
   @Override
@@ -65,6 +118,33 @@ public class DerValue {
   public BigInteger getBigInteger() {
     return getBigInteger(true);
   }
+
+  public byte[] getBitStringBytes() {
+//    if (tag.value != Tag.BitString) {
+//      return null;
+//    }
+
+    StringBuilder sb = new StringBuilder();
+    byte[] bytes = value.toByteArray();
+    ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
+
+    // Strip off the ignore byte and decode the Bit String
+    int ignoreByte = bytes[0];
+    for (int i = 1; i < bytes.length; i++) {
+      if (i == bytes.length - 1 && ignoreByte != 0) {
+        // If ignore byte is not 0, then on the last byte ignore the last n bits
+        int b = (bytes[i] & 0xFF) >> ignoreByte;
+        buffer.put((byte) b);
+//        sb.append(String.format("%" + (8 - ignoreByte) + "s", (Integer.toBinaryString(b))).replace(' ', '0'));
+      } else {
+        buffer.put((byte) (bytes[i] & 0xFF));
+//        sb.append(String.format("%8s", (Integer.toBinaryString(bytes[i] & 0xFF))).replace(' ', '0'));
+      }
+    }
+
+    return buffer.array();
+  }
+
 
   public String getBitString() {
     if (tag.value != Tag.BitString) {

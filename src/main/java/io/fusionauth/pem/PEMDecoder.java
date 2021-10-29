@@ -16,6 +16,7 @@
 
 package io.fusionauth.pem;
 
+import io.fusionauth.der.DerDecodingException;
 import io.fusionauth.der.DerInputStream;
 import io.fusionauth.der.DerOutputStream;
 import io.fusionauth.der.DerValue;
@@ -39,11 +40,14 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.RSAPrivateCrtKey;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPrivateCrtKeySpec;
+import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
 
@@ -111,8 +115,7 @@ public class PEMDecoder {
       } else if (encodedKey.contains(X509_PUBLIC_KEY_PREFIX)) {
         return decode_X_509(encodedKey);
       } else if (encodedKey.contains(X509_CERTIFICATE_PREFIX)) {
-        return new PEM(CertificateFactory.getInstance("X.509").generateCertificate(
-            new ByteArrayInputStream(getKeyBytes(encodedKey, X509_CERTIFICATE_PREFIX, X509_CERTIFICATE_SUFFIX))));
+        return decode_certificate(encodedKey);
       } else if (encodedKey.contains(PKCS_1_PRIVATE_KEY_PREFIX)) {
         return decode_PKCS_1_Private(encodedKey);
       } else if (encodedKey.contains(PKCS_8_PRIVATE_KEY_PREFIX)) {
@@ -282,6 +285,7 @@ public class PEMDecoder {
       throw new InvalidKeyException("Could not decode the private key. Expected an EC or RSA key type but found OID [" + algorithmOID.decode() + "] and was unable to match that to a supported algorithm.");
     }
 
+    @SuppressWarnings("scwbasic-protection-set_DataProtection-CryptographyAvoidcryptographicweaknessUseappropriatekeypairgenerationalgorithmnotrecommended")
     PrivateKey privateKey = KeyFactory.getInstance(type.name()).generatePrivate(new PKCS8EncodedKeySpec(bytes));
 
     // Attempt to extract the public key if available
@@ -303,6 +307,95 @@ public class PEMDecoder {
     }
 
     return new PEM(privateKey);
+  }
+
+  private PEM decode_certificate(String encodedKey) throws CertificateException, DerDecodingException, NoSuchAlgorithmException {
+    // The certificate is the easy part. Let's see if this also includes a private key.
+    PEM pem = new PEM(CertificateFactory.getInstance("X.509").generateCertificate(
+        new ByteArrayInputStream(getKeyBytes(encodedKey, X509_CERTIFICATE_PREFIX, X509_CERTIFICATE_SUFFIX))));
+
+    try {
+      byte[] bytes = getKeyBytes(encodedKey, X509_CERTIFICATE_PREFIX, X509_CERTIFICATE_SUFFIX);
+      DerValue[] sequence = new DerInputStream(bytes).getSequence();
+
+      if (sequence.length == 3 && sequence[2].tag.is(Tag.BitString)) {
+//        DerValue algorithm = new DerInputStream(sequence[1].toByteArray()).readDerValue();
+        byte[] actual = sequence[2].toByteArray();
+        if (actual[0] == 0) {
+          actual = Arrays.copyOfRange(actual, 1, actual.length);
+        }
+
+        byte[] derBytes = new DerValue(Tag.Sequence, sequence[2].toByteArray()).getBitStringBytes();
+        DerValue[] privateKeySequence = new DerInputStream(derBytes).getSequence();
+
+//        BigInteger exp = new BigInteger(Arrays.copyOfRange(actual, 0, 4));
+//        BigInteger mod = new BigInteger(Arrays.copyOfRange(actual, 4, actual.length));
+//        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(mod, exp);
+//        RSAPrivateKey privateKey = (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+//        DerValue bitString = new DerValue(Tag.Sequence, actual);
+//
+//        DerValue seq2 = new DerInputStream(bitString).readDerValue();
+//
+//        ECPrivateKey privateKey = (ECPrivateKey) KeyFactory.getInstance("EC").generatePrivate(new PKCS8EncodedKeySpec(sequence[2].toByteArray()));
+//        pem.privateKey = privateKey;
+
+//        pem.privateKey = privateKey;
+
+
+        System.out.println("here");
+//        new DerInputStream(sequence[3]).readDerValue()
+//        System.out.println(string);
+//        DerValue[] privateKeySequence = new DerInputStream(sequence[2]).getSequence();
+
+        // AlgorithmIdentifier ::= SEQUENCE {
+        //   algorithm       OBJECT IDENTIFIER,
+        //   parameters      ANY DEFINED BY algorithm OPTIONAL
+        // }
+
+        // RSAPrivateKey     OCTET STRING
+
+        // DER Encoded PKCS#1 structure
+        // https://tools.ietf.org/html/rfc3447#appendix-A.1
+        // ------------------------------------------------------
+        // RSAPrivateKey ::= SEQUENCE {
+        //   version           Version,
+        //   modulus           INTEGER,  -- n
+        //   publicExponent    INTEGER,  -- e
+        //   privateExponent   INTEGER,  -- d
+        //   prime1            INTEGER,  -- p
+        //   prime2            INTEGER,  -- q
+        //   exponent1         INTEGER,  -- d mod (p-1)
+        //   exponent2         INTEGER,  -- d mod (q-1)
+        //   coefficient       INTEGER,  -- (inverse of q) mod p
+        //   otherPrimeInfos   OtherPrimeInfos OPTIONAL
+        // }
+
+
+//        if (privateKeySequence.length < 9) {
+//          throw new PEMDecoderException(
+//              new InvalidKeyException("Could not build a PKCS#1 private key. Expected at least 9 values in the DER encoded sequence."));
+//        }
+
+//        // Ignoring the version value in the sequence
+//        BigInteger n = sequence[1].getBigInteger();
+//        BigInteger e = sequence[2].getBigInteger();
+//        BigInteger d = sequence[3].getBigInteger();
+//        BigInteger p = sequence[4].getBigInteger();
+//        BigInteger q = sequence[5].getBigInteger();
+//        BigInteger d_mod_p1 = sequence[6].getBigInteger();
+//        BigInteger d_mod_q1 = sequence[7].getBigInteger();
+//        BigInteger mod_p = sequence[8].getBigInteger();
+//
+//        PrivateKey privateKey = KeyFactory.getInstance("RSA").generatePrivate(new RSAPrivateCrtKeySpec(n, e, d, p, q, d_mod_p1, d_mod_q1, mod_p));
+//        pem.privateKey = privateKey;
+      }
+
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+
+
+    return null;
   }
 
   private PEM decode_X_509(String encodedKey) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException {
@@ -334,6 +427,7 @@ public class PEMDecoder {
       throw new InvalidKeyException("Could not decode the X.509 public key. Expected at 2 values in the DER encoded sequence but found [" + sequence.length + "]");
     }
 
+    //noinspection scwbasic-protection-set_DataProtection-CryptographyAvoidcryptographicweaknessUseappropriatekeypairgenerationalgorithmnotrecommended
     return new PEM(KeyFactory.getInstance(type.name()).generatePublic(new X509EncodedKeySpec(bytes)));
   }
 

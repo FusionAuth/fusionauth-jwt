@@ -18,7 +18,9 @@ package io.fusionauth.der;
 
 import io.fusionauth.domain.Buildable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -69,6 +71,11 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
   public static final String RSA_SHA512 = "1.2.840.113549.1.1.13";
 
   /**
+   * X.520 DN component - Common Name
+   */
+  public static final String X_520_DN_COMMON_NAME = "2.5.4.3";
+
+  /**
    * The raw byte array of this Object Identifier.
    */
   public byte[] value;
@@ -80,6 +87,34 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
 
   public ObjectIdentifier(byte[] value) {
     this.value = value;
+  }
+
+  public static byte[] encode(String s) {
+    String[] parts = s.trim().split("\\.");
+    List<Integer> result = new ArrayList<>();
+
+    for (int a = 0, b, i = 0; i < parts.length; i++) {
+      if (i == 0) {
+        a = Integer.parseInt(parts[i]);
+      } else if (i == 1) {
+        result.add(40 * a + Integer.parseInt(parts[i]));
+      } else {
+        b = Integer.parseInt(parts[i]);
+        if (b < 128) {
+          result.add(b);
+        } else {
+          result.add(128 + (b / 128));
+          result.add(b % 128);
+        }
+      }
+    }
+
+    byte[] bytes = new byte[result.size()];
+    for (int i = 0; i < result.size(); i++) {
+      bytes[i] = result.get(i).byteValue();
+    }
+
+    return bytes;
   }
 
   /**

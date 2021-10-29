@@ -97,9 +97,11 @@ public class DerInputStream {
     try {
       byte[] buffer = new byte[length];
       data.reset();
-      int actualLength = data.read(buffer);
-      if (actualLength != length) {
-        throw new IOException("Failed to read the entire byte array. Expected to read " + length + " bytes, but only read " + actualLength + ".");
+      if (length > 0) {
+        int actualLength = data.read(buffer);
+        if (actualLength != length) {
+          throw new IOException("Failed to read the entire byte array. Expected to read " + length + " bytes, but only read " + actualLength + ".");
+        }
       }
       return buffer;
     } catch (IOException e) {

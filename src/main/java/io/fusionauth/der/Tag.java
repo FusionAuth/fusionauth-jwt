@@ -25,14 +25,19 @@ import java.util.Objects;
  */
 public class Tag {
   /**
+   * Integer Tag
+   */
+  public static final int Integer = 2;
+
+  /**
    * Bit String Tag
    */
   public static final int BitString = 3;
 
   /**
-   * Integer Tag
+   * Octet String Tag
    */
-  public static final int Integer = 2;
+  public static final int OctetString = 4;
 
   /**
    * Null Tag
@@ -45,9 +50,34 @@ public class Tag {
   public static final int ObjectIdentifier = 6;
 
   /**
-   * Octet String Tag
+   * UTF-8 Printable String tag.
+   * <p>
+   * 12 decimal, 0x0C hex
+   * </p>
    */
-  public static final int OctetString = 4;
+  public static final int UTFString = 12;
+
+  /**
+   * Sequence Tag
+   * <p>
+   * 16 decimal, 0x10 (and 0x30) hex, 0b00010000 binary
+   * </p>
+   * Because the Sequence tag is always in a constructed form (not primitive), the tag will present as <code>0x30</code> because
+   * the 6th bit is a <code>1</code> indicating a constructed form. So the raw sequence of <code>0b00010000</code> becomes
+   * <code>0b00110000</code> which is <code>48</code> decimal.
+   */
+  public static final int Sequence = 16 | 0b00100000;
+
+  /**
+   * Set and Set of
+   * <p>
+   * 17 decimal, 0x11 (and 0x31) hex, 0b00010001 binary.
+   * </p>
+   * Because the Set tag is always in a constructed form (not primitive), the tag will present as <code>0x31</code> because
+   * the 6th bit is a <code>1</code> indicating a constructed form. So the raw sequence of <code>0b00010001</code> becomes
+   * <code>0b00110001</code> which is <code>49</code> decimal.
+   */
+  public static final int Set = 17 | 0b00100000;
 
   /**
    * PrintableString Tag
@@ -58,31 +88,20 @@ public class Tag {
   public static final int PrintableString = 19;
 
   /**
-   * Sequence Tag
-   * <p>
-   * 16 decimal, 0x10 hex, 0b00010000 binary
-   * </p>
-   * Because the Sequence tag is always in a constructed form (not primitive), the tag will present as <code>0x30</code> because
-   * the 6th bit is a <code>1</code> indicating a constructed form. So the raw sequence of <code>0b00010000</code> becomes
-   * <code>0b00110000</code> which is <code>48</code> decimal.
-   */
-  public static final int Sequence = 48;
-
-  /**
-   * Set and Set of
-   * <p>
-   * 17 decimal, 0x11 hex
-   * </p>
-   */
-  public static final int Set = 17;
-
-  /**
    * UTCTime Tag
    * <p>
    * 23 decimal, 0x17 hex
    * </p>
    */
   public static final int UTCTime = 23;
+
+  /**
+   * GeneralizedTime Tag
+   * <p>
+   * 24 decimal, 0x18 hex
+   * </p>
+   */
+  public static final int GeneralizedTime = 24;
 
   /**
    * True if this Tag is primitive. False if this Tag is constructed.
@@ -161,6 +180,8 @@ public class Tag {
         return "Integer";
       case BitString:
         return "Bit String";
+      case GeneralizedTime:
+        return "GeneralizedTime";
       case Null:
         return "Null";
       case ObjectIdentifier:

@@ -30,14 +30,73 @@
   <component name="InspectionProjectProfileManager">
     <profile version="1.0">
       <option name="myName" value="Project Default" />
+      <inspection_tool class="DuplicatedCode" enabled="true" level="WARNING" enabled_by_default="true" />
       <inspection_tool class="Duplicates" enabled="true" level="WARNING" enabled_by_default="true">
         <option name="minCloneLength" value="35" />
       </inspection_tool>
-      <inspection_tool class="WeakerAccess" enabled="false" level="WARNING" enabled_by_default="false">
-        <option name="SUGGEST_PACKAGE_LOCAL_FOR_MEMBERS" value="true" />
-        <option name="SUGGEST_PACKAGE_LOCAL_FOR_TOP_CLASSES" value="true" />
-        <option name="SUGGEST_PRIVATE_FOR_INNERS" value="false" />
-      </inspection_tool>
+      <inspection_tool class="scwbasic-protection-set_CryptoCipherInsecureAsymmetricCryptographicAlgorithm" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_CryptoKeyAgreementGuideonApprovedCryptographicAlgorithm" enabled="true" level="SENSEI MARKED INFO" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_CryptoKeyAgreementInsecureCryptographicAlgorithm" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_CryptoKeyPairGenerationApprovedStandardCryptographicAlgorithm" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_CryptoKeyPairGenerationInsecureCryptographicAlgorithm" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_CryptoKeyPairGenerationNonStandardCryptographicAlgorithm" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_CryptoSignatureApprovedHashingAlgorithm" enabled="true" level="SENSEI MARKED INFO" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_CryptoSignatureInsecureHashingAlgorithm" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_CryptoSignatureNonStandardHashingAlgorithm" enabled="true" level="SENSEI WARNING" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_DataProtection-CryptographyAvoidbruteforcingUsesufficientlylongkeysizeskeyGenerator" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_DataProtection-CryptographyAvoidcryptographicweaknessUseappropriatekeypairgenerationalgorithminsecure" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_DataProtection-CryptographyAvoidcryptographicweaknessUseappropriatekeypairgenerationalgorithmnotrecommended" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_DataProtection-CryptographyAvoidcryptographicweaknessUseappropriatesecretkeygenerationalgorithmDESfamily" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_DataProtection-CryptographyAvoidcryptographicweaknessUseappropriatesecretkeygenerationalgorithmHmacfamily" enabled="true" level="SENSEI WARNING" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_DataProtection-CryptographyAvoidcryptographicweaknessUseappropriatesecretkeygenerationalgorithmOtheralgorithms" enabled="true" level="SENSEI MARKED INFO" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_DataProtection-CryptographyAvoidcryptographicweaknessUseappropriatesecretkeygenerationalgorithminsecureSecretKeyFactory" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_DataProtection-CryptographyAvoidcryptographicweaknessUseappropriatesecretkeygenerationalgorithmotherSecretKeyFactory" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_DataProtection-CryptographyAvoidcryptographicweaknessUsestrongsymmetriccryptographicalgorithm" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_DataProtection-CryptographyAvoidcryptographicweaknessUsestrongsymmetriccryptographicalgorithmUntrusted" enabled="true" level="SENSEI WARNING" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_DataProtection-CryptographyAvoidcryptographicweaknessUsesufficientlylongkeysizeskeyGeneratorbadvalue" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_DataProtection-CryptographyAvoidcryptographicweaknessUsesufficientlylongkeysizeskeyPairGenerator" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_DataProtection-CryptographyAvoidcryptographicweaknessUsesufficientlylongkeysizeskeyPairGeneratorbadvalue" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_DataProtection-SecureDataStorageAvoiddataexposureUseCipherinsteadofNullCipher" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_InjectionAvoidCodeInjectionUseSafeConstructor1stargumentoftypeConstructor" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_InjectionAvoidCodeInjectionUseSafeConstructorargumentsbutnoConstructorargument" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_InjectionAvoidCodeInjectionUseSafeConstructornoarguments" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_InjectionAvoidSQLInjectionUseParameterizedQueriesPreparedStatement" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_InjectionAvoidSQLInjectionUseParameterizedQueriesStatement" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_XMLInjectionSetmissingsecureprocessingfeature" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_XMLInjectionSetsecureprocessingfeaturetotrue" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_XXEDocumentBuilderFactoryAddmissingfeaturedissallow-doctype-decl" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_XXEDocumentBuilderFactoryAddmissingfeatureexternal-parameter-entities" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_XXEDocumentBuilderFactoryAddmissingfeatureload-external-dtd" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_XXEDocumentBuilderFactoryAddmissingfeaturesetExpandEntityReferences" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_XXEDocumentBuilderFactoryAddmissingfeaturesetXIncludeAware" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_XXEDocumentBuilderFactorySetfeaturestofalse" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_XXEDocumentBuilderFactorySetfeaturestotrue" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_XXEDocumentBuilderFactorySetterstofalse" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_XXEXMLInputFactoryAddIS_SUPPORTING_EXTERNAL_ENTITIESfeature" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_XXEXMLInputFactoryAddSUPPORT_DTDfeature" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwbasic-protection-set_XXEXMLInputFactorySetfeaturestofalse" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwjava_CollectionsDonotexposeinternalLists" enabled="true" level="SENSEI MARKED INFO" enabled_by_default="true" />
+      <inspection_tool class="scwjava_CollectionsDonotexposeinternalSets" enabled="true" level="SENSEI MARKED INFO" enabled_by_default="true" />
+      <inspection_tool class="scwjava_CommandInjectionUntrusteddatainProcessBuildercommand" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwjava_CommandInjectionUntrusteddatainProcessBuildercommand-Add" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwjava_Createprivateconstructorforutilityclassallfieldsmethodsarestatic" enabled="true" level="SENSEI INFO" enabled_by_default="true" />
+      <inspection_tool class="scwjava_Donotcompareclassestypesbytheirname" enabled="true" level="SENSEI WARNING" enabled_by_default="true" />
+      <inspection_tool class="scwjava_Donotcompareclassestypesbytheirnameliteral" enabled="true" level="SENSEI WARNING" enabled_by_default="true" />
+      <inspection_tool class="scwjava_Donotcompareclassestypesbytheirnameliteralinverted" enabled="true" level="SENSEI WARNING" enabled_by_default="true" />
+      <inspection_tool class="scwjava_Donotexposeinternalarray" enabled="true" level="SENSEI WARNING" enabled_by_default="true" />
+      <inspection_tool class="scwjava_ExceptionCreatedbutnotthrown" enabled="true" level="SENSEI WARNING" enabled_by_default="true" />
+      <inspection_tool class="scwjava_Incorrectequalitycheckofwrappervaluesequals" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwjava_Incorrectequalitycheckofwrappervaluesnotequals" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwjava_IncorrectuseofObjects.equals" enabled="true" level="SENSEI WARNING" enabled_by_default="true" />
+      <inspection_tool class="scwjava_InefficientuseofString.indexOf" enabled="true" level="SENSEI WARNING" enabled_by_default="true" />
+      <inspection_tool class="scwjava_InvalidcomparisonofStringtonumberprimitive" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwjava_InvalidcomparisonofStringtonumberwrapper" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwjava_PortabilityFlawAvoidlocaledependentcomparisonsequalsaftercaseconversion" enabled="true" level="SENSEI WARNING" enabled_by_default="true" />
+      <inspection_tool class="scwjava_RegexInjection" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwjava_String.formatreturnvaluebeingignored" enabled="true" level="SENSEI WARNING" enabled_by_default="true" />
+      <inspection_tool class="scwjava_StringsRegexUseEscapeRegexSpecialCharacterforAnyCharMatching" enabled="true" level="SENSEI ERROR" enabled_by_default="true" />
+      <inspection_tool class="scwjava_URLClassloaderCallsuperwhenoverridinggetPermissions" enabled="true" level="SENSEI WARNING" enabled_by_default="true" />
+      <inspection_tool class="scwjava_ValidateZipEntries" enabled="true" level="SENSEI WARNING" enabled_by_default="true" />
     </profile>
     <version value="1.0" />
   </component>
