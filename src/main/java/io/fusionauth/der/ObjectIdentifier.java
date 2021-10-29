@@ -27,6 +27,31 @@ import java.util.Objects;
  * @author Daniel DeGroff
  */
 public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
+//  private static final byte[] EC_ENCRYPTION_OID = new byte[]{(byte) 0x2A, (byte) 0x86, (byte) 0x48, (byte) 0xCE, (byte) 0x3D, (byte) 0x02, (byte) 0x01};
+//
+//  private static final byte[] RSA_ENCRYPTION_OID = new byte[]{(byte) 0x2A, (byte) 0x86, (byte) 0x48, (byte) 0x86, (byte) 0xF7, (byte) 0x0D, (byte) 0x01, (byte) 0x01, (byte) 0x01};
+
+  // SHA256withRSA
+  // RS256 1.2.840.113549.1.1.11
+
+  // SHA384withRSA
+  // RS384 1.2.840.113549.1.1.12
+
+  // SHA512withRSA
+  // RS512 1.2.840.113549.1.1.13
+
+  // SHA256withECDSA
+  // ES256 1.2.840.10045.4.3.2
+  // 06 08 2A 86 48 CE 3D 04 03 02
+
+  // SHA384withECDSA
+  // ES384 1.2.840.10045.4.3.3
+  // 06 08 2A 86 48 CE 3D 04 03 03
+
+  // SHA512withECDSA
+  // ES512 1.2.840.10045.4.3.4
+  // 06 08 2A 86 48 CE 3D 04 03 04
+
   /**
    * Elliptic curve / 256 bit / secp256r1 / prime256v1
    * X9.62/SECG curve over a 256 bit prime field
@@ -137,7 +162,7 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
     if (!(o instanceof ObjectIdentifier)) return false;
     ObjectIdentifier that = (ObjectIdentifier) o;
     return Arrays.equals(value, that.value) &&
-        Objects.equals(decoded, that.decoded);
+           Objects.equals(decoded, that.decoded);
   }
 
   @Override

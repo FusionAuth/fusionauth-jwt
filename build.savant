@@ -35,7 +35,7 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "6.0.0", licens
     }
     group(name: "test-compile", export: false) {
       dependency(id: "org.bouncycastle:bc-fips:1.0.2+P1")
-      dependency(id: "org.testng:testng:6.8.7")
+      dependency(id: "org.testng:testng:7.3.0")
     }
   }
 
@@ -49,8 +49,7 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "6.0.0", licens
  */
 dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:1.0.2")
 java = loadPlugin(id: "org.savantbuild.plugin:java:1.0.2")
-javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.7")
-groovy = loadPlugin(id: "org.savantbuild.plugin:groovy:${savantVersion}")
+javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.9")
 idea = loadPlugin(id: "org.savantbuild.plugin:idea:${savantVersion}")
 release = loadPlugin(id: "org.savantbuild.plugin:release-git:${savantVersion}")
 
@@ -58,8 +57,6 @@ release = loadPlugin(id: "org.savantbuild.plugin:release-git:${savantVersion}")
  * Plugin Settings
  */
 java.settings.javaVersion = "1.8"
-groovy.settings.javaVersion = "1.8"
-groovy.settings.groovyVersion = "2.2"
 javaTestNG.settings.javaVersion = "1.8"
 
 /*
