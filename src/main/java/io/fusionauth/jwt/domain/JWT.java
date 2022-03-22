@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,11 @@ import java.util.Objects;
  * @author Daniel DeGroff
  */
 public class JWT {
+  /**
+   * The decoded JWT header. This is not considered part of the JWT payload, but is available here for convenience.
+   */
+  @JsonIgnore
+  public Header header;
 
   /**
    * Registered Claim <code>aud</code> as defined by RFC 7519 Section 4.1.3. Use of this claim is OPTIONAL.
@@ -151,6 +156,11 @@ public class JWT {
    */
   public static JWTEncoder getEncoder() {
     return new JWTEncoder();
+  }
+
+  @JsonIgnore
+  public Object getHeaderClaim(String name) {
+    return header != null ? header.get(name) : null;
   }
 
   /**

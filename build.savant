@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 savantVersion = "1.0.0"
-jacksonVersion = "2.12.2"
+jacksonVersion = "2.13.2"
 
-project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.0.0", licenses: ["ApacheV2_0"]) {
+project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.1.0", licenses: ["ApacheV2_0"]) {
 
   workflow {
     fetch {

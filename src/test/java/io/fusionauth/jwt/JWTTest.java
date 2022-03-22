@@ -16,6 +16,7 @@
 
 package io.fusionauth.jwt;
 
+import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.Header;
 import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.ec.ECSigner;
@@ -56,6 +57,7 @@ import java.util.UUID;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -270,6 +272,8 @@ public class JWTTest extends BaseJWTTest {
     Verifier verifier = ECVerifier.newVerifier(Paths.get("src/test/resources/ec_public_key_p_256.pem"));
     JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
     assertEquals(jwt.subject, "123456789");
+    assertEquals(jwt.header.algorithm, Algorithm.ES256);
+    assertEquals(jwt.header.type, "JWT");
 
     // Re-test using a pre-built EC Public Key
     assertEquals(JWT.getDecoder().decode(encodedJWT, ECVerifier.newVerifier((ECPublicKey) PEM.decode(Paths.get("src/test/resources/ec_public_key_p_256.pem")).getPublicKey())).subject, "123456789");
@@ -559,8 +563,23 @@ public class JWTTest extends BaseJWTTest {
     Signer signer = HMACSigner.newSHA256Signer("secret");
     Verifier verifier = HMACVerifier.newVerifier("secret");
 
-    String encodedJWT = JWT.getEncoder().encode(expectedJWT, signer);
+    String encodedJWT = JWT.getEncoder().encode(expectedJWT, signer, header -> header
+        .set("gty", Collections.singletonList("client_credentials"))
+        .set("kid", "1234"));
     JWT actualJwt = JWT.getDecoder().decode(encodedJWT, verifier);
+
+    assertEquals(actualJwt.header.algorithm, Algorithm.HS256);
+    assertEquals(actualJwt.header.type, "JWT");
+
+    // Get manually and with helper.
+    assertEquals(actualJwt.header.get("gty"), Collections.singletonList("client_credentials"));
+    assertEquals(actualJwt.getHeaderClaim("gty"), Collections.singletonList("client_credentials"));
+    // Get manually and with helper.
+    assertEquals(actualJwt.header.get("kid"), "1234");
+    assertEquals(actualJwt.getHeaderClaim("kid"), "1234");
+    // Get missing attribute
+    assertNull(actualJwt.header.get("foo"));
+    assertNull(actualJwt.getHeaderClaim("foo"));
 
     assertEquals(actualJwt.audience, expectedJWT.audience);
     assertEquals(actualJwt.expiration, expectedJWT.expiration);
