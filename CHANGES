@@ -1,5 +1,9 @@
 FusionAuth JWT Changes
 
+Changes in 5.1.0
+
+  * Added access to the JWT header in the JWT object.
+
 Changes in 5.0.0
 
   * Correct JWT header to be a String, Object map to support embedded JWK.
