@@ -1,5 +1,12 @@
 FusionAuth JWT Changes
 
+Changes in 5.1.1
+
+  * Allow for a 2047 bit RSA key, turns out this is a thing.
+
+  Resolves https://github.com/FusionAuth/fusionauth-jwt/issues/41
+  Thanks to @paul-eeoc for opening the issue.
+
 Changes in 5.1.0
 
   * Added access to the JWT header in the JWT object.

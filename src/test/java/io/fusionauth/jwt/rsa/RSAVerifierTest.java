@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2017-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ public class RSAVerifierTest extends BaseJWTTest {
   public void test_public_pem_parsing() {
     Arrays.asList(
         "rsa_certificate_2048.pem",
+        "rsa_public_key_2047.pem",
         "rsa_public_key_2048.pem",
         "rsa_public_key_2048_with_meta.pem",
         "rsa_public_key_3072.pem",

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -189,7 +189,8 @@ public class RSAVerifier implements Verifier {
 
   private void assertValidKeyLength() {
     int keyLength = this.publicKey.getModulus().bitLength();
-    if (keyLength < 2048) {
+    // We would normally expect 2048, but it turns out it is possible for an RSA key to be generated of length 2047.
+    if (keyLength < 2047) {
       throw new InvalidKeyLengthException("Key length of [" + keyLength + "] is less than the required key length of 2048 bits.");
     }
   }
