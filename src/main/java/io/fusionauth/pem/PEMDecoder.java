@@ -16,14 +16,6 @@
 
 package io.fusionauth.pem;
 
-import io.fusionauth.der.DerInputStream;
-import io.fusionauth.der.DerOutputStream;
-import io.fusionauth.der.DerValue;
-import io.fusionauth.der.ObjectIdentifier;
-import io.fusionauth.der.Tag;
-import io.fusionauth.jwt.domain.KeyType;
-import io.fusionauth.pem.domain.PEM;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -48,6 +40,13 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Objects;
 
+import io.fusionauth.der.DerInputStream;
+import io.fusionauth.der.DerOutputStream;
+import io.fusionauth.der.DerValue;
+import io.fusionauth.der.ObjectIdentifier;
+import io.fusionauth.der.Tag;
+import io.fusionauth.jwt.domain.KeyType;
+import io.fusionauth.pem.domain.PEM;
 import static io.fusionauth.pem.domain.PEM.EC_PRIVATE_KEY_PREFIX;
 import static io.fusionauth.pem.domain.PEM.EC_PRIVATE_KEY_SUFFIX;
 import static io.fusionauth.pem.domain.PEM.PKCS_1_PRIVATE_KEY_PREFIX;
@@ -172,7 +171,7 @@ public class PEMDecoder {
       // This is an EC encoded key w/out the context specific values [0] or [1] - this means we don't
       // have enough information to build a PKCS#8 key.
       throw new PEMDecoderException("Unable to decode the provided PEM, the EC private key does not contain the"
-          + " curve identifier necessary to convert to a PKCS#8 format before building a private key");
+                                    + " curve identifier necessary to convert to a PKCS#8 format before building a private key");
     }
 
     ObjectIdentifier curveOID = sequence[2].getOID();
@@ -304,8 +303,7 @@ public class PEMDecoder {
       PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
       return new PEM(privateKey, publicKey);
     } else if (privateKey instanceof EdECPrivateKey) {
-      // TODO
-      System.out.println("foo");
+      // TODO : Can I extract the public key here? I think I can, similar to how I'm doing EC
     }
 
     return new PEM(privateKey);
@@ -352,7 +350,8 @@ public class PEMDecoder {
     return Base64.getDecoder().decode(base64);
   }
 
-  private PublicKey getPublicKeyFromPrivateEC(DerValue bitString, ECPrivateKey privateKey) throws InvalidKeySpecException, IOException, NoSuchAlgorithmException {
+  private PublicKey getPublicKeyFromPrivateEC(DerValue bitString, ECPrivateKey privateKey)
+      throws InvalidKeySpecException, IOException, NoSuchAlgorithmException {
     // Build an X.509 DER encoded byte array from the provided bitString
     //
     // SubjectPublicKeyInfo ::= SEQUENCE {
