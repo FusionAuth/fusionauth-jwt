@@ -38,6 +38,7 @@ import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.EdECPrivateKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -122,7 +123,8 @@ public class PEMDecoder {
       } else {
         throw new PEMDecoderException(new InvalidParameterException("Unexpected PEM Format"));
       }
-    } catch (CertificateException | InvalidKeyException | InvalidKeySpecException | IOException | NoSuchAlgorithmException e) {
+    } catch (CertificateException | InvalidKeyException | InvalidKeySpecException | IOException |
+             NoSuchAlgorithmException e) {
       throw new PEMDecoderException(e);
     }
   }
@@ -282,7 +284,8 @@ public class PEMDecoder {
       throw new InvalidKeyException("Could not decode the private key. Expected an EC or RSA key type but found OID [" + algorithmOID.decode() + "] and was unable to match that to a supported algorithm.");
     }
 
-    PrivateKey privateKey = KeyFactory.getInstance(type.name()).generatePrivate(new PKCS8EncodedKeySpec(bytes));
+    String typeName = type == KeyType.OKP ? "EdDSA" : type.name();
+    PrivateKey privateKey = KeyFactory.getInstance(typeName).generatePrivate(new PKCS8EncodedKeySpec(bytes));
 
     // Attempt to extract the public key if available
     if (privateKey instanceof ECPrivateKey) {
@@ -300,6 +303,9 @@ public class PEMDecoder {
       BigInteger publicExponent = ((RSAPrivateCrtKey) privateKey).getPublicExponent();
       PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
       return new PEM(privateKey, publicKey);
+    } else if (privateKey instanceof EdECPrivateKey) {
+      // TODO
+      System.out.println("foo");
     }
 
     return new PEM(privateKey);
@@ -334,7 +340,8 @@ public class PEMDecoder {
       throw new InvalidKeyException("Could not decode the X.509 public key. Expected at 2 values in the DER encoded sequence but found [" + sequence.length + "]");
     }
 
-    return new PEM(KeyFactory.getInstance(type.name()).generatePublic(new X509EncodedKeySpec(bytes)));
+    String typeName = type == KeyType.OKP ? "EdDSA" : type.name();
+    return new PEM(KeyFactory.getInstance(typeName).generatePublic(new X509EncodedKeySpec(bytes)));
   }
 
   private byte[] getKeyBytes(String key, String keyPrefix, String keySuffix) {

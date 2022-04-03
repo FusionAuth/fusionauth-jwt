@@ -16,17 +16,6 @@
 
 package io.fusionauth.jwt.rsa;
 
-import io.fusionauth.jwt.InvalidJWTSignatureException;
-import io.fusionauth.jwt.InvalidKeyLengthException;
-import io.fusionauth.jwt.InvalidKeyTypeException;
-import io.fusionauth.jwt.JWTVerifierException;
-import io.fusionauth.jwt.MissingPublicKeyException;
-import io.fusionauth.jwt.Verifier;
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.pem.domain.PEM;
-import io.fusionauth.security.CryptoProvider;
-import io.fusionauth.security.DefaultCryptoProvider;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,15 +27,26 @@ import java.security.SignatureException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Objects;
 
+import io.fusionauth.jwt.InvalidJWTSignatureException;
+import io.fusionauth.jwt.InvalidKeyLengthException;
+import io.fusionauth.jwt.InvalidKeyTypeException;
+import io.fusionauth.jwt.JWTVerifierException;
+import io.fusionauth.jwt.MissingPublicKeyException;
+import io.fusionauth.jwt.Verifier;
+import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.pem.domain.PEM;
+import io.fusionauth.security.CryptoProvider;
+import io.fusionauth.security.DefaultCryptoProvider;
+
 /**
  * This class is used to verify a JWT with an RSA signature using an RSA Public Key.
  *
  * @author Daniel DeGroff
  */
 public class RSAVerifier implements Verifier {
-  private final RSAPublicKey publicKey;
-
   private final CryptoProvider cryptoProvider;
+
+  private final RSAPublicKey publicKey;
 
   private RSAVerifier(PublicKey publicKey, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(publicKey);

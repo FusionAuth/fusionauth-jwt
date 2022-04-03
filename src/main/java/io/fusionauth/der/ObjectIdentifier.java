@@ -49,6 +49,11 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
   public static final String EC_ENCRYPTION = "1.2.840.10045.2.1";
 
   /**
+   * Edwards-curve Digital Signature Algorithm (EdDSA) Ed25519
+   */
+  public static final String ED_DSA_ENCRYPTION = "1.3.101.112";
+
+  /**
    * RSA Public Key cryptography
    */
   public static final String RSA_ENCRYPTION = "1.2.840.113549.1.1.1";

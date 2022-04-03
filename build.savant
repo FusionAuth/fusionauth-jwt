@@ -63,10 +63,10 @@ release = loadPlugin(id: "org.savantbuild.plugin:release-git:${savantVersion}")
 /*
  * Plugin Settings
  */
-java.settings.javaVersion = "1.8"
+java.settings.javaVersion = "17"
 groovy.settings.javaVersion = "1.8"
 groovy.settings.groovyVersion = "2.2"
-javaTestNG.settings.javaVersion = "1.8"
+javaTestNG.settings.javaVersion = "17"
 
 /*
  * Targets

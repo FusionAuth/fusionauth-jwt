@@ -21,6 +21,8 @@ import io.fusionauth.jwt.domain.Header;
 import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.ec.ECSigner;
 import io.fusionauth.jwt.ec.ECVerifier;
+import io.fusionauth.jwt.eddsa.EdDSASigner;
+import io.fusionauth.jwt.eddsa.EdDSAVerifier;
 import io.fusionauth.jwt.hmac.HMACSigner;
 import io.fusionauth.jwt.hmac.HMACVerifier;
 import io.fusionauth.jwt.rsa.RSAPSSSigner;
@@ -469,6 +471,22 @@ public class JWTTest extends BaseJWTTest {
 
     // Verify the JWT
     Verifier verifier = RSAPSSVerifier.newVerifier(Paths.get("src/test/resources/rsa_public_key_2048.pem"));
+    JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
+
+    assertEquals(actual.subject, jwt.subject);
+  }
+
+  @Test
+  @RequiresAlgorithm("EdDSA")
+  public void test_ed_dsa() throws Exception {
+    JWT jwt = new JWT().setSubject("1234567890");
+
+    // Sign the JWT
+    Signer signer = EdDSASigner.newSigner(new String(Files.readAllBytes(Paths.get("src/test/resources/ed_dsa_private_key.pem"))));
+    String encodedJWT = JWT.getEncoder().encode(jwt, signer);
+
+    // Verify the JWT
+    Verifier verifier = EdDSAVerifier.newVerifier(Paths.get("src/test/resources/ed_dsa_public_key.pem"));
     JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
 
     assertEquals(actual.subject, jwt.subject);

@@ -1,0 +1,7 @@
+{
+  "alg": "EdDSA",
+  "crv": "Ed25519",
+  "kty": "OKP",
+  "use": "sig",
+  "d": ""
+}

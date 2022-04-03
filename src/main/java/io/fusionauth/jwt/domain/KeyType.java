@@ -19,6 +19,7 @@ package io.fusionauth.jwt.domain;
 import java.util.Objects;
 
 import static io.fusionauth.der.ObjectIdentifier.EC_ENCRYPTION;
+import static io.fusionauth.der.ObjectIdentifier.ED_DSA_ENCRYPTION;
 import static io.fusionauth.der.ObjectIdentifier.RSA_ENCRYPTION;
 
 /**
@@ -28,19 +29,22 @@ import static io.fusionauth.der.ObjectIdentifier.RSA_ENCRYPTION;
  * <ul> <li>ES Elliptic Curve [DDS]</li> <li>RSA as defined by  <a href="https://tools.ietf.org/html/rfc3447">RFC
  * 3447</a></li> <li>oct: Octet Sequence (used to represent symmetric keys)</li> </ul>
  * <p>
- * Currently only the RSA and EC Key Types is implemented and supported in this library.
+ * Currently only the RSA, EC and OKP Key Types is implemented and supported in this library.
  * </p>
  *
  * @author Daniel DeGroff
  */
 public enum KeyType {
   RSA,
-  EC;
+  EC,
+  OKP;
 
   public static KeyType getKeyTypeFromOid(String oid) {
     Objects.requireNonNull(oid);
 
     switch (oid) {
+      case ED_DSA_ENCRYPTION:
+        return OKP;
       case EC_ENCRYPTION:
         return EC;
       case RSA_ENCRYPTION:

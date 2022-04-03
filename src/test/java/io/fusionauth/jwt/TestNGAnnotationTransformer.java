@@ -30,12 +30,20 @@ import java.security.Signature;
  */
 @SuppressWarnings("unused")
 public class TestNGAnnotationTransformer implements IAnnotationTransformer {
+  private static boolean EdwardsCurveSignatureASchemaAvailable;
+
   private static boolean RSAProbabilisticSignatureSchemaAvailable;
 
   static {
     try {
       Signature.getInstance("RSASSA-PSS");
       RSAProbabilisticSignatureSchemaAvailable = true;
+    } catch (Exception ignore) {
+    }
+
+    try {
+      Signature.getInstance("EdDSA");
+      EdwardsCurveSignatureASchemaAvailable = true;
     } catch (Exception ignore) {
     }
   }
@@ -47,6 +55,8 @@ public class TestNGAnnotationTransformer implements IAnnotationTransformer {
       // Only run these tests if the RSASSA PSS algorithm is available
       if (requiresAlgorithm.value().equals("RSASSA-PSS")) {
         annotation.setEnabled(RSAProbabilisticSignatureSchemaAvailable);
+      } else if (requiresAlgorithm.value().equals("EdDSA")) {
+        annotation.setEnabled(EdwardsCurveSignatureASchemaAvailable);
       }
     }
   }

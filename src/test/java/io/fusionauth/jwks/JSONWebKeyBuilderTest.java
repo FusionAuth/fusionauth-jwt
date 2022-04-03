@@ -22,6 +22,7 @@ import io.fusionauth.jwt.JWTUtils;
 import io.fusionauth.jwt.Signer;
 import io.fusionauth.jwt.domain.Header;
 import io.fusionauth.jwt.domain.JWT;
+import io.fusionauth.jwt.domain.KeyPair;
 import io.fusionauth.jwt.rsa.RSASigner;
 import io.fusionauth.pem.domain.PEM;
 import org.testng.annotations.Test;
@@ -31,6 +32,8 @@ import java.nio.file.Paths;
 import java.security.cert.Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.EdECPrivateKey;
+import java.security.interfaces.EdECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
@@ -71,6 +74,27 @@ public class JSONWebKeyBuilderTest extends BaseJWTTest {
     // EC 256 Private key - PKCS#8 encapsulated already
     ECPrivateKey key = PEM.decode(Paths.get("src/test/resources/ec_private_prime256v1_p_256_openssl_pkcs8.pem")).getPrivateKey();
     assertJSONEquals(JSONWebKey.build(key), "src/test/resources/jwk/ec_private_prime256v1_p_256_openssl_pkcs8.json");
+  }
+
+  @Test
+  public void ed_dsa_public() throws Exception {
+//    EdECPublicKey key = PEM.decode(Paths.get("src/test/resources/ed_dsa_public_key.pem")).getPublicKey();
+//    assertJSONEquals(JSONWebKey.build(key), "src/test/resources/jwk/ed_dsa_public_key.json");
+
+    // Generated
+    EdECPublicKey key = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_public_key.pem")).getPublicKey();
+    assertJSONEquals(JSONWebKey.build(key), "src/test/resources/jwk/ed_dsa_ed25519_public_key.json");
+  }
+
+  @Test
+  public void ed_dsa_private() throws Exception {
+//    KeyPair keyPair = JWTUtils.generateEd25519_EdDSAKeyPair();
+//    EdECPrivateKey key = PEM.decode(Paths.get("src/test/resources/ed_dsa_private_key.pem")).getPrivateKey();
+//    assertJSONEquals(JSONWebKey.build(key), "src/test/resources/jwk/ed_dsa_private_key.json");
+
+    // Generated
+    EdECPrivateKey key = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_private_key.pem")).getPrivateKey();
+    assertJSONEquals(JSONWebKey.build(key), "src/test/resources/jwk/ed_dsa_ed25519_private_key.json");
   }
 
   @Test

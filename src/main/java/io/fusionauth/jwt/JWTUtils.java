@@ -16,14 +16,6 @@
 
 package io.fusionauth.jwt;
 
-import io.fusionauth.jwks.domain.JSONWebKey;
-import io.fusionauth.jwt.domain.Header;
-import io.fusionauth.jwt.domain.JWT;
-import io.fusionauth.jwt.domain.KeyPair;
-import io.fusionauth.jwt.domain.KeyType;
-import io.fusionauth.jwt.json.Mapper;
-import io.fusionauth.pem.domain.PEM;
-
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
@@ -34,6 +26,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import io.fusionauth.jwks.domain.JSONWebKey;
+import io.fusionauth.jwt.domain.Header;
+import io.fusionauth.jwt.domain.JWT;
+import io.fusionauth.jwt.domain.KeyPair;
+import io.fusionauth.jwt.domain.KeyType;
+import io.fusionauth.jwt.json.Mapper;
+import io.fusionauth.pem.domain.PEM;
 import static io.fusionauth.jwt.domain.KeyType.EC;
 
 /**
@@ -162,6 +161,19 @@ public class JWTUtils {
    */
   public static KeyPair generate521_ECKeyPair() {
     return generateKeyPair(521, EC);
+  }
+
+  public static KeyPair generateEd25519_EdDSAKeyPair() {
+    try {
+      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("Ed25519");
+      java.security.KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+      String privateKey = PEM.encode(keyPair.getPrivate(), keyPair.getPublic());
+      String publicKey = PEM.encode(keyPair.getPublic());
+      return new KeyPair(privateKey, publicKey);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**

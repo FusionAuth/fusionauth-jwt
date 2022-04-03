@@ -16,15 +16,6 @@
 
 package io.fusionauth.jwks;
 
-import io.fusionauth.der.DerInputStream;
-import io.fusionauth.der.DerValue;
-import io.fusionauth.jwks.domain.JSONWebKey;
-import io.fusionauth.jwt.JWTUtils;
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.jwt.domain.KeyType;
-import io.fusionauth.pem.domain.PEM;
-import io.fusionauth.security.KeyUtils;
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.Key;
@@ -36,6 +27,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.ECKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.EdECPublicKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -43,6 +35,14 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Objects;
 
+import io.fusionauth.der.DerInputStream;
+import io.fusionauth.der.DerValue;
+import io.fusionauth.jwks.domain.JSONWebKey;
+import io.fusionauth.jwt.JWTUtils;
+import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.jwt.domain.KeyType;
+import io.fusionauth.pem.domain.PEM;
+import io.fusionauth.security.KeyUtils;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P256;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P384;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P521;
@@ -146,10 +146,15 @@ public class JSONWebKeyBuilder {
 
     key.kty = getKeyType(publicKey);
     key.use = "sig";
-    if (publicKey instanceof RSAPublicKey) {
+    if (publicKey instanceof RSAPublicKey ) {
       RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
       key.e = base64EncodeUint(rsaPublicKey.getPublicExponent());
       key.n = base64EncodeUint(rsaPublicKey.getModulus());
+    } else if (publicKey instanceof EdECPublicKey) {
+      EdECPublicKey edDSAPublicKey = (EdECPublicKey) publicKey;
+      key.alg = Algorithm.EdDSA;
+      key.crv = edDSAPublicKey.getParams().getName();
+      key.y = base64EncodeUint(edDSAPublicKey.getPoint().getY());
     }
 
     if (key.kty == KeyType.EC) {
@@ -196,6 +201,21 @@ public class JSONWebKeyBuilder {
     return key;
   }
 
+  String getCurveOID(Key key) {
+    // Match up the Curve Object Identifier to a string value
+    String oid = readCurveObjectIdentifier(key);
+    switch (oid) {
+      case ECDSA_P256:
+        return "P-256";
+      case ECDSA_P384:
+        return "P-384";
+      case ECDSA_P521:
+        return "P-521";
+      default:
+        return null;
+    }
+  }
+
   private int getCoordinateLength(ECKey key) {
     return (int) Math.ceil(key.getParams().getCurve().getField().getFieldSize() / 8d);
   }
@@ -205,6 +225,8 @@ public class JSONWebKeyBuilder {
       return KeyType.RSA;
     } else if (key.getAlgorithm().equals("EC")) {
       return KeyType.EC;
+    } else if (key.getAlgorithm().equals("EdDSA")) {
+      return KeyType.OKP;
     }
 
     return null;
@@ -224,21 +246,6 @@ public class JSONWebKeyBuilder {
       }
     } catch (IOException e) {
       throw new JSONWebKeyBuilderException("Unable to read the Object Identifier of the public key.", e);
-    }
-  }
-
-  String getCurveOID(Key key) {
-    // Match up the Curve Object Identifier to a string value
-    String oid = readCurveObjectIdentifier(key);
-    switch (oid) {
-      case ECDSA_P256:
-        return "P-256";
-      case ECDSA_P384:
-        return "P-384";
-      case ECDSA_P521:
-        return "P-521";
-      default:
-        return null;
     }
   }
 }

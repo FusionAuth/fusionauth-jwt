@@ -23,6 +23,12 @@ package io.fusionauth.jwt.domain;
  */
 public enum Algorithm {
   /**
+   * EdDSA,  Edwards-Curve Digital Signature Algorithm
+   * OID: 1.3.101.112
+   */
+  EdDSA("EdDSA"),
+
+  /**
    * ECDSA using P-256 and SHA-256
    * OID: 1.2.840.10045.3.1.7
    * - prime256v1 / secp256r1
