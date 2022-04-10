@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ public class JWTDecoder {
 
   /**
    * Decode the JWT using one of they provided verifiers. A JWT header value named <code>kid</code> is expected to
-   * contain the key to lookup the correct verifier.
+   * contain the key to look up the correct verifier.
    * <p>
    * A JWT that is expired or not yet valid will not be decoded, instead a {@link JWTExpiredException} or {@link
    * JWTUnavailableForProcessingException} exception will be thrown respectively.
@@ -91,7 +91,7 @@ public class JWTDecoder {
   }
 
   /**
-   * Decode the JWT using one of they provided verifiers. The key used to lookup the correct verifier is provided by the
+   * Decode the JWT using one of they provided verifiers. The key used to look up the correct verifier is provided by the
    * <code>keyFunction</code>. The key function is provided the JWT header and is expected to return a string key to
    * look up the correct verifier.
    * <p>
@@ -100,7 +100,7 @@ public class JWTDecoder {
    *
    * @param encodedJWT  The encoded JWT in string format.
    * @param verifiers   A map of verifiers.
-   * @param keyFunction A function used to lookup the verifier key from the header.
+   * @param keyFunction A function used to look up the verifier key from the header.
    * @return a decoded JWT.
    */
   public JWT decode(String encodedJWT, Map<String, Verifier> verifiers, Function<Header, String> keyFunction) {
