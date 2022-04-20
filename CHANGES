@@ -1,5 +1,12 @@
 FusionAuth JWT Changes
 
+Changes in 5.1.2
+
+ * Proactive patch for CVE-2022-21449 ahead of the fix that should be coming for the JDK.
+   Check ECDSA signature to ensure that r and s are > 0.
+
+   See https://nvd.nist.gov/vuln/detail/CVE-2022-21449
+
 Changes in 5.1.1
 
   * Allow for a 2047 bit RSA key, turns out this is a thing.
