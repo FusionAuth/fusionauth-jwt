@@ -17,7 +17,7 @@
 savantVersion = "1.0.0"
 jacksonVersion = "2.13.2"
 
-project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.1.1", licenses: ["ApacheV2_0"]) {
+project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.1.2", licenses: ["ApacheV2_0"]) {
 
   workflow {
     fetch {

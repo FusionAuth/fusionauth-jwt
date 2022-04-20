@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,11 +178,36 @@ public class ECVerifier implements Verifier {
     }
   }
 
+  private void checkFor_CVE_2022_21449(byte[] signature) {
+    int half = signature.length / 2;
+
+    boolean rOk = false;
+    boolean sOk = false;
+    for (int i = 0; i < signature.length; i++) {
+      if (i < half) {
+        rOk = signature[i] != 0;
+        if (rOk) {
+          i = half - 1;
+        }
+      } else {
+        sOk = signature[i] != 0;
+        if (sOk) {
+          break;
+        }
+      }
+    }
+
+    if (!rOk || !sOk) {
+      throw new InvalidJWTSignatureException();
+    }
+  }
+
   @Override
   public void verify(Algorithm algorithm, byte[] message, byte[] signature) {
     Objects.requireNonNull(algorithm);
     Objects.requireNonNull(message);
     Objects.requireNonNull(signature);
+    checkFor_CVE_2022_21449(signature);
 
     try {
       Signature verifier = cryptoProvider.getSignatureInstance(algorithm.getName());
