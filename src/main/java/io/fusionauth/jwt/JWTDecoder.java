@@ -91,6 +91,50 @@ public class JWTDecoder {
   }
 
   /**
+   * Decode the JWT using one of they provided verifiers. A JWT header value named <code>kid</code> is expected to
+   * contain the key to look up the correct verifier.
+   * <p>
+   * A JWT that is expired or not yet valid will not be decoded, instead a {@link JWTExpiredException} or {@link
+   * JWTUnavailableForProcessingException} exception will be thrown respectively.
+   *
+   * @param encodedJWT       The encoded JWT in string format.
+   * @param verifierFunction A function that takes a key identifier and returns a verifier.
+   * @return a decoded JWT.
+   */
+  public JWT decode(String encodedJWT, Function<String, Verifier> verifierFunction) {
+    return decode(encodedJWT, verifierFunction, h -> h.getString("kid"));
+  }
+
+  /**
+   * Decode the JWT using one of they provided verifiers. A JWT header value named <code>kid</code> is expected to
+   * contain the key to look up the correct verifier.
+   * <p>
+   * A JWT that is expired or not yet valid will not be decoded, instead a {@link JWTExpiredException} or {@link
+   * JWTUnavailableForProcessingException} exception will be thrown respectively.
+   *
+   * @param encodedJWT       The encoded JWT in string format.
+   * @param verifierFunction A function that takes a key identifier returns a verifier.
+   * @param keyFunction      A function used to look up the verifier key from the header.
+   * @return a decoded JWT.
+   */
+  public JWT decode(String encodedJWT, Function<String, Verifier> verifierFunction, Function<Header, String> keyFunction) {
+    Objects.requireNonNull(encodedJWT);
+    Objects.requireNonNull(verifierFunction);
+    Objects.requireNonNull(keyFunction);
+    return decodeJWT(encodedJWT, verifierFunction, keyFunction, false);
+  }
+
+  private JWT decodeJWT(String encodedJWT, Function<String, Verifier> verifierFunction, Function<Header, String> keyFunction, boolean allowNoneAlgorithm) {
+    String[] parts = getParts(encodedJWT);
+
+    Header header = Mapper.deserialize(base64Decode(parts[0]), Header.class);
+    String key = keyFunction.apply(header);
+    Verifier verifier = verifierFunction.apply(key);
+
+    return validate(encodedJWT, parts, header, verifier, allowNoneAlgorithm);
+  }
+
+  /**
    * Decode the JWT using one of they provided verifiers. The key used to look up the correct verifier is provided by the
    * <code>keyFunction</code>. The key function is provided the JWT header and is expected to return a string key to
    * look up the correct verifier.
@@ -107,17 +151,7 @@ public class JWTDecoder {
     Objects.requireNonNull(encodedJWT);
     Objects.requireNonNull(verifiers);
     Objects.requireNonNull(keyFunction);
-
-    String[] parts = getParts(encodedJWT);
-
-    Header header = Mapper.deserialize(base64Decode(parts[0]), Header.class);
-    String key = keyFunction.apply(header);
-    Verifier verifier = verifiers.get(key);
-
-    // The 'none' algorithm is only allowed when no verifiers are provided.
-    boolean allowNoneAlgorithm = verifiers.isEmpty();
-
-    return validate(encodedJWT, parts, header, verifier, allowNoneAlgorithm);
+    return decodeJWT(encodedJWT, verifiers::get, keyFunction, verifiers.isEmpty());
   }
 
   /**

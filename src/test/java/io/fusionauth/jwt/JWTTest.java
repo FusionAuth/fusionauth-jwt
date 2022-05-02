@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -772,6 +772,10 @@ public class JWTTest extends BaseJWTTest {
 
     JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
     assertEquals(actual.subject, jwt.subject);
+
+    // Use the function
+    actual = JWT.getDecoder().decode(encodedJWT, key -> verifier);
+    assertEquals(actual.subject, jwt.subject);
   }
 
   @Test
@@ -829,6 +833,10 @@ public class JWTTest extends BaseJWTTest {
             "-----END PUBLIC KEY-----");
 
     JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
+    assertEquals(actual.subject, jwt.subject);
+
+    // Use the function
+    actual = JWT.getDecoder().decode(encodedJWT, key -> verifier);
     assertEquals(actual.subject, jwt.subject);
   }
 
@@ -922,9 +930,11 @@ public class JWTTest extends BaseJWTTest {
 
   @Test
   public void test_nullFailFast() {
-    expectException(NullPointerException.class, () -> new JWTDecoder().decode(null, null, null));
-    expectException(NullPointerException.class, () -> new JWTDecoder().decode("foo", null, null));
+    expectException(NullPointerException.class, () -> new JWTDecoder().decode(null));
+    expectException(NullPointerException.class, () -> new JWTDecoder().decode(null, null, null, null));
     expectException(NullPointerException.class, () -> new JWTDecoder().decode("foo", Collections.emptyMap(), null));
+    expectException(NullPointerException.class, () -> new JWTDecoder().decode("foo", key -> null, null));
+    expectException(NullPointerException.class, () -> new JWTDecoder().decode("foo", key -> null, null));
   }
 
   @Test
