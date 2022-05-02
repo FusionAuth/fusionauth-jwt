@@ -1,5 +1,12 @@
 FusionAuth JWT Changes
 
+Changes in 5.2.0
+
+  * Add JWTDecoder.decode that takes a Function<String, Verifier>.
+
+  Resolves https://github.com/FusionAuth/fusionauth-jwt/issues/47
+  Thanks to @agentgt for the request.
+
 Changes in 5.1.2
 
  * Proactive patch for CVE-2022-21449 ahead of the fix that should be coming for the JDK.
