@@ -87,7 +87,7 @@ public class PEMDecoder {
    * Decode a PEM and extract the public or private keys. If the encoded private key contains the public key, the returned
    * PEM object will contain both keys.
    *
-   * @param bytes the byte array of the the encoded PEM file
+   * @param bytes the byte array of the encoded PEM file
    * @return a PEM object containing a public or private key, or both
    */
   public PEM decode(byte[] bytes) {
@@ -99,7 +99,7 @@ public class PEMDecoder {
    * Decode a PEM and extract the public or private keys. If the encoded private key contains the public key, the returned
    * PEM object will contain both keys.
    *
-   * @param encodedKey the string representation the the encoded PEM
+   * @param encodedKey the string representation the encoded PEM
    * @return a PEM object containing a public or private key, or both
    */
   public PEM decode(String encodedKey) {
