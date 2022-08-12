@@ -14,11 +14,9 @@
  * language governing permissions and limitations under the License.
  */
 
-savantVersion = "1.0.0"
-jacksonVersion = "2.13.2"
-jacksonDatabindVersion = "2.13.2+2"
+jacksonVersion = "2.13.3"
 
-project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.2.0", licenses: ["ApacheV2_0"]) {
+project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.2.1", licenses: ["ApacheV2_0"]) {
 
   workflow {
     fetch {
@@ -37,12 +35,12 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.2.0", licens
   dependencies {
     group(name: "compile") {
       dependency(id: "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
-      dependency(id: "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}")
+      dependency(id: "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
       dependency(id: "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
     }
     group(name: "test-compile", export: false) {
       dependency(id: "org.bouncycastle:bc-fips:1.0.2+P1")
-      dependency(id: "org.testng:testng:6.8.7")
+      dependency(id: "org.testng:testng:7.3.0")
     }
   }
 
@@ -55,11 +53,11 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.2.0", licens
  * Define Plugins
  */
 dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:1.0.2")
-java = loadPlugin(id: "org.savantbuild.plugin:java:1.0.2")
-javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.7")
-groovy = loadPlugin(id: "org.savantbuild.plugin:groovy:${savantVersion}")
-idea = loadPlugin(id: "org.savantbuild.plugin:idea:${savantVersion}")
-release = loadPlugin(id: "org.savantbuild.plugin:release-git:${savantVersion}")
+java = loadPlugin(id: "org.savantbuild.plugin:java:1.2.0")
+javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.12")
+groovy = loadPlugin(id: "org.savantbuild.plugin:groovy:1.0.3")
+idea = loadPlugin(id: "org.savantbuild.plugin:idea:1.0.1")
+release = loadPlugin(id: "org.savantbuild.plugin:release-git:1.0.0")
 
 /*
  * Plugin Settings

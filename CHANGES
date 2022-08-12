@@ -1,5 +1,9 @@
 FusionAuth JWT Changes
 
+Changes in 5.2.1
+
+ * Upgraded Jackson Core to 2.13.3.
+
 Changes in 5.2.0
 
   * Add JWTDecoder.decode that takes a Function<String, Verifier>.
