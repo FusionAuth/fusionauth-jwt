@@ -96,7 +96,7 @@ public enum Algorithm {
    */
   none("None");
 
-  public String algorithm;
+  public final String algorithm;
 
   Algorithm(String algorithm) {
     this.algorithm = algorithm;

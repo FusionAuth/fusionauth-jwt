@@ -50,7 +50,7 @@ public enum TagClass {
    */
   Private(0b11000000); // 192
 
-  public int value;
+  public final int value;
 
   TagClass(int value) {
     this.value = value;
