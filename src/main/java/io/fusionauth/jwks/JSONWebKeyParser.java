@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import static io.fusionauth.jwks.JWKUtils.base64DecodeUint;
 public class JSONWebKeyParser {
 
   /**
-   * Parse a JSON Web Key and extract the the public key.
+   * Parse a JSON Web Key and extract the public key.
    *
    * @param key the JSON web key
    * @return the public key

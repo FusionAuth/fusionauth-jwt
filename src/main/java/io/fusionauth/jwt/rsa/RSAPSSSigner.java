@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2020-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,6 @@
 
 package io.fusionauth.jwt.rsa;
 
-import io.fusionauth.jwt.InvalidKeyLengthException;
-import io.fusionauth.jwt.InvalidKeyTypeException;
-import io.fusionauth.jwt.JWTSigningException;
-import io.fusionauth.jwt.MissingPrivateKeyException;
-import io.fusionauth.jwt.Signer;
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.pem.domain.PEM;
-import io.fusionauth.security.CryptoProvider;
-import io.fusionauth.security.DefaultCryptoProvider;
-
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -37,6 +27,16 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.util.Objects;
+
+import io.fusionauth.jwt.InvalidKeyLengthException;
+import io.fusionauth.jwt.InvalidKeyTypeException;
+import io.fusionauth.jwt.JWTSigningException;
+import io.fusionauth.jwt.MissingPrivateKeyException;
+import io.fusionauth.jwt.Signer;
+import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.pem.domain.PEM;
+import io.fusionauth.security.CryptoProvider;
+import io.fusionauth.security.DefaultCryptoProvider;
 
 /**
  * This class can sign a JWT using an RSA Private key.
@@ -375,11 +375,12 @@ public class RSAPSSSigner implements Signer {
 
     try {
       Signature signature = cryptoProvider.getSignatureInstance("RSASSA-PSS");
-      signature.setParameter(new PSSParameterSpec(algorithm.getName(), "MGF1", new MGF1ParameterSpec(algorithm.getName()), algorithm.getSaltLength(), 1));
+      signature.setParameter(new PSSParameterSpec(algorithm.value, "MGF1", new MGF1ParameterSpec(algorithm.value), algorithm.saltLength, 1));
       signature.initSign(privateKey);
       signature.update(message.getBytes(StandardCharsets.UTF_8));
       return signature.sign();
-    } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | InvalidAlgorithmParameterException e) {
+    } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException |
+             InvalidAlgorithmParameterException e) {
       throw new JWTSigningException("An unexpected exception occurred when attempting to sign the JWT", e);
     }
   }

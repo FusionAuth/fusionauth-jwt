@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -362,11 +362,11 @@ public class ECSigner implements Signer {
     Objects.requireNonNull(message);
 
     try {
-      // In later versions of the JDK you can request a non DER encoded signature so we don't have to re-encode it.
+      // In later versions of the JDK you can request a non DER encoded signature so that we don't have to re-encode it.
       // - We could revisit this in the future if we want to depend on a later version of Java.
       //   To request the version we want, you can append "inP1363Format" to the algorithm name.
       //   Example : ES256inP1363Format instead of ES256.
-      Signature signature = cryptoProvider.getSignatureInstance(algorithm.getName());
+      Signature signature = cryptoProvider.getSignatureInstance(algorithm.value);
       signature.initSign(privateKey);
       signature.update((message).getBytes(StandardCharsets.UTF_8));
       byte[] derEncoded = signature.sign();

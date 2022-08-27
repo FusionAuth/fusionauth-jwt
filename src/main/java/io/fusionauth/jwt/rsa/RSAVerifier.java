@@ -16,6 +16,20 @@
 
 package io.fusionauth.jwt.rsa;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
 import io.fusionauth.jwt.InvalidJWTSignatureException;
 import io.fusionauth.jwt.InvalidKeyLengthException;
 import io.fusionauth.jwt.InvalidKeyTypeException;
@@ -27,26 +41,21 @@ import io.fusionauth.pem.domain.PEM;
 import io.fusionauth.security.CryptoProvider;
 import io.fusionauth.security.DefaultCryptoProvider;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.interfaces.RSAPublicKey;
-import java.util.Objects;
-
 /**
  * This class is used to verify a JWT with an RSA signature using an RSA Public Key.
  *
  * @author Daniel DeGroff
  */
 public class RSAVerifier implements Verifier {
-  private final RSAPublicKey publicKey;
+  private final Set<Algorithm> SupportedAlgorithms = new HashSet<>(Arrays.asList(
+      Algorithm.RS256,
+      Algorithm.RS384,
+      Algorithm.RS512
+  ));
 
   private final CryptoProvider cryptoProvider;
+
+  private final RSAPublicKey publicKey;
 
   private RSAVerifier(PublicKey publicKey, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(publicKey);
@@ -158,25 +167,18 @@ public class RSAVerifier implements Verifier {
   }
 
   @Override
-  @SuppressWarnings("Duplicates")
   public boolean canVerify(Algorithm algorithm) {
-    switch (algorithm) {
-      case RS256:
-      case RS384:
-      case RS512:
-        return true;
-      default:
-        return false;
-    }
+    return SupportedAlgorithms.contains(algorithm);
   }
 
+  @Override
   public void verify(Algorithm algorithm, byte[] message, byte[] signature) {
     Objects.requireNonNull(algorithm);
     Objects.requireNonNull(message);
     Objects.requireNonNull(signature);
 
     try {
-      Signature verifier = cryptoProvider.getSignatureInstance(algorithm.getName());
+      Signature verifier = cryptoProvider.getSignatureInstance(algorithm.value);
       verifier.initVerify(publicKey);
       verifier.update(message);
       if (!verifier.verify(signature)) {

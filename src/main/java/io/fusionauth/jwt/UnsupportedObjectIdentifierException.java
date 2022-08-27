@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,13 @@
 
 package io.fusionauth.jwt;
 
-import io.fusionauth.jwt.domain.Algorithm;
-
 /**
- * JWT Signer.
+ * An ObjectIdentifier was used that was not recognized or not registered.
  *
  * @author Daniel DeGroff
  */
-public interface Signer {
-
-  /**
-   * Return the algorithm supported by this signer.
-   *
-   * @return the algorithm.
-   */
-  Algorithm getAlgorithm();
-
-  /**
-   * Return the kid used for this signer.
-   *
-   * @return the kid
-   */
-  default String getKid() {
-    throw new UnsupportedOperationException();
+public class UnsupportedObjectIdentifierException extends RuntimeException {
+  public UnsupportedObjectIdentifierException(String message) {
+    super(message);
   }
-
-  /**
-   * Sign the provided message and return the signature.
-   *
-   * @param payload The JWT payload to sign.
-   * @return The message signature in a byte array.
-   */
-  byte[] sign(String payload);
 }

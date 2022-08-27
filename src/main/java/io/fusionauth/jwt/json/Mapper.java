@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fusionauth.jwt.InvalidJWTException;
+import io.fusionauth.jwt.UnsupportedAlgorithmException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,10 +35,22 @@ import java.io.InputStream;
 public class Mapper {
   private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+  static {
+    OBJECT_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        .configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
+        .configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true)
+        .configure(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS, true)
+        .registerModule(new JacksonModule());
+  }
+
   public static <T> T deserialize(byte[] bytes, Class<T> type) throws InvalidJWTException {
     try {
       return OBJECT_MAPPER.readValue(bytes, type);
     } catch (IOException e) {
+      if (e.getCause() instanceof UnsupportedAlgorithmException) {
+        throw (UnsupportedAlgorithmException) e.getCause();
+      }
+
       throw new InvalidJWTException("The JWT could not be de-serialized.", e);
     }
   }
@@ -64,13 +77,5 @@ public class Mapper {
     } catch (JsonProcessingException e) {
       throw new InvalidJWTException("The JWT could not be serialized.", e);
     }
-  }
-
-  static {
-    OBJECT_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        .configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
-        .configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true)
-        .configure(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS, true)
-        .registerModule(new JacksonModule());
   }
 }

@@ -16,16 +16,6 @@
 
 package io.fusionauth.jwks;
 
-import io.fusionauth.jwks.domain.JSONWebKey;
-import io.fusionauth.jwt.BaseJWTTest;
-import io.fusionauth.jwt.JWTUtils;
-import io.fusionauth.jwt.Signer;
-import io.fusionauth.jwt.domain.Header;
-import io.fusionauth.jwt.domain.JWT;
-import io.fusionauth.jwt.rsa.RSASigner;
-import io.fusionauth.pem.domain.PEM;
-import org.testng.annotations.Test;
-
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.Certificate;
@@ -36,6 +26,15 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.Map;
 
+import io.fusionauth.jwks.domain.JSONWebKey;
+import io.fusionauth.jwt.BaseJWTTest;
+import io.fusionauth.jwt.JWTUtils;
+import io.fusionauth.jwt.Signer;
+import io.fusionauth.jwt.domain.Header;
+import io.fusionauth.jwt.domain.JWT;
+import io.fusionauth.jwt.rsa.RSASigner;
+import io.fusionauth.pem.domain.PEM;
+import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -105,22 +104,6 @@ public class JSONWebKeyBuilderTest extends BaseJWTTest {
   }
 
   @Test
-  public void extra_properties() throws Exception {
-    // EC 256 Public key
-    ECPublicKey ecPublic_p256 = PEM.decode(Paths.get("src/test/resources/ec_public_key_p_256.pem")).getPublicKey();
-    assertJSONEquals(JSONWebKey.build(ecPublic_p256)
-        .add("more", "cowbell")
-        .add("boom", "goes the dynamite"), "src/test/resources/jwk/extra_properties.json");
-  }
-
-  @Test
-  public void rsa_private() throws Exception {
-    // RSA private key
-    RSAPrivateKey privateKey = PEM.decode(Paths.get("src/test/resources/rsa_private_key_jwk_control.pem")).getPrivateKey();
-    assertJSONEquals(JSONWebKey.build(privateKey), "src/test/resources/jwk/rsa_private_key_jwk_control.json");
-  }
-
-  @Test
   public void embedded_jwk() {
     JWT jwt = new JWT();
     jwt.addClaim("foo", "bar");
@@ -138,9 +121,25 @@ public class JSONWebKeyBuilderTest extends BaseJWTTest {
     Header header = JWTUtils.decodeHeader(encodedJWT);
     assertEquals(header.get("cty"), "application/json");
     assertEquals(((Map<?, ?>) header.get("jwk")).get("e"), jwk.e);
-    assertEquals(((Map<?, ?>) header.get("jwk")).get("kty"), jwk.kty.name());
+    assertEquals(((Map<?, ?>) header.get("jwk")).get("kty"), jwk.kty.name);
     assertEquals(((Map<?, ?>) header.get("jwk")).get("n"), jwk.n);
     assertEquals(((Map<?, ?>) header.get("jwk")).get("use"), jwk.use);
+  }
+
+  @Test
+  public void extra_properties() throws Exception {
+    // EC 256 Public key
+    ECPublicKey ecPublic_p256 = PEM.decode(Paths.get("src/test/resources/ec_public_key_p_256.pem")).getPublicKey();
+    assertJSONEquals(JSONWebKey.build(ecPublic_p256)
+                               .add("more", "cowbell")
+                               .add("boom", "goes the dynamite"), "src/test/resources/jwk/extra_properties.json");
+  }
+
+  @Test
+  public void rsa_private() throws Exception {
+    // RSA private key
+    RSAPrivateKey privateKey = PEM.decode(Paths.get("src/test/resources/rsa_private_key_jwk_control.pem")).getPrivateKey();
+    assertJSONEquals(JSONWebKey.build(privateKey), "src/test/resources/jwk/rsa_private_key_jwk_control.json");
   }
 
   @Test

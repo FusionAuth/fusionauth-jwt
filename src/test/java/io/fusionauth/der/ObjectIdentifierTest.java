@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package io.fusionauth.der;
 
 import io.fusionauth.jwt.BaseJWTTest;
 import org.testng.annotations.Test;
-
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -43,8 +42,15 @@ public class ObjectIdentifierTest extends BaseJWTTest {
     assertEquals(decode(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0C), "1.2.840.113549.1.1.12");
     assertEquals(decode(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0D), "1.2.840.113549.1.1.13");
 
+    // Same, but use our encoder
+// TODO
+//    assertEquals(bytes(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0B), ObjectIdentifier.encode("1.2.840.113549.1.1.11"));
+//    assertEquals(bytes(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0C), ObjectIdentifier.encode("1.2.840.113549.1.1.12"));
+//    assertEquals(bytes(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0D), ObjectIdentifier.encode("1.2.840.113549.1.1.13"));
+
     // Other OIDs that we should be able to decode
     assertEquals(decode(0x51, 0x01), "2.1.1");
+    assertEquals(decode(0x55, 0x04, 0x03), "2.5.4.3");
     assertEquals(decode(0x51, 0x03, 0x00, 0x01), "2.1.3.0.1");
     assertEquals(decode(0x2B, 0x06, 0x01, 0x04, 0x01, 0xAE, 0x23, 0x01, 0x03, 0x01), "1.3.6.1.4.1.5923.1.3.1");
     assertEquals(decode(0x2B, 0x06, 0x01, 0x04, 0x01, 0x9A, 0x2F, 0x02, 0x01, 0x02, 0x04, 0x01, 0x02, 0x01, 0x11), "1.3.6.1.4.1.3375.2.1.2.4.1.2.1.17");
@@ -57,6 +63,26 @@ public class ObjectIdentifierTest extends BaseJWTTest {
     // - We are not supporting this configuration currently. Expect an exception.
     expectException(DerDecodingException.class, ()
         -> assertEquals(decode(0x51, 0x87, 0xFF, 0xFF, 0xFF, 0x7F, 0x01), "2.1.2147483647.1"));
+  }
+
+  @Test
+  public void encode() throws Exception {
+    assertEquals(ObjectIdentifier.encode("2.1.1."), bytes(0x51, 0x01));
+    assertEquals(ObjectIdentifier.encode("2.5.4.3"), bytes(0x55, 0x04, 0x03));
+    assertEquals(ObjectIdentifier.encode("2.1.3.0.1"), bytes(0x51, 0x03, 0x00, 0x01));
+// TODO
+//    assertEquals(ObjectIdentifier.encode("1.2.840.113549.1.1.11"), bytes(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0B));
+//    assertEquals(ObjectIdentifier.encode("1.2.840.113549.1.1.12"), bytes(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0C));
+//    assertEquals(ObjectIdentifier.encode("1.2.840.113549.1.1.13"), bytes(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0D));
+  }
+
+  private byte[] bytes(int... array) {
+    byte[] bytes = new byte[array.length];
+    for (int i = 0; i < bytes.length; i++) {
+      bytes[i] = (byte) array[i];
+    }
+
+    return bytes;
   }
 
   private String decode(int... array) throws DerDecodingException {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,18 +71,18 @@ public class ECDSASignature {
     byte[] s = sequence[1].getPositiveBigInteger().toByteArray();
 
     byte[] result;
-    switch (algorithm) {
-      case ES256:
+    switch (algorithm.name) {
+      case "ES256":
         result = new byte[64];
         break;
-      case ES384:
+      case "ES384":
         result = new byte[96];
         break;
-      case ES512:
+      case "ES512":
         result = new byte[132];
         break;
       default:
-        throw new IllegalArgumentException("Unable to decode the signature for algorithm [" + algorithm.name() + "]");
+        throw new IllegalArgumentException("Unable to decode the signature for algorithm [" + algorithm.name + "]");
     }
 
     int len = result.length / 2;

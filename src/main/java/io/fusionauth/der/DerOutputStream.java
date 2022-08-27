@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,15 @@ public class DerOutputStream {
 
   public byte[] toByteArray() {
     return os.toByteArray();
+  }
+
+  public DerOutputStream writeValue(byte[] bytes) throws DerEncodingException {
+    try {
+      os.write(bytes);
+      return this;
+    } catch (IOException e) {
+      throw new DerEncodingException(e);
+    }
   }
 
   public DerOutputStream writeValue(DerValue value) throws DerEncodingException {

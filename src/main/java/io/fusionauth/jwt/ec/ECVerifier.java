@@ -16,6 +16,20 @@
 
 package io.fusionauth.jwt.ec;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.interfaces.ECPublicKey;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
 import io.fusionauth.jwt.InvalidJWTSignatureException;
 import io.fusionauth.jwt.InvalidKeyTypeException;
 import io.fusionauth.jwt.JWTVerifierException;
@@ -26,24 +40,19 @@ import io.fusionauth.pem.domain.PEM;
 import io.fusionauth.security.CryptoProvider;
 import io.fusionauth.security.DefaultCryptoProvider;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.interfaces.ECPublicKey;
-import java.util.Objects;
-
 /**
  * @author Daniel DeGroff
  */
 public class ECVerifier implements Verifier {
-  private final ECPublicKey publicKey;
+  private final Set<Algorithm> SupportedAlgorithms = new HashSet<>(Arrays.asList(
+      Algorithm.ES256,
+      Algorithm.ES384,
+      Algorithm.ES512
+  ));
 
   private final CryptoProvider cryptoProvider;
+
+  private final ECPublicKey publicKey;
 
   private ECVerifier(PublicKey publicKey, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(publicKey);
@@ -166,15 +175,28 @@ public class ECVerifier implements Verifier {
   }
 
   @Override
-  @SuppressWarnings("Duplicates")
   public boolean canVerify(Algorithm algorithm) {
-    switch (algorithm) {
-      case ES256:
-      case ES384:
-      case ES512:
-        return true;
-      default:
-        return false;
+    return SupportedAlgorithms.contains(algorithm);
+  }
+
+  @Override
+  public void verify(Algorithm algorithm, byte[] message, byte[] signature) {
+    Objects.requireNonNull(algorithm);
+    Objects.requireNonNull(message);
+    Objects.requireNonNull(signature);
+    checkFor_CVE_2022_21449(signature);
+
+    try {
+      Signature verifier = cryptoProvider.getSignatureInstance(algorithm.value);
+      verifier.initVerify(publicKey);
+      verifier.update(message);
+
+      byte[] derEncoded = new ECDSASignature(signature).derEncode();
+      if (!(verifier.verify(derEncoded))) {
+        throw new InvalidJWTSignatureException();
+      }
+    } catch (InvalidKeyException | IOException | NoSuchAlgorithmException | SignatureException | SecurityException e) {
+      throw new JWTVerifierException("An unexpected exception occurred when attempting to verify the JWT", e);
     }
   }
 
@@ -199,27 +221,6 @@ public class ECVerifier implements Verifier {
 
     if (!rOk || !sOk) {
       throw new InvalidJWTSignatureException();
-    }
-  }
-
-  @Override
-  public void verify(Algorithm algorithm, byte[] message, byte[] signature) {
-    Objects.requireNonNull(algorithm);
-    Objects.requireNonNull(message);
-    Objects.requireNonNull(signature);
-    checkFor_CVE_2022_21449(signature);
-
-    try {
-      Signature verifier = cryptoProvider.getSignatureInstance(algorithm.getName());
-      verifier.initVerify(publicKey);
-      verifier.update(message);
-
-      byte[] derEncoded = new ECDSASignature(signature).derEncode();
-      if (!(verifier.verify(derEncoded))) {
-        throw new InvalidJWTSignatureException();
-      }
-    } catch (InvalidKeyException | IOException | NoSuchAlgorithmException | SignatureException | SecurityException e) {
-      throw new JWTVerifierException("An unexpected exception occurred when attempting to verify the JWT", e);
     }
   }
 }

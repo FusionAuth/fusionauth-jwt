@@ -207,7 +207,7 @@ public class JWTDecoder {
       }
 
       if (header.algorithm != Algorithm.none) {
-        throw new MissingSignatureException("Your provided a JWT with the algorithm [" + header.algorithm.getName() + "] but it is missing a signature");
+        throw new MissingSignatureException("Your provided a JWT with the algorithm [" + header.algorithm.value + "] but it is missing a signature");
       }
     } else {
       // When parts.length == 3, we have a signature.
@@ -219,13 +219,13 @@ public class JWTDecoder {
       }
 
       if (verifier == null) {
-        throw new MissingVerifierException("No Verifier has been provided for verify a signature signed using [" + header.algorithm.getName() + "]");
+        throw new MissingVerifierException("No Verifier has been provided for verify a signature signed using [" + header.algorithm.value + "]");
       }
 
       // When the verifier has been selected based upon the 'kid' or other identifier in the header, we must verify it can verify the algorithm.
       // - When multiple verifiers are provided to .decode w/out a kid, we may have already called 'canVerify', this is ok.
       if (!verifier.canVerify(header.algorithm)) {
-        throw new MissingVerifierException("No Verifier has been provided for verify a signature signed using [" + header.algorithm.getName() + "]");
+        throw new MissingVerifierException("No Verifier has been provided for verify a signature signed using [" + header.algorithm.value + "]");
       }
 
       verifySignature(verifier, header, parts[2], encodedJWT);

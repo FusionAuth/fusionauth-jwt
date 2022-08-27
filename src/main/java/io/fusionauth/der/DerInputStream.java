@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,9 +97,11 @@ public class DerInputStream {
     try {
       byte[] buffer = new byte[length];
       data.reset();
-      int actualLength = data.read(buffer);
-      if (actualLength != length) {
-        throw new IOException("Failed to read the entire byte array. Expected to read " + length + " bytes, but only read " + actualLength + ".");
+      if (length > 0) {
+        int actualLength = data.read(buffer);
+        if (actualLength != length) {
+          throw new IOException("Failed to read the entire byte array. Expected to read " + length + " bytes, but only read " + actualLength + ".");
+        }
       }
       return buffer;
     } catch (IOException e) {

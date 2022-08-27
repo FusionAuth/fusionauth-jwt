@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,15 @@ public class TagTest {
     assertEquals(0b10000010, 130);
     // Context specific - Object Identifier
     assertEquals(0b10000110, 134);
+    int test1 = 16;
+    int test2 = test1 | 0b00100000;
+
+    int test3 = 17;
+    int test4 = test3 | 0b00100000;
+//    System.out.println(test1);
+//    System.out.println(test2);
+//    System.out.println(test3);
+//    System.out.println(test4);
   }
 
   @Test
@@ -94,19 +103,29 @@ public class TagTest {
     assertEquals(new Tag(0xA1).value, 1);
     assertEquals(new Tag(0xA1).tagClass, TagClass.ContextSpecific);
 
+    // Universal UTF 8 string
+    assertEquals(new Tag(0b00001100).tagClass, TagClass.Universal);
+    assertTrue(new Tag(0b0001100).is(Tag.UTFString));
+    assertTrue(new Tag(0b0001100).isPrimitive());
+
     // Universal PrintableString
     assertEquals(new Tag(0b00010011).tagClass, TagClass.Universal);
     assertTrue(new Tag(0b00010011).is(Tag.PrintableString));
     assertTrue(new Tag(0b00010011).isPrimitive());
 
-    // Universal Set
-    assertEquals(new Tag(0b00010001).tagClass, TagClass.Universal);
-    assertTrue(new Tag(0b00010001).is(Tag.Set));
-    assertTrue(new Tag(0b00010001).isPrimitive());
+    // Universal Set, always constructed
+    assertEquals(new Tag(0b00110001).tagClass, TagClass.Universal);
+    assertTrue(new Tag(0b00110001).is(Tag.Set));
+    assertTrue(new Tag(0b00110001).isConstructed());
 
     // Universal UTCTime
     assertEquals(new Tag(0b00010111).tagClass, TagClass.Universal);
     assertTrue(new Tag(0b00010111).is(Tag.UTCTime));
     assertTrue(new Tag(0b00010111).isPrimitive());
+
+    // Universal GeneralizedTime
+    assertEquals(new Tag(0b00011000).tagClass, TagClass.Universal);
+    assertTrue(new Tag(0b00011000).is(Tag.GeneralizedTime));
+    assertTrue(new Tag(0b00011000).isPrimitive());
   }
 }

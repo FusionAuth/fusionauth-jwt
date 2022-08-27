@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,9 @@ public class JWTUtilsTest {
     // Test with an unsecured signer
     String unsecuredJWT = JWT.getEncoder().encode(jwt, new UnsecuredSigner());
     assertEquals(JWTUtils.decodePayload(unsecuredJWT).subject, "123456789");
+
+    // Register 'none'
+    Algorithm.register(Algorithm.none);
     assertEquals(JWTUtils.decodeHeader(unsecuredJWT).algorithm, Algorithm.none);
   }
 

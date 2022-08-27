@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,6 @@
  */
 
 package io.fusionauth.jwks;
-
-import io.fusionauth.der.DerInputStream;
-import io.fusionauth.der.DerValue;
-import io.fusionauth.jwks.domain.JSONWebKey;
-import io.fusionauth.jwt.JWTUtils;
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.jwt.domain.KeyType;
-import io.fusionauth.pem.domain.PEM;
-import io.fusionauth.security.KeyUtils;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -43,6 +34,14 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Objects;
 
+import io.fusionauth.der.DerInputStream;
+import io.fusionauth.der.DerValue;
+import io.fusionauth.jwks.domain.JSONWebKey;
+import io.fusionauth.jwt.JWTUtils;
+import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.jwt.domain.KeyType;
+import io.fusionauth.pem.domain.PEM;
+import io.fusionauth.security.KeyUtils;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P256;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P384;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P521;
@@ -183,7 +182,7 @@ public class JSONWebKeyBuilder {
     Objects.requireNonNull(certificate);
     JSONWebKey key = build(certificate.getPublicKey());
     if (certificate instanceof X509Certificate) {
-      key.alg = Algorithm.fromName(((X509Certificate) certificate).getSigAlgName());
+      key.alg = Algorithm.lookupByValue(((X509Certificate) certificate).getSigAlgName());
       try {
         String encodedCertificate = new String(Base64.getEncoder().encode(certificate.getEncoded()));
         key.x5c = Collections.singletonList(encodedCertificate);
@@ -194,6 +193,21 @@ public class JSONWebKeyBuilder {
       }
     }
     return key;
+  }
+
+  String getCurveOID(Key key) {
+    // Match up the Curve Object Identifier to a string value
+    String oid = readCurveObjectIdentifier(key);
+    switch (oid) {
+      case ECDSA_P256:
+        return "P-256";
+      case ECDSA_P384:
+        return "P-384";
+      case ECDSA_P521:
+        return "P-521";
+      default:
+        return null;
+    }
   }
 
   private int getCoordinateLength(ECKey key) {
@@ -224,21 +238,6 @@ public class JSONWebKeyBuilder {
       }
     } catch (IOException e) {
       throw new JSONWebKeyBuilderException("Unable to read the Object Identifier of the public key.", e);
-    }
-  }
-
-  String getCurveOID(Key key) {
-    // Match up the Curve Object Identifier to a string value
-    String oid = readCurveObjectIdentifier(key);
-    switch (oid) {
-      case ECDSA_P256:
-        return "P-256";
-      case ECDSA_P384:
-        return "P-384";
-      case ECDSA_P521:
-        return "P-521";
-      default:
-        return null;
     }
   }
 }

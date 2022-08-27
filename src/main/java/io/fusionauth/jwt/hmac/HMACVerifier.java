@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,6 @@
 
 package io.fusionauth.jwt.hmac;
 
-import io.fusionauth.jwt.InvalidJWTSignatureException;
-import io.fusionauth.jwt.JWTVerifierException;
-import io.fusionauth.jwt.Verifier;
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.security.CryptoProvider;
-import io.fusionauth.security.DefaultCryptoProvider;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
@@ -30,10 +23,19 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+
+import io.fusionauth.jwt.InvalidJWTSignatureException;
+import io.fusionauth.jwt.JWTVerifierException;
+import io.fusionauth.jwt.Verifier;
+import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.security.CryptoProvider;
+import io.fusionauth.security.DefaultCryptoProvider;
 
 /**
  * This class is used to verify a JWT signed with an HMAC algorithm.
@@ -41,9 +43,15 @@ import java.util.Objects;
  * @author Daniel DeGroff
  */
 public class HMACVerifier implements Verifier {
-  private final byte[] secret;
+  private final Set<Algorithm> SupportedAlgorithms = new HashSet<>(Arrays.asList(
+      Algorithm.HS256,
+      Algorithm.HS384,
+      Algorithm.HS512
+  ));
 
   private final CryptoProvider cryptoProvider;
+
+  private final byte[] secret;
 
   private HMACVerifier(String secret, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(secret);
@@ -116,7 +124,7 @@ public class HMACVerifier implements Verifier {
     try {
       return new HMACVerifier(Files.readAllBytes(path), cryptoProvider);
     } catch (IOException e) {
-      throw new JWTVerifierException("Unable to read the file from path [" + path.toAbsolutePath().toString() + "]", e);
+      throw new JWTVerifierException("Unable to read the file from path [" + path.toAbsolutePath() + "]", e);
     }
   }
 
@@ -133,16 +141,8 @@ public class HMACVerifier implements Verifier {
   }
 
   @Override
-  @SuppressWarnings("Duplicates")
   public boolean canVerify(Algorithm algorithm) {
-    switch (algorithm) {
-      case HS256:
-      case HS384:
-      case HS512:
-        return true;
-      default:
-        return false;
-    }
+    return SupportedAlgorithms.contains(algorithm);
   }
 
   @Override
@@ -152,8 +152,8 @@ public class HMACVerifier implements Verifier {
     Objects.requireNonNull(signature);
 
     try {
-      Mac mac = cryptoProvider.getMacInstance(algorithm.getName());
-      mac.init(new SecretKeySpec(secret, algorithm.getName()));
+      Mac mac = cryptoProvider.getMacInstance(algorithm.value);
+      mac.init(new SecretKeySpec(secret, algorithm.value));
       byte[] actualSignature = mac.doFinal(message);
 
       if (!MessageDigest.isEqual(signature, actualSignature)) {

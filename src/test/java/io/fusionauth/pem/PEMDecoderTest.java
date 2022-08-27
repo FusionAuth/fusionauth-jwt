@@ -16,14 +16,13 @@
 
 package io.fusionauth.pem;
 
-import io.fusionauth.pem.domain.PEM;
-import org.testng.annotations.Test;
-
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+import io.fusionauth.pem.domain.PEM;
+import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
@@ -33,6 +32,27 @@ import static org.testng.Assert.assertTrue;
  * @author Daniel DeGroff
  */
 public class PEMDecoderTest {
+  @Test
+  public void certificates() throws Exception {
+    List<String> files = Arrays.asList(
+        "rsa_certificate_1024.pem",
+        "rsa_certificate_2048.pem"
+    );
+
+    for (String f : files) {
+      String message = "For file [" + f + "]";
+      String encodedPEM = new String(Files.readAllBytes(Paths.get("src/test/resources/" + f)));
+      assertTrue(encodedPEM.contains(PEM.X509_CERTIFICATE_PREFIX), message);
+
+      PEM pem = PEM.decode(encodedPEM);
+      assertNull(pem.privateKey, message);
+      assertNotNull(pem.certificate, message);
+      assertNotNull(pem.publicKey, message);
+      assertEquals(pem.publicKey.getFormat(), "X.509", message);
+      assertEquals(pem.certificate.getType(), "X.509", message);
+    }
+  }
+
   @Test
   public void inputs() throws Exception {
     // Ensure there are no explosions, loading the PEM from a Path, bytes and a String
@@ -123,27 +143,6 @@ public class PEMDecoderTest {
       assertEquals(pem.privateKey.getFormat(), "PKCS#8", message);
       assertNotNull(pem.publicKey, message);
       assertEquals(pem.publicKey.getFormat(), "X.509", message);
-    }
-  }
-
-  @Test
-  public void certificates() throws Exception {
-    List<String> files = Arrays.asList(
-        "rsa_certificate_1024.pem",
-        "rsa_certificate_2048.pem"
-    );
-
-    for (String f : files) {
-      String message = "For file [" + f + "]";
-      String encodedPEM = new String(Files.readAllBytes(Paths.get("src/test/resources/" + f)));
-      assertTrue(encodedPEM.contains(PEM.X509_CERTIFICATE_PREFIX), message);
-
-      PEM pem = PEM.decode(encodedPEM);
-      assertNull(pem.privateKey, message);
-      assertNotNull(pem.certificate, message);
-      assertNotNull(pem.publicKey, message);
-      assertEquals(pem.publicKey.getFormat(), "X.509", message);
-      assertEquals(pem.certificate.getType(), "X.509", message);
     }
   }
 

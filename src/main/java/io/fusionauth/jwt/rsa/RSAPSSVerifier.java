@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2020-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,6 @@
 
 package io.fusionauth.jwt.rsa;
 
-import io.fusionauth.jwt.InvalidJWTSignatureException;
-import io.fusionauth.jwt.InvalidKeyLengthException;
-import io.fusionauth.jwt.InvalidKeyTypeException;
-import io.fusionauth.jwt.JWTVerifierException;
-import io.fusionauth.jwt.MissingPublicKeyException;
-import io.fusionauth.jwt.Verifier;
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.pem.domain.PEM;
-import io.fusionauth.security.CryptoProvider;
-import io.fusionauth.security.DefaultCryptoProvider;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,7 +28,21 @@ import java.security.SignatureException;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+
+import io.fusionauth.jwt.InvalidJWTSignatureException;
+import io.fusionauth.jwt.InvalidKeyLengthException;
+import io.fusionauth.jwt.InvalidKeyTypeException;
+import io.fusionauth.jwt.JWTVerifierException;
+import io.fusionauth.jwt.MissingPublicKeyException;
+import io.fusionauth.jwt.Verifier;
+import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.pem.domain.PEM;
+import io.fusionauth.security.CryptoProvider;
+import io.fusionauth.security.DefaultCryptoProvider;
 
 /**
  * This class is used to verify a JWT with an RSA PSA signature using an RSA Public Key.
@@ -47,9 +50,15 @@ import java.util.Objects;
  * @author Daniel DeGroff
  */
 public class RSAPSSVerifier implements Verifier {
-  private final RSAPublicKey publicKey;
+  private final Set<Algorithm> SupportedAlgorithms = new HashSet<>(Arrays.asList(
+      Algorithm.PS256,
+      Algorithm.PS384,
+      Algorithm.PS512
+  ));
 
   private final CryptoProvider cryptoProvider;
+
+  private final RSAPublicKey publicKey;
 
   private RSAPSSVerifier(PublicKey publicKey, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(publicKey);
@@ -161,16 +170,8 @@ public class RSAPSSVerifier implements Verifier {
   }
 
   @Override
-  @SuppressWarnings("Duplicates")
   public boolean canVerify(Algorithm algorithm) {
-    switch (algorithm) {
-      case PS256:
-      case PS384:
-      case PS512:
-        return true;
-      default:
-        return false;
-    }
+    return SupportedAlgorithms.contains(algorithm);
   }
 
   public void verify(Algorithm algorithm, byte[] message, byte[] signature) {
@@ -180,13 +181,14 @@ public class RSAPSSVerifier implements Verifier {
 
     try {
       Signature verifier = cryptoProvider.getSignatureInstance("RSASSA-PSS");
-      verifier.setParameter(new PSSParameterSpec(algorithm.getName(), "MGF1", new MGF1ParameterSpec(algorithm.getName()), algorithm.getSaltLength(), 1));
+      verifier.setParameter(new PSSParameterSpec(algorithm.value, "MGF1", new MGF1ParameterSpec(algorithm.value), algorithm.saltLength, 1));
       verifier.initVerify(publicKey);
       verifier.update(message);
       if (!verifier.verify(signature)) {
         throw new InvalidJWTSignatureException();
       }
-    } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | SecurityException | InvalidAlgorithmParameterException e) {
+    } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | SecurityException |
+             InvalidAlgorithmParameterException e) {
       throw new JWTVerifierException("An unexpected exception occurred when attempting to verify the JWT", e);
     }
   }

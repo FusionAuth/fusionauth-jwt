@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -371,7 +371,7 @@ public class RSASigner implements Signer {
     Objects.requireNonNull(message);
 
     try {
-      Signature signature = cryptoProvider.getSignatureInstance(algorithm.getName());
+      Signature signature = cryptoProvider.getSignatureInstance(algorithm.value);
       signature.initSign(privateKey);
       signature.update(message.getBytes(StandardCharsets.UTF_8));
       return signature.sign();

@@ -16,16 +16,16 @@
 
 package io.fusionauth.pem.domain;
 
-import io.fusionauth.domain.Buildable;
-import io.fusionauth.pem.PEMDecoder;
-import io.fusionauth.pem.PEMEncoder;
-
 import java.nio.file.Path;
 import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.util.Objects;
+
+import io.fusionauth.domain.Buildable;
+import io.fusionauth.pem.PEMDecoder;
+import io.fusionauth.pem.PEMEncoder;
 
 /**
  * @author Daniel DeGroff
@@ -156,12 +156,16 @@ public class PEM implements Buildable<PEM> {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof PEM)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof PEM)) {
+      return false;
+    }
     PEM pem = (PEM) o;
     return Objects.equals(certificate, pem.certificate) &&
-        Objects.equals(privateKey, pem.privateKey) &&
-        Objects.equals(publicKey, pem.publicKey);
+           Objects.equals(privateKey, pem.privateKey) &&
+           Objects.equals(publicKey, pem.publicKey);
   }
 
   @SuppressWarnings("unused")

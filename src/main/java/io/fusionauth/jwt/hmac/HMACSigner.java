@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -312,8 +312,8 @@ public class HMACSigner implements Signer {
     Objects.requireNonNull(message);
 
     try {
-      Mac mac = cryptoProvider.getMacInstance(algorithm.getName());
-      mac.init(new SecretKeySpec(secret, algorithm.getName()));
+      Mac mac = cryptoProvider.getMacInstance(algorithm.value);
+      mac.init(new SecretKeySpec(secret, algorithm.value));
       return mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
     } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new JWTSigningException("An unexpected exception occurred when attempting to sign the JWT", e);

@@ -16,14 +16,6 @@
 
 package io.fusionauth.jwt;
 
-import io.fusionauth.jwks.domain.JSONWebKey;
-import io.fusionauth.jwt.domain.Header;
-import io.fusionauth.jwt.domain.JWT;
-import io.fusionauth.jwt.domain.KeyPair;
-import io.fusionauth.jwt.domain.KeyType;
-import io.fusionauth.jwt.json.Mapper;
-import io.fusionauth.pem.domain.PEM;
-
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
@@ -34,6 +26,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import io.fusionauth.jwks.domain.JSONWebKey;
+import io.fusionauth.jwt.domain.Header;
+import io.fusionauth.jwt.domain.JWT;
+import io.fusionauth.jwt.domain.KeyPair;
+import io.fusionauth.jwt.domain.KeyType;
+import io.fusionauth.jwt.json.Mapper;
+import io.fusionauth.pem.domain.PEM;
 import static io.fusionauth.jwt.domain.KeyType.EC;
 
 /**
@@ -310,7 +309,7 @@ public class JWTUtils {
    */
   private static KeyPair generateKeyPair(int keySize, KeyType keyType) {
     try {
-      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(keyType.name());
+      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(keyType.name);
       keyPairGenerator.initialize(keySize);
       java.security.KeyPair keyPair = keyPairGenerator.generateKeyPair();
 

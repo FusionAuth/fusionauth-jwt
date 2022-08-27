@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,22 +60,22 @@ public class OpenIDConnect {
 
     int leftMostBits;
     MessageDigest messageDigest;
-    switch (algorithm) {
-      case ES256:
-      case HS256:
-      case RS256:
+    switch (algorithm.name) {
+      case "ES256":
+      case "HS256":
+      case "RS256":
         messageDigest = getDigest("SHA-256");
         leftMostBits = 128;
         break;
-      case ES384:
-      case HS384:
-      case RS384:
+      case "ES384":
+      case "HS384":
+      case "RS384":
         messageDigest = getDigest("SHA-384");
         leftMostBits = 192;
         break;
-      case ES512:
-      case HS512:
-      case RS512:
+      case "ES512":
+      case "HS512":
+      case "RS512":
         messageDigest = getDigest("SHA-512");
         leftMostBits = 256;
         break;

@@ -16,7 +16,7 @@
 
 jacksonVersion = "2.13.3"
 
-project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.2.1", licenses: ["ApacheV2_0"]) {
+project(group: "io.fusionauth", name: "fusionauth-jwt", version: "6.0.0", licenses: ["ApacheV2_0"]) {
 
   workflow {
     fetch {
@@ -55,7 +55,6 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.2.1", licens
 dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:1.0.2")
 java = loadPlugin(id: "org.savantbuild.plugin:java:1.2.0")
 javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.12")
-groovy = loadPlugin(id: "org.savantbuild.plugin:groovy:1.0.3")
 idea = loadPlugin(id: "org.savantbuild.plugin:idea:1.0.1")
 release = loadPlugin(id: "org.savantbuild.plugin:release-git:1.0.0")
 
@@ -63,8 +62,6 @@ release = loadPlugin(id: "org.savantbuild.plugin:release-git:1.0.0")
  * Plugin Settings
  */
 java.settings.javaVersion = "1.8"
-groovy.settings.javaVersion = "1.8"
-groovy.settings.groovyVersion = "2.2"
 javaTestNG.settings.javaVersion = "1.8"
 
 /*

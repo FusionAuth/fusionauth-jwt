@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,17 @@
 
 package io.fusionauth.jwt.domain;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
-import static io.fusionauth.der.ObjectIdentifier.EC_ENCRYPTION;
-import static io.fusionauth.der.ObjectIdentifier.RSA_ENCRYPTION;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import io.fusionauth.der.ObjectIdentifier;
+import io.fusionauth.jwt.UnsupportedKeyTypeException;
+import io.fusionauth.jwt.UnsupportedObjectIdentifierException;
 
 /**
  * Available Cryptographic Algorithms for Keys as described in <a href="https://tools.ietf.org/html/rfc7518#section-6.1">RFC
@@ -33,20 +40,89 @@ import static io.fusionauth.der.ObjectIdentifier.RSA_ENCRYPTION;
  *
  * @author Daniel DeGroff
  */
-public enum KeyType {
-  RSA,
-  EC;
+public class KeyType {
+  public static final KeyType EC = new KeyType("EC", "EC", ObjectIdentifier.EC_ENCRYPTION);
 
-  public static KeyType getKeyTypeFromOid(String oid) {
-    Objects.requireNonNull(oid);
+  public static final KeyType RSA = new KeyType("RSA", "RSA", ObjectIdentifier.RSA_ENCRYPTION);
 
-    switch (oid) {
-      case EC_ENCRYPTION:
-        return EC;
-      case RSA_ENCRYPTION:
-        return RSA;
-      default:
-        return null;
+  private static final Map<String, KeyType> KeyTypeByName = new HashMap<>();
+
+  private static final Map<String, KeyType> KeyTypeByOID = new HashMap<>();
+
+  private static final boolean[] registrationFinalized = new boolean[]{false};
+
+  public final String algorithm;
+
+  @JsonValue
+  public final String name;
+
+  public final String oid;
+
+  public KeyType(String name, String algorithm, String oid) {
+    this.name = name;
+    this.algorithm = algorithm;
+    this.oid = oid;
+  }
+
+  public static Set<String> allRegistered() {
+    return new HashSet<>(KeyTypeByName.keySet());
+  }
+
+  /**
+   * Note this is not Thread safe. If you need it to be thread-safe, you need to synchronize access.
+   *
+   * @param keyType the key type to de-register.
+   */
+  public static void deRegister(KeyType keyType) {
+    ensureNotFinalized();
+    KeyTypeByName.remove(keyType.name);
+    KeyTypeByOID.remove(keyType.name);
+  }
+
+  public static void finalizeRegistration() {
+    registrationFinalized[0] = true;
+  }
+
+  @JsonCreator
+  public static KeyType lookupByName(String name) {
+    Objects.requireNonNull(name);
+    KeyType keyType = KeyTypeByName.get(name);
+    if (keyType == null) {
+      throw new UnsupportedKeyTypeException("No KeyType has been registered for type [" + name + "].");
     }
+
+    return keyType;
+  }
+
+  public static KeyType lookupByOID(String oid) {
+    Objects.requireNonNull(oid);
+    KeyType keyType = KeyTypeByOID.get(oid);
+    if (keyType == null) {
+      throw new UnsupportedObjectIdentifierException("No KeyType has been registered for OID [" + oid + "].");
+    }
+
+    return keyType;
+  }
+
+  /**
+   * Note this is not Thread safe. If you need it to be thread-safe, you need to synchronize access.
+   *
+   * @param keyType the key type to register.
+   */
+  public static void register(KeyType keyType) {
+    ensureNotFinalized();
+    KeyTypeByName.put(keyType.name, keyType);
+    KeyTypeByOID.put(keyType.oid, keyType);
+  }
+
+  private static void ensureNotFinalized() {
+    if (registrationFinalized[0]) {
+      throw new IllegalStateException("Registration has been finalized. You may not modify the currently registered key decoders.");
+    }
+  }
+
+  static {
+    register(KeyType.EC);
+    register(KeyType.RSA);
   }
 }

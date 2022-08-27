@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2020-2022, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,16 @@
 
 package io.fusionauth;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.sun.net.httpserver.HttpServer;
 import io.fusionauth.http.BuilderHTTPHandler;
 import io.fusionauth.http.HttpServerBuilder;
+import io.fusionauth.jwt.domain.Algorithm;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.testng.annotations.BeforeMethod;
 
 /**
  * @author Daniel DeGroff
@@ -43,15 +45,21 @@ public abstract class BaseTest {
     }
   }
 
-  protected void startHttpServer(ThrowingConsumer<HttpServerBuilder> consumer) throws Exception {
-    HttpServerBuilder builder = new HttpServerBuilder();
-    consumer.accept(builder);
-    startHttpServer(builder);
+  @BeforeMethod
+  public void beforeMethod() {
+    // Reset the default configuration which is w/out the 'none' algorithm.
+    Algorithm.deRegister(Algorithm.none);
   }
 
   public void startHttpServer(HttpServerBuilder builder) {
     httpServers.add(builder.build());
     httpHandlers.add(builder.handler);
+  }
+
+  protected void startHttpServer(ThrowingConsumer<HttpServerBuilder> consumer) throws Exception {
+    HttpServerBuilder builder = new HttpServerBuilder();
+    consumer.accept(builder);
+    startHttpServer(builder);
   }
 
   public interface ThrowingConsumer<T> {
