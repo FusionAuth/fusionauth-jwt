@@ -16,9 +16,8 @@
 
 package io.fusionauth.der;
 
-import java.util.ArrayList;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 import io.fusionauth.domain.Buildable;
@@ -89,32 +88,61 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
     this.value = value;
   }
 
-  public static byte[] encode(String s) {
-    String[] parts = s.trim().split("\\.");
-    List<Integer> result = new ArrayList<>();
+  /**
+   * Encode a string OID into a DER encoded byte array.
+   *
+   * @param oid the string Object Identifier
+   * @return a DER encoded byte array
+   */
+  public static byte[] encodeInt(String oid) {
+    String[] parts = oid.trim().split("\\.");
+    int[] ints = new int[parts.length];
 
-    for (int a = 0, b, i = 0; i < parts.length; i++) {
-      if (i == 0) {
-        a = Integer.parseInt(parts[i]);
-      } else if (i == 1) {
-        result.add(40 * a + Integer.parseInt(parts[i]));
+    for (int i = 0; i < parts.length; i++) {
+      ints[i] = Integer.parseInt(parts[i]);
+    }
+
+    // 0x28 - 40 decimal
+    ByteBuffer buf = ByteBuffer.allocate(ints.length * 4);
+    if (ints[0] < 2) {
+      buf.put((byte) ((ints[0] * 0x28) + ints[1]));
+    } else {
+      int i = (ints[0] * 0x28) + ints[1];
+      buf.put(encodeInt(i));
+    }
+    for (int i = 2; i < ints.length; i++) {
+      int r = ints[i];
+      byte[] r2 = encodeInt(r);
+      buf.put(r2);
+    }
+
+    return Arrays.copyOfRange(buf.array(), 0, buf.position());
+  }
+
+  private static byte[] encodeInt(int n) {
+    byte[] buf = new byte[4];
+    int i = 0;
+    while (n != 0) {
+      if (i > 0) {
+        // 0x7F - 127 decimal
+        // 0x80 - 128 decimal
+        buf[i++] = (byte) ((n & 0x7F) | 0x80);
       } else {
-        b = Integer.parseInt(parts[i]);
-        if (b < 128) {
-          result.add(b);
-        } else {
-          result.add(128 + (b / 128));
-          result.add(b % 128);
-        }
+        buf[i++] = (byte) (n & 0x7F);
       }
+      n >>>= 7;
     }
 
-    byte[] bytes = new byte[result.size()];
-    for (int i = 0; i < result.size(); i++) {
-      bytes[i] = result.get(i).byteValue();
+    byte[] result = new byte[i];
+    for (int j = 0; j < result.length; j++) {
+      result[j] = buf[--i];
     }
 
-    return bytes;
+    if (result.length == 0) {
+      return new byte[1];
+    }
+
+    return result;
   }
 
   /**
@@ -172,8 +200,9 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
 
       byte b = value[i];
 
-      // Skip multi-byte length leading bytes, we'll handle them on the next pass
-      if ((b & 128) != 0) {
+      // Skip multibyte length leading bytes, we'll handle them on the next pass
+      // - 0x80 - 128 decimal
+      if ((b & 0x80) != 0) {
         continue;
       }
 
@@ -186,14 +215,17 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
       int node = 0;
 
       // Make at least one pass, optionally catch up the index to the cursor 'i' if we skipped a byte
+      // - 0x7F - 127 decimal
       for (int j = index; j <= i; ++j) {
         node = node << 7;
-        node = node | value[j] & 127;
+        node = node | value[j] & 0x7F;
       }
 
       // The first two nodes are encoded in a single byte when the node is less than 0x50 (80 decimal)
+      // - 0x28 - 40 decimal
+      // - 0x50 - 80 decimal
       if (index == 0) {
-        if (node < 0x50) {
+        if (node < 80) {
           sb.append(node / 40)
             .append('.')
             .append(node % 40);
