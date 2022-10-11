@@ -54,6 +54,7 @@ public class KeyDecoderFactory {
     registrationFinalized[0] = true;
   }
 
+  // TODO : Rename: getInstanceByKeyType?
   public static KeyDecoder getByKeyType(String keyType) {
     Objects.requireNonNull(keyType);
     KeyDecoder keyDecoder = KeyDecodersByKeyType.get(keyType);
@@ -64,6 +65,7 @@ public class KeyDecoderFactory {
     return keyDecoder;
   }
 
+  // TODO : Rename: getInstanceByOID?
   public static KeyDecoder getByOID(String oid) {
     Objects.requireNonNull(oid);
     KeyDecoder keyDecoder = KeyDecodersByOID.get(oid);

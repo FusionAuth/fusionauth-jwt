@@ -33,6 +33,7 @@ import java.util.Date;
 
 import io.fusionauth.der.DerOutputStream;
 import io.fusionauth.der.DerValue;
+import io.fusionauth.der.ObjectIdentifier;
 import io.fusionauth.der.Tag;
 
 /**
@@ -40,7 +41,8 @@ import io.fusionauth.der.Tag;
  */
 public class KeyUtils {
 
-  public static X509Certificate generateX509CertificateFromKey(String id, String algorithm, ZonedDateTime insertInstant, String issuer, PublicKey publicKey, PrivateKey privateKey) {
+  public static X509Certificate generateX509CertificateFromKey(String id, String algorithm, ZonedDateTime insertInstant, String issuer,
+                                                               PublicKey publicKey, PrivateKey privateKey) {
     /**
      * Example Elliptic Curve Certificate - ECDSA using P-256 and SHA-256
      *
@@ -166,7 +168,7 @@ public class KeyUtils {
               //                         --> Algorithm OID
               //                         --> NULL
               .writeValue(new DerValue(Tag.Sequence, new DerOutputStream().writeValue(new DerValue(Tag.ObjectIdentifier, algorithmOID))
-                  .writeValue(DerValue.newNull())))
+                                                                          .writeValue(DerValue.newNull())))
 
               // [3] : Sequence
               .writeValue(new DerValue(Tag.Sequence, new DerOutputStream()
@@ -175,7 +177,7 @@ public class KeyUtils {
                   .writeValue(new DerValue(Tag.Set, new DerOutputStream()
                       // 2.5.4.3
                       .writeValue(new DerValue(Tag.Sequence, new DerOutputStream().writeValue(new DerValue(Tag.ObjectIdentifier, new byte[]{(byte) 0x55, (byte) 0x04, (byte) 0x03}))
-                          .writeValue(DerValue.newASCIIString(issuer))
+                                                                                  .writeValue(DerValue.newASCIIString(issuer))
                       ))
                   ))
               ))
@@ -184,7 +186,7 @@ public class KeyUtils {
               //                         [0] notBefore
               //                         [1] notAfter
               .writeValue(new DerValue(Tag.Sequence, new DerOutputStream().writeValue(notBeforeDerValue)
-                  .writeValue(notAfterDerValue)))
+                                                                          .writeValue(notAfterDerValue)))
 
               // [5] : Set -> Sequence -> [0] -> [OID, OID]
               //                       -> [1] - > Bit String
@@ -205,7 +207,7 @@ public class KeyUtils {
           ))
 
           .writeValue(new DerValue(Tag.Sequence, new DerOutputStream().writeValue(new DerValue(Tag.ObjectIdentifier, algorithmOID))
-              .writeValue(DerValue.newNull()))
+                                                                      .writeValue(DerValue.newNull()))
           );
 
 //      X509CertImpl impl = new X509CertImpl(certInfo);
@@ -271,6 +273,7 @@ public class KeyUtils {
 
     return null;
   }
+
   /**
    * Return the length of the key in bits.
    *
@@ -306,6 +309,7 @@ public class KeyUtils {
 
     throw new IllegalArgumentException();
   }
+
   private static byte[] bytes(int... bees) {
     byte[] result = new byte[bees.length];
     for (int i = 0; i < bees.length; i++) {
@@ -324,34 +328,46 @@ public class KeyUtils {
     // 1.2.840.113549.1.1.1
     // 06 09 2A 86 48 86 F7 0D 01 01 01
 
+
     switch (algorithm) {
       case "ES256":
         // 1.2.840.10045.4.3.2
         // 06 08 2A 86 48 CE 3D 04 03 02
 //        return AlgorithmId.sha256WithECDSA_oid;
-        return new byte[]{(byte) 0x06, (byte) 0x08, (byte) 0x2A, (byte) 0x86, (byte) 0x48, (byte) 0xCE, (byte) 0x3D, (byte) 0x04, (byte) 0x03, (byte) 0x02};
+        byte[] bytes1 = new byte[]{(byte) 0x06, (byte) 0x08, (byte) 0x2A, (byte) 0x86, (byte) 0x48, (byte) 0xCE, (byte) 0x3D, (byte) 0x04, (byte) 0x03, (byte) 0x02};
+        byte[] bytes2 = ObjectIdentifier.encode("1.2.840.10045.4.3.2");
+        return bytes2;
       case "ES384":
         // 1.2.840.10045.4.3.3
         // 06 08 2A 86 48 CE 3D 04 03 03
 //        return AlgorithmId.sha384WithECDSA_oid;
-        return new byte[]{(byte) 0x06, (byte) 0x08, (byte) 0x2A, (byte) 0x86, (byte) 0x48, (byte) 0xCE, (byte) 0x3D, (byte) 0x04, (byte) 0x03, (byte) 0x03};
+        byte[] bytes3 = new byte[]{(byte) 0x06, (byte) 0x08, (byte) 0x2A, (byte) 0x86, (byte) 0x48, (byte) 0xCE, (byte) 0x3D, (byte) 0x04, (byte) 0x03, (byte) 0x03};
+        byte[] bytes4 = ObjectIdentifier.encode("1.2.840.10045.4.3.3");
+        return bytes4;
       case "ES512":
         // 1.2.840.10045.4.3.4
         // 06 08 2A 86 48 CE 3D 04 03 04
 //        return AlgorithmId.sha512WithECDSA_oid;
-        return new byte[]{(byte) 0x06, (byte) 0x08, (byte) 0x2A, (byte) 0x86, (byte) 0x48, (byte) 0xCE, (byte) 0x3D, (byte) 0x04, (byte) 0x03, (byte) 0x04};
-
+        byte[] bytes5 = new byte[]{(byte) 0x06, (byte) 0x08, (byte) 0x2A, (byte) 0x86, (byte) 0x48, (byte) 0xCE, (byte) 0x3D, (byte) 0x04, (byte) 0x03, (byte) 0x04};
+        byte[] bytes6 = ObjectIdentifier.encode("1.2.840.10045.4.3.4");
+        return bytes6;
       case "RS256":
         // 1.2.840.113549.1.1.11
-        return bytes(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0B);
+        //return bytes(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0B);
+        byte[] bytes7 = ObjectIdentifier.encode("1.2.840.113549.1.1.11");
+        return bytes7;
 
       case "RS384":
         // 1.2.840.113549.1.1.12
-        return bytes(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0C);
+        //return bytes(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0C);
+        byte[] bytes8 = ObjectIdentifier.encode("1.2.840.113549.1.1.12");
+        return bytes8;
 
       case "RS512":
         // 1.2.840.113549.1.1.13
-        return bytes(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0D);
+        //return bytes(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0D);
+        byte[] bytes9 = ObjectIdentifier.encode("1.2.840.113549.1.1.13");
+        return bytes9;
 
       default:
         throw new IllegalArgumentException("Invalid algorithm [" + algorithm + "].");

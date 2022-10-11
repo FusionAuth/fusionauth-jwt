@@ -157,15 +157,11 @@ public class PEMDecoder {
     //   parameters      ANY DEFINED BY algorithm OPTIONAL
     // }
 
-    if (sequence.length != 3 || !sequence[0].tag.is(Tag.Integer) || !sequence[1].tag.is(Tag.Sequence) || !sequence[2].tag.is(Tag.OctetString)) {
-      // Expect the following format : [ Integer | Sequence | OctetString ]
-      throw new InvalidKeyException("Could not decode the private key. Expecting values in the DER encoded sequence in the following format [ Integer | Sequence | OctetString ]");
-    }
-
     ObjectIdentifier algorithmOID = new DerInputStream(sequence[1].toByteArray()).getOID();
-    KeyType type = KeyType.lookupByOID(algorithmOID.decode());
-    PrivateKey privateKey = KeyFactory.getInstance(type.algorithm).generatePrivate(new PKCS8EncodedKeySpec(bytes));
-    KeyDecoder keyDecoder = KeyDecoderFactory.getByOID(algorithmOID.toString());
+    String oid = algorithmOID.decode();
+
+    KeyDecoder keyDecoder = KeyDecoderFactory.getByOID(oid);
+    PrivateKey privateKey = KeyFactory.getInstance(keyDecoder.keyType().algorithm).generatePrivate(new PKCS8EncodedKeySpec(bytes));
     return keyDecoder.decode(privateKey, sequence);
   }
 

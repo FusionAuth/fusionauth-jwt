@@ -18,6 +18,7 @@ package io.fusionauth.jwt.ec;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -48,11 +49,29 @@ public class ECKeyDecoder implements KeyDecoder {
   private static final byte[] EC_ENCRYPTION_OID = new byte[]{(byte) 0x2A, (byte) 0x86, (byte) 0x48, (byte) 0xCE, (byte) 0x3D, (byte) 0x02, (byte) 0x01};
 
   @Override
-  public PEM decode(PrivateKey privateKey, DerValue[] sequence) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+  public PEM decode(PrivateKey privateKey, DerValue[] sequence)
+      throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InvalidKeyException {
+    if (sequence.length != 3 || !sequence[0].tag.is(Tag.Integer) || !sequence[1].tag.is(Tag.Sequence) || !sequence[2].tag.is(Tag.OctetString)) {
+      // Expect the following format : [ Integer | Sequence | OctetString ]
+      throw new InvalidKeyException("Could not decode the private key. Expecting values in the DER encoded sequence in the following format [ Integer | Sequence | OctetString ]");
+    }
+
+    // SEQUENCE (3 elem)
+    //   INTEGER 0
+    //   SEQUENCE (2 elem)
+    //     OBJECT IDENTIFIER 1.2.840.10045.2.1 ecPublicKey (ANSI X9.62 public key type)
+    //     OBJECT IDENTIFIER 1.2.840.10045.3.1.7 prime256v1 (ANSI X9.62 named elliptic curve)
+    //   OCTET STRING (109 byte) 306B02010104207AF6732F581D005AFCF216F6385FF6371029242CC60840DD7D2A7A5…
+    //     SEQUENCE (3 elem)
+    //       INTEGER 1
+    //       OCTET STRING (32 byte) 7AF6732F581D005AFCF216F6385FF6371029242CC60840DD7D2A7A5503B7D21C
+    //       [1] (1 elem)
+    //          BIT STRING (520 bit) 0000010000010001010110110011111110100011100111111010111001000001101101…
+
     DerValue[] privateKeySequence = new DerInputStream(sequence[2]).getSequence();
     if (privateKeySequence.length == 3 && privateKeySequence[2].tag.rawByte == (byte) 0xA1) {
       DerValue bitString = new DerInputStream(privateKeySequence[2]).readDerValue();
-      byte[] encodedPublicKey = getEncodedPublicKeyFromPrivate(bitString, privateKey.getEncoded());
+      byte[] encodedPublicKey = getEncodedPublicKeyFromPrivate(bitString.toByteArray(), privateKey.getEncoded());
       PublicKey publicKey = KeyFactory.getInstance(KeyType.EC.algorithm).generatePublic(new X509EncodedKeySpec(encodedPublicKey));
 
       return new PEM(privateKey, publicKey);
@@ -122,7 +141,7 @@ public class ECKeyDecoder implements KeyDecoder {
 
     // Extract the public key from the PEM
     DerValue bitString = new DerInputStream(sequence[3]).readDerValue();
-    byte[] encodedPublicKey = getEncodedPublicKeyFromPrivate(bitString, privateKey.getEncoded());
+    byte[] encodedPublicKey = getEncodedPublicKeyFromPrivate(bitString.toByteArray(), privateKey.getEncoded());
     PublicKey publicKey = KeyFactory.getInstance(KeyType.EC.algorithm).generatePublic(new X509EncodedKeySpec(encodedPublicKey));
 
     // The publicKey may be null if it was not found in the private key

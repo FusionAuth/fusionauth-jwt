@@ -16,6 +16,7 @@
 package io.fusionauth.pem;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
@@ -44,7 +45,7 @@ public interface KeyDecoder {
    * @throws IOException              this can't be good.
    * @throws NoSuchAlgorithmException this is probably your fault.
    */
-  PEM decode(PrivateKey privateKey, DerValue[] sequence) throws InvalidKeySpecException, IOException, NoSuchAlgorithmException;
+  PEM  decode(PrivateKey privateKey, DerValue[] sequence) throws InvalidKeySpecException, IOException, NoSuchAlgorithmException, InvalidKeyException;
 
   /**
    * Decode a PEM encoded private key into a PEM object.
@@ -60,12 +61,12 @@ public interface KeyDecoder {
   /**
    * Return an X.509 DER encoded byte array of the public key info.
    *
-   * @param bitString  the public key byte array
+   * @param bytes  the public key byte array
    * @param encodedKey the private key byte array
    * @return a DER encoded byte array
    * @throws IOException if $@%^ gets real.
    */
-  default byte[] getEncodedPublicKeyFromPrivate(DerValue bitString, byte[] encodedKey) throws IOException {
+  default byte[] getEncodedPublicKeyFromPrivate(byte[] bytes, byte[] encodedKey) throws IOException {
     // Build an X.509 DER encoded byte array from the provided bitString
     //
     // SubjectPublicKeyInfo ::= SEQUENCE {
@@ -76,7 +77,7 @@ public interface KeyDecoder {
     return new DerOutputStream()
         .writeValue(new DerValue(Tag.Sequence, new DerOutputStream()
             .writeValue(new DerValue(Tag.Sequence, sequence[1].toByteArray()))
-            .writeValue(new DerValue(Tag.BitString, bitString.toByteArray()))))
+            .writeValue(new DerValue(Tag.BitString, bytes))))
         .toByteArray();
   }
 
@@ -96,5 +97,8 @@ public interface KeyDecoder {
     return Base64.getDecoder().decode(base64);
   }
 
+  /**
+   * @return the key type for this decoder.
+   */
   KeyType keyType();
 }

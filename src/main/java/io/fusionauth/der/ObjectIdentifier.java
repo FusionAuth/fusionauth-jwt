@@ -50,6 +50,11 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
   public static final String EC_ENCRYPTION = "1.2.840.10045.2.1";
 
   /**
+   * Edwards-curve Digital Signature Algorithm (EdDSA) Ed25519
+   */
+  public static final String EdDSA_ENCRYPTION = "1.3.101.112";
+
+  /**
    * RSA Public Key cryptography
    */
   public static final String RSA_ENCRYPTION = "1.2.840.113549.1.1.1";
@@ -94,7 +99,7 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
    * @param oid the string Object Identifier
    * @return a DER encoded byte array
    */
-  public static byte[] encodeInt(String oid) {
+  public static byte[] encode(String oid) {
     String[] parts = oid.trim().split("\\.");
     int[] ints = new int[parts.length];
 

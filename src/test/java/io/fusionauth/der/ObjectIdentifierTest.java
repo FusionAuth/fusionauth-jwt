@@ -92,7 +92,7 @@ public class ObjectIdentifierTest extends BaseJWTTest {
       }
     } else {
       // Parse the string and ensure we can build derive the same bytes
-      byte[] actual = ObjectIdentifier.encodeInt(expectedOid);
+      byte[] actual = ObjectIdentifier.encode(expectedOid);
       byte[] bytes = bytes(ints);
       if (!Arrays.equals(actual, bytes)) {
         fail("Expected [" + bytesToStringArray(bytes) + "] but found [" + bytesToStringArray(actual) + "]");

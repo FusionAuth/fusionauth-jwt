@@ -32,6 +32,7 @@ import io.fusionauth.pem.domain.PEM;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 /**
  * @author Daniel DeGroff
@@ -48,7 +49,7 @@ public class KeyUtilsTests {
 
   // Running 500 times to ensure we get consistency. EC keys can vary in length, but the "reported" size returned
   // from the .getKeyLength() should be consistent. Out of 500 tests (if we had an error in the logic) we may get 1-5
-  // failures where the key is not an exact size and we have to figure out which key size it should be reported as.
+  // failures where the key is not an exact size, and we have to figure out which key size it should be reported as.
   // - For testing locally, you can ramp up this invocation count to 100k or something like that to prove that we have
   //   consistency over time.
   @Test(dataProvider = "ecKeyLengths", invocationCount = 500)
@@ -128,6 +129,7 @@ public class KeyUtilsTests {
     String encodedCert = PEM.encode(cert);
     System.out.println(encodedCert);
 
+    assertNotNull(cert);
     assertEquals(cert.getIssuerDN().getName(), "CN=fusionauth.io");
     assertEquals(cert.getNotBefore(), Date.from(insertInstant.toInstant()));
     assertEquals(cert.getNotAfter(), Date.from(insertInstant.plusYears(10).toInstant()));

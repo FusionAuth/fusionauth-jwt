@@ -31,6 +31,7 @@ import java.security.spec.RSAPublicKeySpec;
 import io.fusionauth.der.DerInputStream;
 import io.fusionauth.der.DerValue;
 import io.fusionauth.der.ObjectIdentifier;
+import io.fusionauth.der.Tag;
 import io.fusionauth.jwt.domain.KeyType;
 import io.fusionauth.pem.KeyDecoder;
 import io.fusionauth.pem.PEMDecoderException;
@@ -45,7 +46,12 @@ public class RSAKeyDecoder implements KeyDecoder {
   public static final String oid = ObjectIdentifier.RSA_ENCRYPTION;
 
   @Override
-  public PEM decode(PrivateKey privateKey, DerValue[] sequence) throws NoSuchAlgorithmException, InvalidKeySpecException {
+  public PEM decode(PrivateKey privateKey, DerValue[] sequence) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException {
+    if (sequence.length != 3 || !sequence[0].tag.is(Tag.Integer) || !sequence[1].tag.is(Tag.Sequence) || !sequence[2].tag.is(Tag.OctetString)) {
+      // Expect the following format : [ Integer | Sequence | OctetString ]
+      throw new InvalidKeyException("Could not decode the private key. Expecting values in the DER encoded sequence in the following format [ Integer | Sequence | OctetString ]");
+    }
+
     if (privateKey instanceof RSAPrivateCrtKey) {
       BigInteger modulus = ((RSAPrivateCrtKey) privateKey).getModulus();
       BigInteger publicExponent = ((RSAPrivateCrtKey) privateKey).getPublicExponent();
