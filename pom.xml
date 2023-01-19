@@ -6,7 +6,7 @@
 
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>5.2.1</version>
+  <version>5.2.2</version>
   <packaging>jar</packaging>
 
   <name>FusionAuth JWT</name>
@@ -55,23 +55,24 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <java.module.version>9</java.module.version>
+    <project.build.sourceEncoding>UTF8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.13.3</version>
+      <version>2.13.4</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.13.3</version>
+      <version>2.13.4</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.13.3</version>
+      <version>2.13.4</version>
     </dependency>
 
     <!--  Testing Dependencies  -->

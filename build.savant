@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,19 @@
  * language governing permissions and limitations under the License.
  */
 
-jacksonVersion = "2.13.3"
+jacksonVersion = "2.13.4"
 
-project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.2.1", licenses: ["ApacheV2_0"]) {
+project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.2.2", licenses: ["ApacheV2_0"]) {
 
   workflow {
     fetch {
+      // 1. Check local Savant and Maven cache
       cache()
+      mavenCache()
+      // 2. Check public Savant repo
       url(url: "https://repository.savantbuild.org")
+      // 3. Pull it from Maven central
+      maven()
     }
     publish {
       cache()
@@ -52,12 +57,12 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.2.1", licens
 /*
  * Define Plugins
  */
-dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:1.0.2")
-java = loadPlugin(id: "org.savantbuild.plugin:java:1.2.0")
-javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.12")
-groovy = loadPlugin(id: "org.savantbuild.plugin:groovy:1.0.3")
-idea = loadPlugin(id: "org.savantbuild.plugin:idea:1.0.1")
-release = loadPlugin(id: "org.savantbuild.plugin:release-git:1.0.0")
+dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:2.0.0-RC.4")
+java = loadPlugin(id: "org.savantbuild.plugin:java:2.0.0-RC.4")
+javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:2.0.0-RC.4")
+groovy = loadPlugin(id: "org.savantbuild.plugin:groovy:2.0.0-RC.4")
+idea = loadPlugin(id: "org.savantbuild.plugin:idea:2.0.0-RC.4")
+release = loadPlugin(id: "org.savantbuild.plugin:release-git:2.0.0-RC.4")
 
 /*
  * Plugin Settings
