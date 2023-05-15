@@ -14,9 +14,9 @@
  * language governing permissions and limitations under the License.
  */
 
-jacksonVersion = "2.13.4"
+jacksonVersion = "2.14.0"
 
-project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.2.2", licenses: ["ApacheV2_0"]) {
+project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.2.3", licenses: ["ApacheV2_0"]) {
 
   workflow {
     fetch {

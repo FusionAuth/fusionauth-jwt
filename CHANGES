@@ -1,5 +1,9 @@
 FusionAuth JWT Changes
 
+Changes in 5.2.3
+
+ * Upgraded Jackson Core to 2.14.0
+
 Changes in 5.2.2
 
  * Upgraded Jackson Core to 2.13.4.
