@@ -25,6 +25,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author Daniel DeGroff
@@ -46,18 +47,40 @@ public class JWTEncoder {
    *
    * @param jwt      The JWT.
    * @param signer   The signer used to add a signature to the JWT.
+   * @param supplier A header supplier to optionally add header values to the encoded JWT. May be null.
+   * @return the encoded JWT string.
+   */
+  public String encode(JWT jwt, Signer signer, Supplier<Header> supplier) {
+    final Header header;
+    if (supplier != null) {
+      header = supplier.get();
+    } else {
+      header = new Header();
+    }
+    return encode(jwt, signer, header);
+  }
+
+  /**
+   * Encode the JWT to produce a dot separated encoded string that can be sent in an HTTP request header.
+   *
+   * @param jwt      The JWT.
+   * @param signer   The signer used to add a signature to the JWT.
    * @param consumer A header consumer to optionally add header values to the encoded JWT. May be null.
    * @return the encoded JWT string.
    */
   public String encode(JWT jwt, Signer signer, Consumer<Header> consumer) {
-    Objects.requireNonNull(jwt);
-    Objects.requireNonNull(signer);
-
-    List<String> parts = new ArrayList<>(3);
     Header header = new Header();
     if (consumer != null) {
       consumer.accept(header);
     }
+    return encode(jwt, signer, header);
+  }
+
+  private String encode(JWT jwt, Signer signer, Header header) {
+    Objects.requireNonNull(jwt);
+    Objects.requireNonNull(signer);
+
+    List<String> parts = new ArrayList<>(3);
     // Set this after we pass the header to the consumer to ensure it isn't tampered with, only the signer can set the algorithm.
     header.algorithm = signer.getAlgorithm();
     parts.add(base64Encode(Mapper.serialize(header)));

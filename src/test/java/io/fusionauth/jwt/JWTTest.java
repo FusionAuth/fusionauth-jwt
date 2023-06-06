@@ -563,9 +563,12 @@ public class JWTTest extends BaseJWTTest {
     Signer signer = HMACSigner.newSHA256Signer("secret");
     Verifier verifier = HMACVerifier.newVerifier("secret");
 
-    String encodedJWT = JWT.getEncoder().encode(expectedJWT, signer, header -> header
-        .set("gty", Collections.singletonList("client_credentials"))
-        .set("kid", "1234"));
+    String encodedJWT = JWT.getEncoder().encode(expectedJWT, signer, () -> {
+      final Header header = new Header();
+      header.set("gty", Collections.singletonList("client_credentials"));
+      header.set("kid", "1234");
+      return header;
+    });
     JWT actualJwt = JWT.getDecoder().decode(encodedJWT, verifier);
 
     assertEquals(actualJwt.header.algorithm, Algorithm.HS256);
