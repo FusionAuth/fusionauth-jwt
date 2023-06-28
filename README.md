@@ -327,12 +327,12 @@ $ sb int
 **Note:** If you do not yet have Savant build tool installed, use the following instructions.
 
 ```bash
-$ mkdir ~/savant
-$ cd ~/savant
-$ wget http://savant.inversoft.org/org/savantbuild/savant-core/1.0.0/savant-1.0.0.tar.gz
-$ tar xvfz savant-1.0.0.tar.gz
-$ ln -s ./savant-1.0.0 current
-$ export PATH=$PATH:~/savant/current/bin/
+mkdir ~/savant
+cd ~/savant
+wget http://savant.inversoft.org/org/savantbuild/savant-core/2.0.0-RC.6/savant-2.0.0-RC.6.tar.gz
+tar xvfz savant-2.0.0-RC.6.tar.gz
+ln -s ./savant-2.0.0-RC.6 current
+export PATH=$PATH:~/savant/current/bin/
 ```
 
 For more information, checkout [savantbuild.org](http://savantbuild.org/).
