@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,13 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.fusionauth.jwt.JWTDecoder;
 import io.fusionauth.jwt.JWTEncoder;
 import io.fusionauth.jwt.TimeMachineJWTDecoder;
 import io.fusionauth.jwt.json.Mapper;
+import io.fusionauth.jwt.json.ZonedDateTimeDeserializer;
 import io.fusionauth.jwt.json.ZonedDateTimeSerializer;
 
 import java.math.BigDecimal;
@@ -71,6 +73,7 @@ public class JWT {
    * processing. The expiration time is expected to provided in UNIX time, or the number of seconds since Epoch.
    */
   @JsonProperty("exp")
+  @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
   @JsonSerialize(using = ZonedDateTimeSerializer.class)
   public ZonedDateTime expiration;
 
@@ -81,6 +84,7 @@ public class JWT {
    * UNIX time, or the number of seconds since Epoch.
    */
   @JsonProperty("iat")
+  @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
   @JsonSerialize(using = ZonedDateTimeSerializer.class)
   public ZonedDateTime issuedAt;
 
@@ -97,9 +101,10 @@ public class JWT {
    * Registered Claim <code>nbf</code> as defined by RFC 7519 Section 4.1.5. Use of this claim is OPTIONAL.
    * <p>
    * This claim identifies the time before which the JWT MUST NOT be accepted for processing. The not before value is
-   * expected to provided in UNIX time, or the number of seconds since Epoch.
+   * expected to be provided in UNIX time, or the number of seconds since Epoch.
    */
   @JsonProperty("nbf")
+  @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
   @JsonSerialize(using = ZonedDateTimeSerializer.class)
   public ZonedDateTime notBefore;
 

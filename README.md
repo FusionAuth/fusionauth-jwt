@@ -1,4 +1,4 @@
-## FusionAuth JWT ![semver 2.0.0 compliant](http://img.shields.io/badge/semver-2.0.0-brightgreen.svg?style=flat-square) ![Tests](https://github.com/FusionAuth/fusionauth-jwt/workflows/Tests/badge.svg)
+## FusionAuth JWT ![semver 2.0.0 compliant](https://img.shields.io/badge/semver-2.0.0-brightgreen.svg?style=flat-square) ![Tests](https://github.com/FusionAuth/fusionauth-jwt/workflows/Tests/badge.svg)
 FusionAuth JWT is intended to be fast and easy to use. FusionAuth JWT has a single external dependency on Jackson, no Bouncy Castle, Apache Commons or Guava.
 
 ## Security disclosures
@@ -41,23 +41,23 @@ We are very interested in compensating anyone that can identify a security relat
 <dependency>
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>5.2.0</version>
+  <version>5.2.4</version>
 </dependency>
  ```
 
 ### Gradle
 ```groovy
-implementation 'io.fusionauth:fusionauth-jwt:5.2.1'
+implementation 'io.fusionauth:fusionauth-jwt:5.2.4'
 ```
 
 ### Gradle Kotlin
 ```kotlin
-implementation("io.fusionauth:fusionauth-jwt:5.2.1")
+implementation("io.fusionauth:fusionauth-jwt:5.2.4")
 ```
 
 ### Savant 
 ```groovy
-dependency(id: "io.fusionauth:fusionauth-jwt:5.2.1")
+dependency(id: "io.fusionauth:fusionauth-jwt:5.2.4")
 ```
 
 For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/4.0.1/jar).
@@ -327,12 +327,12 @@ $ sb int
 **Note:** If you do not yet have Savant build tool installed, use the following instructions.
 
 ```bash
-$ mkdir ~/savant
-$ cd ~/savant
-$ wget http://savant.inversoft.org/org/savantbuild/savant-core/1.0.0/savant-1.0.0.tar.gz
-$ tar xvfz savant-1.0.0.tar.gz
-$ ln -s ./savant-1.0.0 current
-$ export PATH=$PATH:~/savant/current/bin/
+mkdir ~/savant
+cd ~/savant
+wget http://savant.inversoft.org/org/savantbuild/savant-core/2.0.0-RC.6/savant-2.0.0-RC.6.tar.gz
+tar xvfz savant-2.0.0-RC.6.tar.gz
+ln -s ./savant-2.0.0-RC.6 current
+export PATH=$PATH:~/savant/current/bin/
 ```
 
 For more information, checkout [savantbuild.org](http://savantbuild.org/).

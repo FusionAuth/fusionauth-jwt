@@ -1,5 +1,18 @@
 FusionAuth JWT Changes
 
+Changes in 5.2.4
+
+ * Bind a deserializer using @JsonDeserialize the JWT object for all ZoneDateTime objects. This allows
+   you to use any Jackson Object Mapper w/out explicitly binding these deserializers.
+
+Changes in 5.2.3
+
+ * Upgraded Jackson Core to 2.14.0
+
+Changes in 5.2.2
+
+ * Upgraded Jackson Core to 2.13.4.
+
 Changes in 5.2.1
 
  * Upgraded Jackson Core to 2.13.3.
