@@ -16,20 +16,20 @@
 
 package io.fusionauth.jwt.rsa;
 
-import io.fusionauth.jwt.BaseJWTTest;
-import io.fusionauth.jwt.InvalidKeyLengthException;
-import io.fusionauth.jwt.Verifier;
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.pem.domain.PEM;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 
+import io.fusionauth.jwt.BaseJWTTest;
+import io.fusionauth.jwt.InvalidKeyLengthException;
+import io.fusionauth.jwt.Verifier;
+import io.fusionauth.jwt.ec.EC;
+import io.fusionauth.jwt.hmac.HMAC;
+import io.fusionauth.pem.domain.PEM;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
@@ -40,12 +40,12 @@ public class RSAVerifierTest extends BaseJWTTest {
   @Test
   public void test_public_pem_parsing() {
     Arrays.asList(
-        "rsa_certificate_2048.pem",
-        "rsa_public_key_2047.pem",
-        "rsa_public_key_2048.pem",
-        "rsa_public_key_2048_with_meta.pem",
-        "rsa_public_key_3072.pem",
-        "rsa_public_key_4096.pem")
+              "rsa_certificate_2048.pem",
+              "rsa_public_key_2047.pem",
+              "rsa_public_key_2048.pem",
+              "rsa_public_key_2048_with_meta.pem",
+              "rsa_public_key_3072.pem",
+              "rsa_public_key_4096.pem")
           .forEach(fileName -> {
             // Take a String arg
             assertRSAVerifier(RSAVerifier.newVerifier(getPath(fileName)));
@@ -59,10 +59,10 @@ public class RSAVerifierTest extends BaseJWTTest {
 
     // Public key parsing also works with private keys since the public key is encoded in the private
     Arrays.asList(
-        "rsa_private_key_2048.pem",
-        "rsa_private_key_2048_with_meta.pem",
-        "rsa_private_key_3072.pem",
-        "rsa_private_key_4096.pem")
+              "rsa_private_key_2048.pem",
+              "rsa_private_key_2048_with_meta.pem",
+              "rsa_private_key_3072.pem",
+              "rsa_private_key_4096.pem")
           .forEach((fileName -> {
             // Take a String arg
             assertRSAVerifier(RSAVerifier.newVerifier(getPath(fileName)));
@@ -87,20 +87,20 @@ public class RSAVerifierTest extends BaseJWTTest {
   }
 
   private void assertRSAVerifier(Verifier verifier) {
-    assertFalse(verifier.canVerify(Algorithm.ES256));
-    assertFalse(verifier.canVerify(Algorithm.ES384));
-    assertFalse(verifier.canVerify(Algorithm.ES512));
+    assertFalse(verifier.canVerify(EC.ES256));
+    assertFalse(verifier.canVerify(EC.ES384));
+    assertFalse(verifier.canVerify(EC.ES512));
 
-    assertFalse(verifier.canVerify(Algorithm.HS256));
-    assertFalse(verifier.canVerify(Algorithm.HS384));
-    assertFalse(verifier.canVerify(Algorithm.HS512));
+    assertFalse(verifier.canVerify(HMAC.HS256));
+    assertFalse(verifier.canVerify(HMAC.HS384));
+    assertFalse(verifier.canVerify(HMAC.HS512));
 
-    assertFalse(verifier.canVerify(Algorithm.PS256));
-    assertFalse(verifier.canVerify(Algorithm.PS384));
-    assertFalse(verifier.canVerify(Algorithm.PS512));
+    assertFalse(verifier.canVerify(RSA.PS256));
+    assertFalse(verifier.canVerify(RSA.PS384));
+    assertFalse(verifier.canVerify(RSA.PS512));
 
-    assertTrue(verifier.canVerify(Algorithm.RS256));
-    assertTrue(verifier.canVerify(Algorithm.RS384));
-    assertTrue(verifier.canVerify(Algorithm.RS512));
+    assertTrue(verifier.canVerify(RSA.RS256));
+    assertTrue(verifier.canVerify(RSA.RS384));
+    assertTrue(verifier.canVerify(RSA.RS512));
   }
 }

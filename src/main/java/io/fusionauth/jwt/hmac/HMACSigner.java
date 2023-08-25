@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,18 @@
 
 package io.fusionauth.jwt.hmac;
 
-import io.fusionauth.jwt.JWTSigningException;
-import io.fusionauth.jwt.Signer;
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.security.CryptoProvider;
-import io.fusionauth.security.DefaultCryptoProvider;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
+
+import io.fusionauth.jwt.JWTSigningException;
+import io.fusionauth.jwt.Signer;
+import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.security.CryptoProvider;
+import io.fusionauth.security.DefaultCryptoProvider;
 
 /**
  * This class can sign and verify a JWT that was signed using HMAC.
@@ -37,9 +37,9 @@ import java.util.Objects;
 public class HMACSigner implements Signer {
   private final Algorithm algorithm;
 
-  private final String kid;
-
   private final CryptoProvider cryptoProvider;
+
+  private final String kid;
 
   private final byte[] secret;
 
@@ -127,7 +127,7 @@ public class HMACSigner implements Signer {
    * @return a new HMAC signer.
    */
   public static HMACSigner newSHA256Signer(byte[] secret, String kid, CryptoProvider cryptoProvider) {
-    return new HMACSigner(Algorithm.HS256, secret, kid, cryptoProvider);
+    return new HMACSigner(HMAC.HS256, secret, kid, cryptoProvider);
   }
 
   /**
@@ -139,7 +139,7 @@ public class HMACSigner implements Signer {
    * @return a new HMAC signer.
    */
   public static HMACSigner newSHA256Signer(String secret, String kid, CryptoProvider cryptoProvider) {
-    return new HMACSigner(Algorithm.HS256, secret, kid, cryptoProvider);
+    return new HMACSigner(HMAC.HS256, secret, kid, cryptoProvider);
   }
 
   /**
@@ -204,7 +204,7 @@ public class HMACSigner implements Signer {
    * @return a new HMAC signer.
    */
   public static HMACSigner newSHA384Signer(byte[] secret, String kid, CryptoProvider cryptoProvider) {
-    return new HMACSigner(Algorithm.HS384, secret, kid, cryptoProvider);
+    return new HMACSigner(HMAC.HS384, secret, kid, cryptoProvider);
   }
 
   /**
@@ -216,7 +216,7 @@ public class HMACSigner implements Signer {
    * @return a new HMAC signer.
    */
   public static HMACSigner newSHA384Signer(String secret, String kid, CryptoProvider cryptoProvider) {
-    return new HMACSigner(Algorithm.HS384, secret, kid, cryptoProvider);
+    return new HMACSigner(HMAC.HS384, secret, kid, cryptoProvider);
   }
 
   /**
@@ -261,7 +261,6 @@ public class HMACSigner implements Signer {
     return newSHA512Signer(secret, kid, new DefaultCryptoProvider());
   }
 
-
   /**
    * Build a new HMAC signer using a SHA-512 hash.
    *
@@ -282,7 +281,7 @@ public class HMACSigner implements Signer {
    * @return a new HMAC signer.
    */
   public static HMACSigner newSHA512Signer(byte[] secret, String kid, CryptoProvider cryptoProvider) {
-    return new HMACSigner(Algorithm.HS512, secret, kid, cryptoProvider);
+    return new HMACSigner(HMAC.HS512, secret, kid, cryptoProvider);
   }
 
   /**
@@ -294,7 +293,7 @@ public class HMACSigner implements Signer {
    * @return a new HMAC signer.
    */
   public static HMACSigner newSHA512Signer(String secret, String kid, CryptoProvider cryptoProvider) {
-    return new HMACSigner(Algorithm.HS512, secret, kid, cryptoProvider);
+    return new HMACSigner(HMAC.HS512, secret, kid, cryptoProvider);
   }
 
   @Override

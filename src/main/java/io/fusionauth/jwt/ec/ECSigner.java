@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,6 @@
 
 package io.fusionauth.jwt.ec;
 
-import io.fusionauth.jwt.InvalidKeyTypeException;
-import io.fusionauth.jwt.JWTSigningException;
-import io.fusionauth.jwt.MissingPrivateKeyException;
-import io.fusionauth.jwt.Signer;
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.pem.domain.PEM;
-import io.fusionauth.security.CryptoProvider;
-import io.fusionauth.security.DefaultCryptoProvider;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -35,17 +26,26 @@ import java.security.SignatureException;
 import java.security.interfaces.ECPrivateKey;
 import java.util.Objects;
 
+import io.fusionauth.jwt.InvalidKeyTypeException;
+import io.fusionauth.jwt.JWTSigningException;
+import io.fusionauth.jwt.MissingPrivateKeyException;
+import io.fusionauth.jwt.Signer;
+import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.pem.domain.PEM;
+import io.fusionauth.security.CryptoProvider;
+import io.fusionauth.security.DefaultCryptoProvider;
+
 /**
  * @author Daniel DeGroff
  */
 public class ECSigner implements Signer {
   private final Algorithm algorithm;
 
+  private final CryptoProvider cryptoProvider;
+
   private final String kid;
 
   private final ECPrivateKey privateKey;
-
-  private final CryptoProvider cryptoProvider;
 
   private ECSigner(Algorithm algorithm, PrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(algorithm);
@@ -90,7 +90,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA256Signer(String privateKey) {
-    return new ECSigner(Algorithm.ES256, privateKey, null, new DefaultCryptoProvider());
+    return new ECSigner(EC.ES256, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -101,7 +101,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA256Signer(String privateKey, String kid) {
-    return new ECSigner(Algorithm.ES256, privateKey, kid, new DefaultCryptoProvider());
+    return new ECSigner(EC.ES256, privateKey, kid, new DefaultCryptoProvider());
   }
 
   /**
@@ -112,7 +112,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA256Signer(String privateKey, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES256, privateKey, null, cryptoProvider);
+    return new ECSigner(EC.ES256, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -124,7 +124,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA256Signer(String privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES256, privateKey, kid, cryptoProvider);
+    return new ECSigner(EC.ES256, privateKey, kid, cryptoProvider);
   }
 
   /**
@@ -134,7 +134,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA256Signer(PrivateKey privateKey) {
-    return new ECSigner(Algorithm.ES256, privateKey, null, new DefaultCryptoProvider());
+    return new ECSigner(EC.ES256, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -145,7 +145,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA256Signer(PrivateKey privateKey, String kid) {
-    return new ECSigner(Algorithm.ES256, privateKey, kid, new DefaultCryptoProvider());
+    return new ECSigner(EC.ES256, privateKey, kid, new DefaultCryptoProvider());
   }
 
   /**
@@ -156,7 +156,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA256Signer(PrivateKey privateKey, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES256, privateKey, null, cryptoProvider);
+    return new ECSigner(EC.ES256, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -168,7 +168,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA256Signer(PrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES256, privateKey, kid, cryptoProvider);
+    return new ECSigner(EC.ES256, privateKey, kid, cryptoProvider);
   }
 
   /**
@@ -178,7 +178,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA384Signer(String privateKey) {
-    return new ECSigner(Algorithm.ES384, privateKey, null, new DefaultCryptoProvider());
+    return new ECSigner(EC.ES384, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -189,7 +189,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA384Signer(String privateKey, String kid) {
-    return new ECSigner(Algorithm.ES384, privateKey, kid, new DefaultCryptoProvider());
+    return new ECSigner(EC.ES384, privateKey, kid, new DefaultCryptoProvider());
   }
 
   /**
@@ -200,7 +200,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA384Signer(String privateKey, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES384, privateKey, null, cryptoProvider);
+    return new ECSigner(EC.ES384, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -212,7 +212,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA384Signer(String privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES384, privateKey, kid, cryptoProvider);
+    return new ECSigner(EC.ES384, privateKey, kid, cryptoProvider);
   }
 
   /**
@@ -222,7 +222,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA384Signer(PrivateKey privateKey) {
-    return new ECSigner(Algorithm.ES384, privateKey, null, new DefaultCryptoProvider());
+    return new ECSigner(EC.ES384, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -233,7 +233,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA384Signer(PrivateKey privateKey, String kid) {
-    return new ECSigner(Algorithm.ES384, privateKey, kid, new DefaultCryptoProvider());
+    return new ECSigner(EC.ES384, privateKey, kid, new DefaultCryptoProvider());
   }
 
   /**
@@ -244,7 +244,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA384Signer(PrivateKey privateKey, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES384, privateKey, null, cryptoProvider);
+    return new ECSigner(EC.ES384, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -256,7 +256,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA384Signer(PrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES384, privateKey, kid, cryptoProvider);
+    return new ECSigner(EC.ES384, privateKey, kid, cryptoProvider);
   }
 
   /**
@@ -266,7 +266,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA512Signer(String privateKey) {
-    return new ECSigner(Algorithm.ES512, privateKey, null, new DefaultCryptoProvider());
+    return new ECSigner(EC.ES512, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -277,7 +277,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA512Signer(String privateKey, String kid) {
-    return new ECSigner(Algorithm.ES512, privateKey, kid, new DefaultCryptoProvider());
+    return new ECSigner(EC.ES512, privateKey, kid, new DefaultCryptoProvider());
   }
 
   /**
@@ -288,7 +288,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA512Signer(String privateKey, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES512, privateKey, null, cryptoProvider);
+    return new ECSigner(EC.ES512, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -300,7 +300,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA512Signer(String privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES512, privateKey, kid, cryptoProvider);
+    return new ECSigner(EC.ES512, privateKey, kid, cryptoProvider);
   }
 
   /**
@@ -310,7 +310,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA512Signer(PrivateKey privateKey) {
-    return new ECSigner(Algorithm.ES512, privateKey, null, new DefaultCryptoProvider());
+    return new ECSigner(EC.ES512, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -321,7 +321,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA512Signer(PrivateKey privateKey, String kid) {
-    return new ECSigner(Algorithm.ES512, privateKey, kid, new DefaultCryptoProvider());
+    return new ECSigner(EC.ES512, privateKey, kid, new DefaultCryptoProvider());
   }
 
   /**
@@ -332,7 +332,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA512Signer(PrivateKey privateKey, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES512, privateKey, null, cryptoProvider);
+    return new ECSigner(EC.ES512, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -344,7 +344,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA512Signer(PrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES512, privateKey, kid, cryptoProvider);
+    return new ECSigner(EC.ES512, privateKey, kid, cryptoProvider);
   }
 
   @Override

@@ -16,11 +16,6 @@
 
 package io.fusionauth.jwt;
 
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.jwt.domain.Header;
-import io.fusionauth.jwt.domain.JWT;
-import io.fusionauth.jwt.json.Mapper;
-
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -29,6 +24,10 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+
+import io.fusionauth.jwt.domain.Header;
+import io.fusionauth.jwt.domain.JWT;
+import io.fusionauth.jwt.json.Mapper;
 
 /**
  * @author Daniel DeGroff
@@ -60,19 +59,6 @@ public class JWTDecoder {
     boolean allowNoneAlgorithm = verifiers.length == 0;
 
     return validate(encodedJWT, parts, header, verifier, allowNoneAlgorithm);
-  }
-
-  /**
-   * Specify the number of seconds allowed for clock skew used for calculating the expiration and not before instants of a JWT.
-   * <p>
-   * The default value is <code>0</code>.
-   *
-   * @param clockSkew the number of seconds allowed for clock skew.
-   * @return this
-   */
-  public JWTDecoder withClockSkew(int clockSkew) {
-    this.clockSkew = clockSkew;
-    return this;
   }
 
   /**
@@ -124,16 +110,6 @@ public class JWTDecoder {
     return decodeJWT(encodedJWT, verifierFunction, keyFunction, false);
   }
 
-  private JWT decodeJWT(String encodedJWT, Function<String, Verifier> verifierFunction, Function<Header, String> keyFunction, boolean allowNoneAlgorithm) {
-    String[] parts = getParts(encodedJWT);
-
-    Header header = Mapper.deserialize(base64Decode(parts[0]), Header.class);
-    String key = keyFunction.apply(header);
-    Verifier verifier = verifierFunction.apply(key);
-
-    return validate(encodedJWT, parts, header, verifier, allowNoneAlgorithm);
-  }
-
   /**
    * Decode the JWT using one of they provided verifiers. The key used to look up the correct verifier is provided by the
    * <code>keyFunction</code>. The key function is provided the JWT header and is expected to return a string key to
@@ -155,6 +131,26 @@ public class JWTDecoder {
   }
 
   /**
+   * Specify the number of seconds allowed for clock skew used for calculating the expiration and not before instants of a JWT.
+   * <p>
+   * The default value is <code>0</code>.
+   *
+   * @param clockSkew the number of seconds allowed for clock skew.
+   * @return this
+   */
+  public JWTDecoder withClockSkew(int clockSkew) {
+    this.clockSkew = clockSkew;
+    return this;
+  }
+
+  /**
+   * @return the 'now' to be used to validate 'exp' and 'nbf' claims.
+   */
+  protected ZonedDateTime now() {
+    return ZonedDateTime.now(ZoneOffset.UTC);
+  }
+
+  /**
    * Decode the provided base64 encoded string.
    *
    * @param string the input string to decode, it is expected to be a valid base64 encoded string.
@@ -168,6 +164,17 @@ public class JWTDecoder {
     } catch (IllegalArgumentException e) {
       throw new InvalidJWTException("The encoded JWT is not properly Base64 encoded.", e);
     }
+  }
+
+  private JWT decodeJWT(String encodedJWT, Function<String, Verifier> verifierFunction, Function<Header, String> keyFunction,
+                        boolean allowNoneAlgorithm) {
+    String[] parts = getParts(encodedJWT);
+
+    Header header = Mapper.deserialize(base64Decode(parts[0]), Header.class);
+    String key = keyFunction.apply(header);
+    Verifier verifier = verifierFunction.apply(key);
+
+    return validate(encodedJWT, parts, header, verifier, allowNoneAlgorithm);
   }
 
   /**
@@ -206,7 +213,7 @@ public class JWTDecoder {
         throw new NoneNotAllowedException();
       }
 
-      if (header.algorithm != Algorithm.none) {
+      if (!"none".equals(header.algorithm.name)) {
         throw new MissingSignatureException("Your provided a JWT with the algorithm [" + header.algorithm.value + "] but it is missing a signature");
       }
     } else {
@@ -214,7 +221,7 @@ public class JWTDecoder {
       // - Case 1: The algorithm in the header is 'none', we do not expect a signature.
       // - Case 2: No verifier was provided that can verify the algorithm in the header, or no verifier found by the kid in the header
       // - Case 3: The requested verifier cannot verify the signature based upon the algorithm value in the header
-      if (header.algorithm == Algorithm.none) {
+      if ("none".equals(header.algorithm.name)) {
         throw new InvalidJWTException("You provided a JWT with a signature and an algorithm of none");
       }
 
@@ -249,13 +256,6 @@ public class JWTDecoder {
     }
 
     return jwt;
-  }
-
-  /**
-   * @return the 'now' to be used to validate 'exp' and 'nbf' claims.
-   */
-  protected ZonedDateTime now() {
-    return ZonedDateTime.now(ZoneOffset.UTC);
   }
 
   /**

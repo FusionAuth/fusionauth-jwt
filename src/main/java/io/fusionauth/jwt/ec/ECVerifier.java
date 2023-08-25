@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,9 +45,9 @@ import io.fusionauth.security.DefaultCryptoProvider;
  */
 public class ECVerifier implements Verifier {
   private final Set<Algorithm> SupportedAlgorithms = new HashSet<>(Arrays.asList(
-      Algorithm.ES256,
-      Algorithm.ES384,
-      Algorithm.ES512
+      EC.ES256,
+      EC.ES384,
+      EC.ES512
   ));
 
   private final CryptoProvider cryptoProvider;
@@ -158,7 +158,7 @@ public class ECVerifier implements Verifier {
     try {
       return new ECVerifier(new String(Files.readAllBytes(path)), cryptoProvider);
     } catch (IOException e) {
-      throw new JWTVerifierException("Unable to read the file from path [" + path.toAbsolutePath().toString() + "]", e);
+      throw new JWTVerifierException("Unable to read the file from path [" + path.toAbsolutePath() + "]", e);
     }
   }
 

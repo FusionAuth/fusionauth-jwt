@@ -16,6 +16,15 @@
 
 package io.fusionauth.jwt.rsa;
 
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.interfaces.RSAPrivateKey;
+import java.util.Objects;
+
 import io.fusionauth.jwt.InvalidKeyLengthException;
 import io.fusionauth.jwt.InvalidKeyTypeException;
 import io.fusionauth.jwt.JWTSigningException;
@@ -25,15 +34,6 @@ import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.pem.domain.PEM;
 import io.fusionauth.security.CryptoProvider;
 import io.fusionauth.security.DefaultCryptoProvider;
-
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.interfaces.RSAPrivateKey;
-import java.util.Objects;
 
 /**
  * This class can sign a JWT using an RSA Private key.
@@ -100,7 +100,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA256Signer(String privateKey) {
-    return new RSASigner(Algorithm.RS256, privateKey, null, new DefaultCryptoProvider());
+    return new RSASigner(RSA.RS256, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -111,7 +111,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA256Signer(String privateKey, String kid) {
-    return new RSASigner(Algorithm.RS256, privateKey, kid, new DefaultCryptoProvider());
+    return new RSASigner(RSA.RS256, privateKey, kid, new DefaultCryptoProvider());
   }
 
   /**
@@ -122,7 +122,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA256Signer(String privateKey, CryptoProvider cryptoProvider) {
-    return new RSASigner(Algorithm.RS256, privateKey, null, cryptoProvider);
+    return new RSASigner(RSA.RS256, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -134,7 +134,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA256Signer(String privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new RSASigner(Algorithm.RS256, privateKey, kid, cryptoProvider);
+    return new RSASigner(RSA.RS256, privateKey, kid, cryptoProvider);
   }
 
   /**
@@ -144,7 +144,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA256Signer(PrivateKey privateKey) {
-    return new RSASigner(Algorithm.RS256, privateKey, null, new DefaultCryptoProvider());
+    return new RSASigner(RSA.RS256, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -155,7 +155,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA256Signer(PrivateKey privateKey, String kid) {
-    return new RSASigner(Algorithm.RS256, privateKey, kid, new DefaultCryptoProvider());
+    return new RSASigner(RSA.RS256, privateKey, kid, new DefaultCryptoProvider());
   }
 
   /**
@@ -166,7 +166,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA256Signer(PrivateKey privateKey, CryptoProvider cryptoProvider) {
-    return new RSASigner(Algorithm.RS256, privateKey, null, cryptoProvider);
+    return new RSASigner(RSA.RS256, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -178,7 +178,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA256Signer(PrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new RSASigner(Algorithm.RS256, privateKey, kid, cryptoProvider);
+    return new RSASigner(RSA.RS256, privateKey, kid, cryptoProvider);
   }
 
   /**
@@ -188,7 +188,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA384Signer(String privateKey) {
-    return new RSASigner(Algorithm.RS384, privateKey, null, new DefaultCryptoProvider());
+    return new RSASigner(RSA.RS384, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -199,7 +199,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA384Signer(String privateKey, String kid) {
-    return new RSASigner(Algorithm.RS384, privateKey, kid, new DefaultCryptoProvider());
+    return new RSASigner(RSA.RS384, privateKey, kid, new DefaultCryptoProvider());
   }
 
   /**
@@ -210,7 +210,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA384Signer(String privateKey, CryptoProvider cryptoProvider) {
-    return new RSASigner(Algorithm.RS384, privateKey, null, cryptoProvider);
+    return new RSASigner(RSA.RS384, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -222,7 +222,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA384Signer(String privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new RSASigner(Algorithm.RS384, privateKey, kid, cryptoProvider);
+    return new RSASigner(RSA.RS384, privateKey, kid, cryptoProvider);
   }
 
   /**
@@ -232,7 +232,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA384Signer(PrivateKey privateKey) {
-    return new RSASigner(Algorithm.RS384, privateKey, null, new DefaultCryptoProvider());
+    return new RSASigner(RSA.RS384, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -243,7 +243,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA384Signer(PrivateKey privateKey, String kid) {
-    return new RSASigner(Algorithm.RS384, privateKey, kid, new DefaultCryptoProvider());
+    return new RSASigner(RSA.RS384, privateKey, kid, new DefaultCryptoProvider());
   }
 
   /**
@@ -254,7 +254,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA384Signer(PrivateKey privateKey, CryptoProvider cryptoProvider) {
-    return new RSASigner(Algorithm.RS384, privateKey, null, cryptoProvider);
+    return new RSASigner(RSA.RS384, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -266,7 +266,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA384Signer(PrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new RSASigner(Algorithm.RS384, privateKey, kid, cryptoProvider);
+    return new RSASigner(RSA.RS384, privateKey, kid, cryptoProvider);
   }
 
   /**
@@ -276,7 +276,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA512Signer(String privateKey) {
-    return new RSASigner(Algorithm.RS512, privateKey, null, new DefaultCryptoProvider());
+    return new RSASigner(RSA.RS512, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -287,7 +287,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA512Signer(String privateKey, String kid) {
-    return new RSASigner(Algorithm.RS512, privateKey, kid, new DefaultCryptoProvider());
+    return new RSASigner(RSA.RS512, privateKey, kid, new DefaultCryptoProvider());
   }
 
   /**
@@ -298,7 +298,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA512Signer(String privateKey, CryptoProvider cryptoProvider) {
-    return new RSASigner(Algorithm.RS512, privateKey, null, cryptoProvider);
+    return new RSASigner(RSA.RS512, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -310,7 +310,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA512Signer(String privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new RSASigner(Algorithm.RS512, privateKey, kid, cryptoProvider);
+    return new RSASigner(RSA.RS512, privateKey, kid, cryptoProvider);
   }
 
   /**
@@ -320,7 +320,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA512Signer(PrivateKey privateKey) {
-    return new RSASigner(Algorithm.RS512, privateKey, null, new DefaultCryptoProvider());
+    return new RSASigner(RSA.RS512, privateKey, null, new DefaultCryptoProvider());
   }
 
   /**
@@ -331,7 +331,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA512Signer(PrivateKey privateKey, String kid) {
-    return new RSASigner(Algorithm.RS512, privateKey, kid, new DefaultCryptoProvider());
+    return new RSASigner(RSA.RS512, privateKey, kid, new DefaultCryptoProvider());
   }
 
   /**
@@ -342,7 +342,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA512Signer(PrivateKey privateKey, CryptoProvider cryptoProvider) {
-    return new RSASigner(Algorithm.RS512, privateKey, null, cryptoProvider);
+    return new RSASigner(RSA.RS512, privateKey, null, cryptoProvider);
   }
 
   /**
@@ -354,7 +354,7 @@ public class RSASigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSASigner newSHA512Signer(PrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new RSASigner(Algorithm.RS512, privateKey, kid, cryptoProvider);
+    return new RSASigner(RSA.RS512, privateKey, kid, cryptoProvider);
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, FusionAuth, All Rights Reserved
+ * Copyright (c) 2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,38 +13,29 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-
-package io.fusionauth.jwt;
+package io.fusionauth.jwt.hmac;
 
 import io.fusionauth.jwt.domain.Algorithm;
 
 /**
- * JWT Signer.
- *
  * @author Daniel DeGroff
  */
-public interface Signer {
+public class HMAC {
   /**
-   * Return the algorithm supported by this signer.
-   *
-   * @return the algorithm.
+   * HMAC using SHA-256
    */
-  Algorithm getAlgorithm();
+  public static Algorithm HS256 = new Algorithm("HS256", "HmacSHA256");
 
   /**
-   * Return the kid used for this signer.
-   *
-   * @return the kid
+   * HMAC using SHA-384
    */
-  default String getKid() {
-    throw new UnsupportedOperationException();
+  public static Algorithm HS384 = new Algorithm("HS384", "HmacSHA384");
+
+  /**
+   * HMAC using SHA-512
+   */
+  public static Algorithm HS512 = new Algorithm("HS512", "HmacSHA512");
+
+  private HMAC() {
   }
-
-  /**
-   * Sign the provided message and return the signature.
-   *
-   * @param payload The JWT payload to sign.
-   * @return The message signature in a byte array.
-   */
-  byte[] sign(String payload);
 }

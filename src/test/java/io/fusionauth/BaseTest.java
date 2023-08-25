@@ -22,10 +22,8 @@ import java.util.List;
 import com.sun.net.httpserver.HttpServer;
 import io.fusionauth.http.BuilderHTTPHandler;
 import io.fusionauth.http.HttpServerBuilder;
-import io.fusionauth.jwt.domain.Algorithm;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 
 /**
  * @author Daniel DeGroff
@@ -43,12 +41,6 @@ public abstract class BaseTest {
       } catch (Exception ignore) {
       }
     }
-  }
-
-  @BeforeMethod
-  public void beforeMethod() {
-    // Reset the default configuration which is w/out the 'none' algorithm.
-    Algorithm.deRegister(Algorithm.none);
   }
 
   public void startHttpServer(HttpServerBuilder builder) {

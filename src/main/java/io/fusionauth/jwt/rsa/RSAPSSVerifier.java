@@ -51,9 +51,9 @@ import io.fusionauth.security.DefaultCryptoProvider;
  */
 public class RSAPSSVerifier implements Verifier {
   private final Set<Algorithm> SupportedAlgorithms = new HashSet<>(Arrays.asList(
-      Algorithm.PS256,
-      Algorithm.PS384,
-      Algorithm.PS512
+      RSA.PS256,
+      RSA.PS384,
+      RSA.PS512
   ));
 
   private final CryptoProvider cryptoProvider;

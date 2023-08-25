@@ -16,13 +16,13 @@
 
 package io.fusionauth.jwt;
 
-import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.jwt.ec.EC;
+import io.fusionauth.jwt.hmac.HMAC;
+import io.fusionauth.jwt.rsa.RSA;
 import org.testng.annotations.Test;
-
 import static io.fusionauth.jwt.OpenIDConnect.at_hash;
 import static io.fusionauth.jwt.OpenIDConnect.c_hash;
 import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.fail;
 
 /**
  * @author Daniel DeGroff
@@ -30,54 +30,39 @@ import static org.testng.AssertJUnit.fail;
 public class OpenIdConnectTest {
   @Test
   public void test_at_hash() {
-    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.HS256), "wfgvmE9VxjAudsl9lc6TqA");
-    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.HS384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
-    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.HS512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
+    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", HMAC.HS256), "wfgvmE9VxjAudsl9lc6TqA");
+    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", HMAC.HS384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
+    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", HMAC.HS512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
 
-    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.ES256), "wfgvmE9VxjAudsl9lc6TqA");
-    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.ES384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
-    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.ES512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
+    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", EC.ES256), "wfgvmE9VxjAudsl9lc6TqA");
+    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", EC.ES384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
+    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", EC.ES512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
 
-    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS256), "wfgvmE9VxjAudsl9lc6TqA");
-    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
-    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
+    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", RSA.RS256), "wfgvmE9VxjAudsl9lc6TqA");
+    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", RSA.RS384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
+    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", RSA.RS512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
 
     // Controls
-    assertEquals(at_hash("1940a308-d492-3660-a9f8-46723cc582e9", Algorithm.RS256), "JrZY9MtYVEIIJUx-DDBmww");
-    assertEquals(at_hash("jHkWEdUXMU1BwAsC4vtUsZwnNvTIxEl0z9K3vx5KF0Y", Algorithm.RS256), "77QmUPtjPfzWtF2AnpK9RQ");
+    assertEquals(at_hash("1940a308-d492-3660-a9f8-46723cc582e9", RSA.RS256), "JrZY9MtYVEIIJUx-DDBmww");
+    assertEquals(at_hash("jHkWEdUXMU1BwAsC4vtUsZwnNvTIxEl0z9K3vx5KF0Y", RSA.RS256), "77QmUPtjPfzWtF2AnpK9RQ");
   }
 
   @Test
   public void test_c_hash() {
-    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.HS256), "wfgvmE9VxjAudsl9lc6TqA");
-    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.HS384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
-    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.HS512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
+    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", HMAC.HS256), "wfgvmE9VxjAudsl9lc6TqA");
+    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", HMAC.HS384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
+    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", HMAC.HS512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
 
-    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.ES256), "wfgvmE9VxjAudsl9lc6TqA");
-    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.ES384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
-    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.ES512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
+    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", EC.ES256), "wfgvmE9VxjAudsl9lc6TqA");
+    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", EC.ES384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
+    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", EC.ES512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
 
-    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS256), "wfgvmE9VxjAudsl9lc6TqA");
-    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
-    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
+    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", RSA.RS256), "wfgvmE9VxjAudsl9lc6TqA");
+    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", RSA.RS384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
+    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", RSA.RS512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
 
     // Controls
-    assertEquals(c_hash("16fd899f-5f0c-3114-875e-2547b629cd05", Algorithm.HS256), "S5UOXRNNyYsI6Z0G3xxdpw");
-    assertEquals(c_hash("Qcb0Orv1zh30vL1MPRsbm-diHiMwcLyZvn1arpZv-Jxf_11jnpEX3Tgfvk", Algorithm.HS256), "LDktKdoQak3Pk0cnXxCltA");
-  }
-
-  @Test
-  public void validation() {
-    try {
-      OpenIDConnect.at_hash("foo", Algorithm.none);
-      fail("expected exception when passing an invalid Algorithm");
-    } catch (IllegalArgumentException ignore) {
-    }
-
-    try {
-      c_hash("foo", Algorithm.none);
-      fail("expected exception when passing an invalid Algorithm");
-    } catch (IllegalArgumentException ignore) {
-    }
+    assertEquals(c_hash("16fd899f-5f0c-3114-875e-2547b629cd05", HMAC.HS256), "S5UOXRNNyYsI6Z0G3xxdpw");
+    assertEquals(c_hash("Qcb0Orv1zh30vL1MPRsbm-diHiMwcLyZvn1arpZv-Jxf_11jnpEX3Tgfvk", HMAC.HS256), "LDktKdoQak3Pk0cnXxCltA");
   }
 }

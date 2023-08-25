@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.JWTUtils;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.KeyType;
+import io.fusionauth.jwt.ec.EC;
 import io.fusionauth.pem.domain.PEM;
 import io.fusionauth.security.KeyUtils;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P256;
@@ -113,13 +114,13 @@ public class JSONWebKeyBuilder {
       if (key.crv != null) {
         switch (key.crv) {
           case "P-256":
-            key.alg = Algorithm.ES256;
+            key.alg = EC.ES256;
             break;
           case "P-384":
-            key.alg = Algorithm.ES384;
+            key.alg = EC.ES384;
             break;
           case "P-521":
-            key.alg = Algorithm.ES512;
+            key.alg = EC.ES512;
             break;
         }
       }
@@ -157,11 +158,11 @@ public class JSONWebKeyBuilder {
 
       int length = KeyUtils.getKeyLength(publicKey);
       if (length == 256) {
-        key.alg = Algorithm.ES256;
+        key.alg = EC.ES256;
       } else if (length == 384) {
-        key.alg = Algorithm.ES384;
+        key.alg = EC.ES384;
       } else {
-        key.alg = Algorithm.ES512;
+        key.alg = EC.ES512;
       }
 
       int byteLength = getCoordinateLength(ecPublicKey);

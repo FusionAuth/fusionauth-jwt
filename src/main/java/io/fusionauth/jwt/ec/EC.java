@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, FusionAuth, All Rights Reserved
+ * Copyright (c) 2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,38 +13,35 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-
-package io.fusionauth.jwt;
+package io.fusionauth.jwt.ec;
 
 import io.fusionauth.jwt.domain.Algorithm;
 
 /**
- * JWT Signer.
- *
  * @author Daniel DeGroff
  */
-public interface Signer {
+public class EC {
   /**
-   * Return the algorithm supported by this signer.
-   *
-   * @return the algorithm.
+   * ECDSA using P-256 and SHA-256
+   * OID: 1.2.840.10045.3.1.7
+   * - prime256v1 / secp256r1
    */
-  Algorithm getAlgorithm();
+  public static Algorithm ES256 = new Algorithm("ES256", "SHA256withECDSA");
 
   /**
-   * Return the kid used for this signer.
-   *
-   * @return the kid
+   * ECDSA using P-384 and SHA-384
+   * OID: 1.3.132.0.34
+   * - secp384r1 / secp384r1
    */
-  default String getKid() {
-    throw new UnsupportedOperationException();
+  public static Algorithm ES384 = new Algorithm("ES384", "SHA384withECDSA");
+
+  /**
+   * ECDSA using P-521 and SHA-512
+   * OID: 1.3.132.0.35
+   * - prime521v1 / secp521r1
+   */
+  public static Algorithm ES512 = new Algorithm("ES512", "SHA512withECDSA");
+
+  private EC() {
   }
-
-  /**
-   * Sign the provided message and return the signature.
-   *
-   * @param payload The JWT payload to sign.
-   * @return The message signature in a byte array.
-   */
-  byte[] sign(String payload);
 }

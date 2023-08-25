@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, FusionAuth, All Rights Reserved
+ * Copyright (c) 2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,38 +13,18 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-
-package io.fusionauth.jwt;
+package io.fusionauth.jwt.ec.provider;
 
 import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.jwt.ec.EC;
+import io.fusionauth.jwt.spi.AlgorithmProvider;
 
 /**
- * JWT Signer.
- *
  * @author Daniel DeGroff
  */
-public interface Signer {
-  /**
-   * Return the algorithm supported by this signer.
-   *
-   * @return the algorithm.
-   */
-  Algorithm getAlgorithm();
-
-  /**
-   * Return the kid used for this signer.
-   *
-   * @return the kid
-   */
-  default String getKid() {
-    throw new UnsupportedOperationException();
+public class ES384AlgorithmProvider implements AlgorithmProvider {
+  @Override
+  public Algorithm get() {
+    return EC.ES384;
   }
-
-  /**
-   * Sign the provided message and return the signature.
-   *
-   * @param payload The JWT payload to sign.
-   * @return The message signature in a byte array.
-   */
-  byte[] sign(String payload);
 }

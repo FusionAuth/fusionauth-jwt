@@ -1,0 +1,2 @@
+io.fusionauth.jwt.ec.provider.ECKeyTypeProvider
+io.fusionauth.jwt.rsa.provider.RSAKeyTypeProvider

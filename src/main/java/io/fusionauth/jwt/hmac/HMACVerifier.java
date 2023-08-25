@@ -44,9 +44,9 @@ import io.fusionauth.security.DefaultCryptoProvider;
  */
 public class HMACVerifier implements Verifier {
   private final Set<Algorithm> SupportedAlgorithms = new HashSet<>(Arrays.asList(
-      Algorithm.HS256,
-      Algorithm.HS384,
-      Algorithm.HS512
+      HMAC.HS256,
+      HMAC.HS384,
+      HMAC.HS512
   ));
 
   private final CryptoProvider cryptoProvider;

@@ -16,15 +16,6 @@
 
 package io.fusionauth.jwt;
 
-import io.fusionauth.jwks.domain.JSONWebKey;
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.jwt.domain.JWT;
-import io.fusionauth.jwt.domain.KeyPair;
-import io.fusionauth.jwt.domain.KeyType;
-import io.fusionauth.jwt.hmac.HMACSigner;
-import io.fusionauth.pem.domain.PEM;
-import org.testng.annotations.Test;
-
 import java.nio.charset.StandardCharsets;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
@@ -32,6 +23,14 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 
+import io.fusionauth.jwks.domain.JSONWebKey;
+import io.fusionauth.jwt.domain.JWT;
+import io.fusionauth.jwt.domain.KeyPair;
+import io.fusionauth.jwt.domain.KeyType;
+import io.fusionauth.jwt.hmac.HMAC;
+import io.fusionauth.jwt.hmac.HMACSigner;
+import io.fusionauth.pem.domain.PEM;
+import org.testng.annotations.Test;
 import static io.fusionauth.pem.domain.PEM.PKCS_8_PRIVATE_KEY_PREFIX;
 import static io.fusionauth.pem.domain.PEM.PKCS_8_PRIVATE_KEY_SUFFIX;
 import static io.fusionauth.pem.domain.PEM.X509_PUBLIC_KEY_PREFIX;
@@ -50,15 +49,7 @@ public class JWTUtilsTest {
     // HMAC signed
     String encodedJWT = JWT.getEncoder().encode(jwt, HMACSigner.newSHA512Signer("secret1"));
     assertEquals(JWTUtils.decodePayload(encodedJWT).subject, "123456789");
-    assertEquals(JWTUtils.decodeHeader(encodedJWT).algorithm, Algorithm.HS512);
-
-    // Test with an unsecured signer
-    String unsecuredJWT = JWT.getEncoder().encode(jwt, new UnsecuredSigner());
-    assertEquals(JWTUtils.decodePayload(unsecuredJWT).subject, "123456789");
-
-    // Register 'none'
-    Algorithm.register(Algorithm.none);
-    assertEquals(JWTUtils.decodeHeader(unsecuredJWT).algorithm, Algorithm.none);
+    assertEquals(JWTUtils.decodeHeader(encodedJWT).algorithm, HMAC.HS512);
   }
 
   @Test
@@ -227,6 +218,41 @@ public class JWTUtilsTest {
   }
 
   @Test
+  public void jws_kid_ec() {
+    JSONWebKey ecKey = new JSONWebKey();
+    ecKey.kty = KeyType.EC;
+    ecKey.crv = "P-256";
+    ecKey.x = "MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4";
+    ecKey.y = "4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM";
+
+    // SHA-1
+    assertEquals("VHriznG7vJAFpXMXRmGgAkA5sEE", JWTUtils.generateJWS_kid(ecKey));
+    assertEquals("VHriznG7vJAFpXMXRmGgAkA5sEE", JWTUtils.generateJWS_kid("SHA-1", ecKey));
+
+    // SHA-256
+    assertEquals("cn-I_WNMClehiVp51i_0VpOENW1upEerA8sEam5hn-s", JWTUtils.generateJWS_kid_S256(ecKey));
+    assertEquals("cn-I_WNMClehiVp51i_0VpOENW1upEerA8sEam5hn-s", JWTUtils.generateJWS_kid("SHA-256", ecKey));
+  }
+
+  @Test
+  public void jws_kid_rsaControl() {
+    // Control example from RFC 7638
+    // https://tools.ietf.org/html/rfc7638#section-3.1
+    JSONWebKey rsaKey = new JSONWebKey();
+    rsaKey.kty = KeyType.RSA;
+    rsaKey.n = "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw";
+    rsaKey.e = "AQAB";
+
+    // SHA-1
+    assertEquals("nMGlFRw9Y5POaSOaIaRBc9P2nfA", JWTUtils.generateJWS_kid(rsaKey));
+    assertEquals("nMGlFRw9Y5POaSOaIaRBc9P2nfA", JWTUtils.generateJWS_kid("SHA-1", rsaKey));
+
+    // SHA-256
+    assertEquals("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs", JWTUtils.generateJWS_kid_S256(rsaKey));
+    assertEquals("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs", JWTUtils.generateJWS_kid("SHA-256", rsaKey));
+  }
+
+  @Test
   public void jws_x5t() {
     String encodedCertificate = "MIIC5jCCAc6gAwIBAgIQNCdDZLmeeL5H6O2BE+aQCjANBgkqhkiG9w0BAQsFADAvMS0wKwYDVQQDEyRBREZTIFNpZ25pbmcgLSB1bWdjb25uZWN0LnVtdXNpYy5jb20wHhcNMTcxMDE4MTUyOTAzWhcNMTgxMDE4MTUyOTAzWjAvMS0wKwYDVQQDEyRBREZTIFNpZ25pbmcgLSB1bWdjb25uZWN0LnVtdXNpYy5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDnUl7AwWO1fjpijswRY40bs8jegA4Kz4ycM12h8PqD0CbydWyCnPmY/mzI8EPWsaT3uJ4QaYEEq+taNTu/GB8eFDs1flDb1JNjkZ2ECDZpdwgAS/z+RvI7D+tRARNUU7QvkMAOfFTb3zS4Cx52RoXlp3Bdrtzk9KaO/DJc7IoxLCAWuXL8kxuBRwfPzeQXX/i+wIRtkJAFotOq7j/XxgYO0/UzCenZDAr+Xbl8JfmrkFaegEQFwAC2/jlAP9OYjF39qD+9kI/HP9CcnXxoAIbq8lJkIKvuoURV9mErlel2Oj+tgvveq28NEV36RwqnfAqAIsAT4BTs739JUsnoHnKbAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAGesHLA8V2/4ljxwbjeBsBBk8fJ4DGVufKJJXBit7jb37/9/XVtkVg1Y2IuVoYnzpnOxAZ/Zizp8/HKH2bApqEOcAU3oZ471FZlzXAv1G51S0i1UUD/OWgc3z84pk9AMtWSka26GOWA4pb/Mw/nrBrG3R8NY6ZgLZQqbYR2GQBj5JXbDsJtzYkVXY6N5KmsBekVJ92ddjKMy5SfcGY0j3BFFsBOUpaONWgBFAD2rOH9FnwoY7tcTKa5u4MfwSXMYLal/Vk9kFAtBV2Uqe/MgitB8OgAGYYqGU8VRPVH4K/n8sx5EarZPXcOJkHbI/C70Puc0jxra4e4/2c4HqifMAYQ=";
     byte[] derEncodedCertificate = Base64.getDecoder().decode(encodedCertificate.getBytes(StandardCharsets.UTF_8));
@@ -252,41 +278,6 @@ public class JWTUtilsTest {
     assertEquals(JWTUtils.convertThumbprintToFingerprint("vDT213a_AF5eRdElKZla9-9dpc8"), "BC34F6D776BF005E5E45D12529995AF7EF5DA5CF");
     // Convert x5t#256 --> HEX SHA-256 Fingerprint
     assertEquals(JWTUtils.convertThumbprintToFingerprint("tIFNLfPYY14sM0DLTp6T-BZ3yPaPUPKc8Hnh6evXTeM"), "B4814D2DF3D8635E2C3340CB4E9E93F81677C8F68F50F29CF079E1E9EBD74DE3");
-  }
-
-  @Test
-  public void jws_kid_rsaControl() {
-    // Control example from RFC 7638
-    // https://tools.ietf.org/html/rfc7638#section-3.1
-    JSONWebKey rsaKey = new JSONWebKey();
-    rsaKey.kty = KeyType.RSA;
-    rsaKey.n = "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw";
-    rsaKey.e = "AQAB";
-
-    // SHA-1
-    assertEquals("nMGlFRw9Y5POaSOaIaRBc9P2nfA", JWTUtils.generateJWS_kid(rsaKey));
-    assertEquals("nMGlFRw9Y5POaSOaIaRBc9P2nfA", JWTUtils.generateJWS_kid("SHA-1", rsaKey));
-
-    // SHA-256
-    assertEquals("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs", JWTUtils.generateJWS_kid_S256(rsaKey));
-    assertEquals("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs", JWTUtils.generateJWS_kid("SHA-256", rsaKey));
-  }
-
-  @Test
-  public void jws_kid_ec() {
-    JSONWebKey ecKey = new JSONWebKey();
-    ecKey.kty = KeyType.EC;
-    ecKey.crv = "P-256";
-    ecKey.x = "MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4";
-    ecKey.y = "4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM";
-
-    // SHA-1
-    assertEquals("VHriznG7vJAFpXMXRmGgAkA5sEE", JWTUtils.generateJWS_kid(ecKey));
-    assertEquals("VHriznG7vJAFpXMXRmGgAkA5sEE", JWTUtils.generateJWS_kid("SHA-1", ecKey));
-
-    // SHA-256
-    assertEquals("cn-I_WNMClehiVp51i_0VpOENW1upEerA8sEam5hn-s", JWTUtils.generateJWS_kid_S256(ecKey));
-    assertEquals("cn-I_WNMClehiVp51i_0VpOENW1upEerA8sEam5hn-s", JWTUtils.generateJWS_kid("SHA-256", ecKey));
   }
 
   private void assertPrefix(String key, String prefix) {

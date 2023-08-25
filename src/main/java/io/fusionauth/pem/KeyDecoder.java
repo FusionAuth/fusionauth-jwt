@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2022-2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,17 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
+import java.util.Objects;
+import java.util.ServiceLoader;
 
 import io.fusionauth.der.DerInputStream;
 import io.fusionauth.der.DerOutputStream;
 import io.fusionauth.der.DerValue;
 import io.fusionauth.der.Tag;
+import io.fusionauth.jwt.MissingKeyDecoderException;
+import io.fusionauth.jwt.SafeServiceLoader;
 import io.fusionauth.jwt.domain.KeyType;
+import io.fusionauth.jwt.spi.KeyDecoderProvider;
 import io.fusionauth.pem.domain.PEM;
 
 /**
@@ -35,6 +40,34 @@ import io.fusionauth.pem.domain.PEM;
  * @author Daniel DeGroff
  */
 public interface KeyDecoder {
+  ServiceLoader<KeyDecoderProvider> loader = SafeServiceLoader.load(KeyDecoderProvider.class);
+
+  static KeyDecoder getByOID(String oid) {
+    Objects.requireNonNull(oid);
+
+    for (KeyDecoderProvider provider : loader) {
+      KeyDecoder keyDecoder = provider.get();
+      if (keyDecoder.keyType().oid.equals(oid)) {
+        return keyDecoder;
+      }
+    }
+
+    throw new MissingKeyDecoderException("There are no Key Decoders registered for OID [" + oid + "].");
+  }
+
+  static KeyDecoder getByType(String name) {
+    Objects.requireNonNull(name);
+
+    for (KeyDecoderProvider provider : loader) {
+      KeyDecoder keyDecoder = provider.get();
+      if (keyDecoder.keyType().name.equals(name)) {
+        return keyDecoder;
+      }
+    }
+
+    throw new MissingKeyDecoderException("There are no Key Decoders registered for key type [" + name + "].");
+  }
+
   /**
    * Decode a private key into a PEM.
    *
@@ -45,7 +78,7 @@ public interface KeyDecoder {
    * @throws IOException              this can't be good.
    * @throws NoSuchAlgorithmException this is probably your fault.
    */
-  PEM  decode(PrivateKey privateKey, DerValue[] sequence) throws InvalidKeySpecException, IOException, NoSuchAlgorithmException, InvalidKeyException;
+  PEM decode(PrivateKey privateKey, DerValue[] sequence) throws InvalidKeySpecException, IOException, NoSuchAlgorithmException, InvalidKeyException;
 
   /**
    * Decode a PEM encoded private key into a PEM object.
@@ -61,7 +94,7 @@ public interface KeyDecoder {
   /**
    * Return an X.509 DER encoded byte array of the public key info.
    *
-   * @param bytes  the public key byte array
+   * @param bytes      the public key byte array
    * @param encodedKey the private key byte array
    * @return a DER encoded byte array
    * @throws IOException if $@%^ gets real.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, FusionAuth, All Rights Reserved
+ * Copyright (c) 2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,18 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-
-package io.fusionauth.jwt;
+package io.fusionauth.jwt.rsa.provider;
 
 import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.jwt.rsa.RSA;
+import io.fusionauth.jwt.spi.AlgorithmProvider;
 
 /**
- * Unsecured signer. You should probably never use this signer.
- *
  * @author Daniel DeGroff
  */
-public class UnsecuredSigner implements Signer {
+public class RSA512AlgorithmProvider implements AlgorithmProvider {
   @Override
-  public Algorithm getAlgorithm() {
-    return Algorithm.none;
-  }
-
-  @Override
-  public String getKid() {
-    return null;
-  }
-
-  @Override
-  public byte[] sign(String payload) {
-    return new byte[0];
+  public Algorithm get() {
+    return RSA.RS512;
   }
 }

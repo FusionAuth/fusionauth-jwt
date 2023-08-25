@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public class PEMDecoder {
     try {
       return decode(Files.readAllBytes(path));
     } catch (IOException e) {
-      throw new PEMDecoderException("Unable to read the file from path [" + path.toAbsolutePath().toString() + "]", e);
+      throw new PEMDecoderException("Unable to read the file from path [" + path.toAbsolutePath() + "]", e);
     }
   }
 
@@ -106,11 +106,11 @@ public class PEMDecoder {
         return new PEM(CertificateFactory.getInstance("X.509").generateCertificate(
             new ByteArrayInputStream(getKeyBytes(encodedKey, X509_CERTIFICATE_PREFIX, X509_CERTIFICATE_SUFFIX))));
       } else if (encodedKey.contains(PKCS_1_PRIVATE_KEY_PREFIX)) {
-        return KeyDecoderFactory.getByKeyType(KeyType.RSA.name).decode(encodedKey);
+        return KeyDecoder.getByType(KeyType.RSA.name).decode(encodedKey);
       } else if (encodedKey.contains(PKCS_8_PRIVATE_KEY_PREFIX)) {
         return decode_PKCS_8(encodedKey);
       } else if (encodedKey.contains(EC_PRIVATE_KEY_SUFFIX)) {
-        return KeyDecoderFactory.getByKeyType(KeyType.EC.name).decode(encodedKey);
+        return KeyDecoder.getByType(KeyType.EC.name).decode(encodedKey);
       } else {
         throw new PEMDecoderException(new InvalidParameterException("Unexpected PEM Format"));
       }
@@ -160,7 +160,7 @@ public class PEMDecoder {
     ObjectIdentifier algorithmOID = new DerInputStream(sequence[1].toByteArray()).getOID();
     String oid = algorithmOID.decode();
 
-    KeyDecoder keyDecoder = KeyDecoderFactory.getByOID(oid);
+    KeyDecoder keyDecoder = KeyDecoder.getByOID(oid);
     PrivateKey privateKey = KeyFactory.getInstance(keyDecoder.keyType().algorithm).generatePrivate(new PKCS8EncodedKeySpec(bytes));
     return keyDecoder.decode(privateKey, sequence);
   }

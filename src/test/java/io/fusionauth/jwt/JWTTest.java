@@ -38,11 +38,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.Header;
 import io.fusionauth.jwt.domain.JWT;
+import io.fusionauth.jwt.ec.EC;
 import io.fusionauth.jwt.ec.ECSigner;
 import io.fusionauth.jwt.ec.ECVerifier;
+import io.fusionauth.jwt.hmac.HMAC;
 import io.fusionauth.jwt.hmac.HMACSigner;
 import io.fusionauth.jwt.hmac.HMACVerifier;
 import io.fusionauth.jwt.rsa.RSAPSSSigner;
@@ -271,7 +272,7 @@ public class JWTTest extends BaseJWTTest {
     Verifier verifier = ECVerifier.newVerifier(Paths.get("src/test/resources/ec_public_key_p_256.pem"));
     JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
     assertEquals(jwt.subject, "123456789");
-    assertEquals(jwt.header.algorithm, Algorithm.ES256);
+    assertEquals(jwt.header.algorithm, EC.ES256);
     assertEquals(jwt.header.type, "JWT");
 
     // Re-test using a pre-built EC Public Key
@@ -567,7 +568,7 @@ public class JWTTest extends BaseJWTTest {
         .set("kid", "1234"));
     JWT actualJwt = JWT.getDecoder().decode(encodedJWT, verifier);
 
-    assertEquals(actualJwt.header.algorithm, Algorithm.HS256);
+    assertEquals(actualJwt.header.algorithm, HMAC.HS256);
     assertEquals(actualJwt.header.type, "JWT");
 
     // Get manually and with helper.
@@ -856,30 +857,6 @@ public class JWTTest extends BaseJWTTest {
 
     assertEquals(jwt1.subject, jwt2.subject);
     assertEquals(jwt2.subject, jwt3.subject);
-  }
-
-  @Test
-  public void test_none() {
-    JWT jwt = new JWT().setSubject("123456789");
-    Signer signer = new UnsecuredSigner();
-
-    // Register the 'none' algorithm and try again
-    Algorithm.register(Algorithm.none);
-
-    String encodedJWT = JWT.getEncoder().encode(jwt, signer);
-    assertEquals(encodedJWT, "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkifQ.");
-
-    JWT actual = JWT.getDecoder().decode(encodedJWT);
-    assertEquals(actual.subject, jwt.subject);
-
-    // Remove the last '.' (dot) and try again - this will fail, invalid JWT. All three parts are required, even for 'none'
-    expectException(InvalidJWTException.class, () -> JWT.getDecoder().decode("eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkifQ"));
-
-    // Deregister the 'none' algorithm and try again
-    Algorithm.deRegister(Algorithm.none);
-
-    // The 'none' algorithm is not registered by default
-    expectException(UnsupportedAlgorithmException.class, () -> JWT.getDecoder().decode("eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkifQ."));
   }
 
   @Test

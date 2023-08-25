@@ -48,9 +48,9 @@ import io.fusionauth.security.DefaultCryptoProvider;
  */
 public class RSAVerifier implements Verifier {
   private final Set<Algorithm> SupportedAlgorithms = new HashSet<>(Arrays.asList(
-      Algorithm.RS256,
-      Algorithm.RS384,
-      Algorithm.RS512
+      RSA.RS256,
+      RSA.RS384,
+      RSA.RS512
   ));
 
   private final CryptoProvider cryptoProvider;

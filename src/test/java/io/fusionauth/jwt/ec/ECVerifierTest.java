@@ -16,19 +16,19 @@
 
 package io.fusionauth.jwt.ec;
 
-import io.fusionauth.jwt.BaseJWTTest;
-import io.fusionauth.jwt.MissingPublicKeyException;
-import io.fusionauth.jwt.Verifier;
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.pem.domain.PEM;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 import java.security.interfaces.ECPublicKey;
 import java.util.Arrays;
 
+import io.fusionauth.jwt.BaseJWTTest;
+import io.fusionauth.jwt.MissingPublicKeyException;
+import io.fusionauth.jwt.Verifier;
+import io.fusionauth.jwt.hmac.HMAC;
+import io.fusionauth.jwt.rsa.RSA;
+import io.fusionauth.pem.domain.PEM;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -40,64 +40,64 @@ public class ECVerifierTest extends BaseJWTTest {
   @Test
   public void test_public_pem_parsing() {
     Arrays.asList(
-        "ec_public_key_p_256.pem",
-        "ec_public_key_p_384.pem",
-        "ec_public_key_p_521.pem")
-        .forEach(fileName -> {
-          // Take a Path arg
-          assertECVerifier(ECVerifier.newVerifier(getPath(fileName)));
-          // Take a String arg
-          assertECVerifier(ECVerifier.newVerifier(readFile(fileName)));
-          // Take a byte[] arg
-          assertECVerifier(ECVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
-          // Take a public key arg
-          assertECVerifier(ECVerifier.newVerifier((ECPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
-        });
+              "ec_public_key_p_256.pem",
+              "ec_public_key_p_384.pem",
+              "ec_public_key_p_521.pem")
+          .forEach(fileName -> {
+            // Take a Path arg
+            assertECVerifier(ECVerifier.newVerifier(getPath(fileName)));
+            // Take a String arg
+            assertECVerifier(ECVerifier.newVerifier(readFile(fileName)));
+            // Take a byte[] arg
+            assertECVerifier(ECVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
+            // Take a public key arg
+            assertECVerifier(ECVerifier.newVerifier((ECPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
+          });
 
     // Public key parsing fails with private keys w/out an encoded public key
     Arrays.asList(
-        "ec_private_key_p_256.pem",
-        "ec_private_key_p_384.pem",
-        "ec_private_key_p_521.pem")
-        .forEach(this::assertFailed);
+              "ec_private_key_p_256.pem",
+              "ec_private_key_p_384.pem",
+              "ec_private_key_p_521.pem")
+          .forEach(this::assertFailed);
 
     // Public key parsing works with private keys when the private key contains a public key
     Arrays.asList(
-        "ec_private_prime256v1_p_256_openssl.pem",
-        "ec_private_prime256v1_p_256_openssl_pkcs8.pem",
-        "ec_private_secp384r1_p_384_openssl.pem",
-        "ec_private_secp384r1_p_384_openssl_pkcs8.pem",
-        "ec_private_secp521r1_p_512_openssl.pem",
-        "ec_private_secp521r1_p_512_openssl_pkcs8.pem")
-        .forEach(fileName -> {
-          // Take a Path arg
-          assertECVerifier(ECVerifier.newVerifier(getPath(fileName)));
-          // Take a String arg
-          assertECVerifier(ECVerifier.newVerifier(readFile(fileName)));
-          // Take a byte[] arg
-          assertECVerifier(ECVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
-          // Take a public key arg
-          assertECVerifier(ECVerifier.newVerifier((ECPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
-        });
+              "ec_private_prime256v1_p_256_openssl.pem",
+              "ec_private_prime256v1_p_256_openssl_pkcs8.pem",
+              "ec_private_secp384r1_p_384_openssl.pem",
+              "ec_private_secp384r1_p_384_openssl_pkcs8.pem",
+              "ec_private_secp521r1_p_512_openssl.pem",
+              "ec_private_secp521r1_p_512_openssl_pkcs8.pem")
+          .forEach(fileName -> {
+            // Take a Path arg
+            assertECVerifier(ECVerifier.newVerifier(getPath(fileName)));
+            // Take a String arg
+            assertECVerifier(ECVerifier.newVerifier(readFile(fileName)));
+            // Take a byte[] arg
+            assertECVerifier(ECVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
+            // Take a public key arg
+            assertECVerifier(ECVerifier.newVerifier((ECPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
+          });
 
   }
 
   private void assertECVerifier(Verifier verifier) {
-    assertTrue(verifier.canVerify(Algorithm.ES256));
-    assertTrue(verifier.canVerify(Algorithm.ES384));
-    assertTrue(verifier.canVerify(Algorithm.ES512));
+    assertTrue(verifier.canVerify(EC.ES256));
+    assertTrue(verifier.canVerify(EC.ES384));
+    assertTrue(verifier.canVerify(EC.ES512));
 
-    assertFalse(verifier.canVerify(Algorithm.HS256));
-    assertFalse(verifier.canVerify(Algorithm.HS384));
-    assertFalse(verifier.canVerify(Algorithm.HS512));
+    assertFalse(verifier.canVerify(HMAC.HS256));
+    assertFalse(verifier.canVerify(HMAC.HS384));
+    assertFalse(verifier.canVerify(HMAC.HS512));
 
-    assertFalse(verifier.canVerify(Algorithm.PS256));
-    assertFalse(verifier.canVerify(Algorithm.PS384));
-    assertFalse(verifier.canVerify(Algorithm.PS512));
+    assertFalse(verifier.canVerify(RSA.PS256));
+    assertFalse(verifier.canVerify(RSA.PS384));
+    assertFalse(verifier.canVerify(RSA.PS512));
 
-    assertFalse(verifier.canVerify(Algorithm.RS256));
-    assertFalse(verifier.canVerify(Algorithm.RS384));
-    assertFalse(verifier.canVerify(Algorithm.RS512));
+    assertFalse(verifier.canVerify(RSA.RS256));
+    assertFalse(verifier.canVerify(RSA.RS384));
+    assertFalse(verifier.canVerify(RSA.RS512));
 
   }
 

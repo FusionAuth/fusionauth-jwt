@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 
 package io.fusionauth.jwt.domain;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fusionauth.jwt.json.Mapper;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * JSON Object Signing and Encryption (JOSE) Header
@@ -59,6 +59,28 @@ public class Header {
     return properties;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Header header = (Header) o;
+    return algorithm == header.algorithm &&
+           Objects.equals(properties, header.properties) &&
+           Objects.equals(type, header.type);
+  }
+
+  /**
+   * @param name the name of the key
+   * @return the string value of the object found by the requested key.
+   */
+  public Object get(String name) {
+    return properties.get(name);
+  }
+
   /**
    * @param name the name of the key
    * @return the string value of the object found by the requested key.
@@ -68,12 +90,9 @@ public class Header {
     return result != null ? result.toString() : null;
   }
 
-  /**
-   * @param name the name of the key
-   * @return the string value of the object found by the requested key.
-   */
-  public Object get(String name) {
-    return properties.get(name);
+  @Override
+  public int hashCode() {
+    return Objects.hash(algorithm, properties, type);
   }
 
   /**
@@ -96,20 +115,5 @@ public class Header {
   @Override
   public String toString() {
     return new String(Mapper.prettyPrint(this));
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Header header = (Header) o;
-    return algorithm == header.algorithm &&
-        Objects.equals(properties, header.properties) &&
-        Objects.equals(type, header.type);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(algorithm, properties, type);
   }
 }

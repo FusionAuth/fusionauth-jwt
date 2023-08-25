@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,16 @@
 
 package io.fusionauth.jwt.domain;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
+import java.util.ServiceLoader;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.fusionauth.der.ObjectIdentifier;
+import io.fusionauth.jwt.SafeServiceLoader;
 import io.fusionauth.jwt.UnsupportedKeyTypeException;
 import io.fusionauth.jwt.UnsupportedObjectIdentifierException;
+import io.fusionauth.jwt.spi.KeyTypeProvider;
 
 /**
  * Available Cryptographic Algorithms for Keys as described in <a href="https://tools.ietf.org/html/rfc7518#section-6.1">RFC
@@ -45,11 +44,7 @@ public class KeyType {
 
   public static final KeyType RSA = new KeyType("RSA", "RSA", ObjectIdentifier.RSA_ENCRYPTION);
 
-  private static final Map<String, KeyType> KeyTypeByName = new HashMap<>();
-
-  private static final Map<String, KeyType> KeyTypeByOID = new HashMap<>();
-
-  private static final boolean[] registrationFinalized = new boolean[]{false};
+  private static final ServiceLoader<KeyTypeProvider> loader = SafeServiceLoader.load(KeyTypeProvider.class);
 
   public final String algorithm;
 
@@ -64,66 +59,28 @@ public class KeyType {
     this.oid = oid;
   }
 
-  public static Set<String> allRegistered() {
-    return new HashSet<>(KeyTypeByName.keySet());
-  }
-
-  /**
-   * Note this is not Thread safe. If you need it to be thread-safe, you need to synchronize access.
-   *
-   * @param keyType the key type to de-register.
-   */
-  public static void deRegister(KeyType keyType) {
-    ensureNotFinalized();
-    KeyTypeByName.remove(keyType.name);
-    KeyTypeByOID.remove(keyType.name);
-  }
-
-  public static void finalizeRegistration() {
-    registrationFinalized[0] = true;
-  }
-
   @JsonCreator
   public static KeyType lookupByName(String name) {
     Objects.requireNonNull(name);
-    KeyType keyType = KeyTypeByName.get(name);
-    if (keyType == null) {
-      throw new UnsupportedKeyTypeException("No KeyType has been registered for type [" + name + "].");
+    for (KeyTypeProvider provider : loader) {
+      KeyType keyType = provider.get();
+      if (provider.get().name.equals(name)) {
+        return keyType;
+      }
     }
 
-    return keyType;
+    throw new UnsupportedKeyTypeException("No KeyType has been registered for type [" + name + "].");
   }
 
-  // TODO : Do I need this?
   public static KeyType lookupByOID(String oid) {
     Objects.requireNonNull(oid);
-    KeyType keyType = KeyTypeByOID.get(oid);
-    if (keyType == null) {
-      throw new UnsupportedObjectIdentifierException("No KeyType has been registered for OID [" + oid + "].");
+    for (KeyTypeProvider provider : loader) {
+      KeyType keyType = provider.get();
+      if (provider.get().oid.equals(oid)) {
+        return keyType;
+      }
     }
 
-    return keyType;
-  }
-
-  /**
-   * Note this is not Thread safe. If you need it to be thread-safe, you need to synchronize access.
-   *
-   * @param keyType the key type to register.
-   */
-  public static void register(KeyType keyType) {
-    ensureNotFinalized();
-    KeyTypeByName.put(keyType.name, keyType);
-    KeyTypeByOID.put(keyType.oid, keyType);
-  }
-
-  private static void ensureNotFinalized() {
-    if (registrationFinalized[0]) {
-      throw new IllegalStateException("Registration has been finalized. You may not modify the currently registered key decoders.");
-    }
-  }
-
-  static {
-    register(KeyType.EC);
-    register(KeyType.RSA);
+    throw new UnsupportedObjectIdentifierException("No KeyType has been registered for OID [" + oid + "].");
   }
 }

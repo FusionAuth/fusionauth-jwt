@@ -16,6 +16,17 @@
 
 package io.fusionauth.jwt.domain;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,17 +40,6 @@ import io.fusionauth.jwt.json.Mapper;
 import io.fusionauth.jwt.json.ZonedDateTimeDeserializer;
 import io.fusionauth.jwt.json.ZonedDateTimeSerializer;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 /**
  * JSON Web Token (JWT) as defined by RFC 7519.
  * <pre>
@@ -51,12 +51,6 @@ import java.util.Objects;
  * @author Daniel DeGroff
  */
 public class JWT {
-  /**
-   * The decoded JWT header. This is not considered part of the JWT payload, but is available here for convenience.
-   */
-  @JsonIgnore
-  public Header header;
-
   /**
    * Registered Claim <code>aud</code> as defined by RFC 7519 Section 4.1.3. Use of this claim is OPTIONAL.
    * <p>
@@ -70,12 +64,18 @@ public class JWT {
    * Registered Claim <code>exp</code> as defined by RFC 7519 Section 4.1.4. Use of this claim is OPTIONAL.
    * <p>
    * The expiration time claim identifies the expiration time on or after which the JWT MUST NOT be accepted for
-   * processing. The expiration time is expected to provided in UNIX time, or the number of seconds since Epoch.
+   * processing. The expiration time is expected to be provided in UNIX time, or the number of seconds since Epoch.
    */
   @JsonProperty("exp")
   @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
   @JsonSerialize(using = ZonedDateTimeSerializer.class)
   public ZonedDateTime expiration;
+
+  /**
+   * The decoded JWT header. This is not considered part of the JWT payload, but is available here for convenience.
+   */
+  @JsonIgnore
+  public Header header;
 
   /**
    * Registered Claim <code>iat</code> as defined by RFC 7519 Section 4.1.6. Use of this claim is OPTIONAL.
@@ -142,6 +142,15 @@ public class JWT {
   }
 
   /**
+   * Return an instance of the JWT encoder.
+   *
+   * @return a JWT encoder.
+   */
+  public static JWTEncoder getEncoder() {
+    return new JWTEncoder();
+  }
+
+  /**
    * Return a JWT Decoder that allows you to go back or of forward in time. Use this at your own risk.
    * <p>
    * Generally speaking, there should not be a use for this in production code since 'now' should always be 'now',
@@ -152,20 +161,6 @@ public class JWT {
    */
   public static JWTDecoder getTimeMachineDecoder(ZonedDateTime now) {
     return new TimeMachineJWTDecoder(now);
-  }
-
-  /**
-   * Return an instance of the JWT encoder.
-   *
-   * @return a JWT encoder.
-   */
-  public static JWTEncoder getEncoder() {
-    return new JWTEncoder();
-  }
-
-  @JsonIgnore
-  public Object getHeaderClaim(String name) {
-    return header != null ? header.get(name) : null;
   }
 
   /**
@@ -217,17 +212,21 @@ public class JWT {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     JWT jwt = (JWT) o;
     return Objects.equals(audience, jwt.audience) &&
-        Objects.equals(otherClaims, jwt.otherClaims) &&
-        Objects.equals(expiration, jwt.expiration) &&
-        Objects.equals(issuedAt, jwt.issuedAt) &&
-        Objects.equals(issuer, jwt.issuer) &&
-        Objects.equals(notBefore, jwt.notBefore) &&
-        Objects.equals(subject, jwt.subject) &&
-        Objects.equals(uniqueId, jwt.uniqueId);
+           Objects.equals(otherClaims, jwt.otherClaims) &&
+           Objects.equals(expiration, jwt.expiration) &&
+           Objects.equals(issuedAt, jwt.issuedAt) &&
+           Objects.equals(issuer, jwt.issuer) &&
+           Objects.equals(notBefore, jwt.notBefore) &&
+           Objects.equals(subject, jwt.subject) &&
+           Objects.equals(uniqueId, jwt.uniqueId);
   }
 
   /**
@@ -297,6 +296,11 @@ public class JWT {
     }
 
     return value.floatValue();
+  }
+
+  @JsonIgnore
+  public Object getHeaderClaim(String name) {
+    return header != null ? header.get(name) : null;
   }
 
   public Integer getInteger(String key) {
