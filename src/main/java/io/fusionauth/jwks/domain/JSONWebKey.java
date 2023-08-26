@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2017-2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,16 @@
 
 package io.fusionauth.jwks.domain;
 
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.ServiceLoader;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -24,17 +34,11 @@ import io.fusionauth.domain.Buildable;
 import io.fusionauth.jwks.JSONWebKeyBuilder;
 import io.fusionauth.jwks.JSONWebKeyBuilderException;
 import io.fusionauth.jwks.JSONWebKeyParser;
+import io.fusionauth.jwks.spi.JSONWebKeyParserProvider;
+import io.fusionauth.jwt.UnsupportedAlgorithmException;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.KeyType;
 import io.fusionauth.jwt.json.Mapper;
-
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.cert.Certificate;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * A JSON Web Key as defined by <a href="https://tools.ietf.org/html/rfc7517#section-4">RFC 7517 JSON Web Key (JWK)
@@ -43,6 +47,8 @@ import java.util.Objects;
  * @author Daniel DeGroff
  */
 public class JSONWebKey implements Buildable<JSONWebKey> {
+  private static final ServiceLoader<JSONWebKeyParserProvider> loader = ServiceLoader.load(JSONWebKeyParserProvider.class);
+
   /**
    * The "alg" parameter identifies the algorithm intended for use with this key.
    */
@@ -175,16 +181,6 @@ public class JSONWebKey implements Buildable<JSONWebKey> {
   }
 
   /**
-   * Build a public key from a JSON Web Key containing a public RSA or EC key.
-   *
-   * @param key a JSON web key containing a public key
-   * @return a public key
-   */
-  public static PublicKey parse(JSONWebKey key) {
-    return new JSONWebKeyParser().parse(key);
-  }
-
-  /**
    * Build a JSON Web Key from a certificate
    *
    * @param certificate the certificate
@@ -212,6 +208,26 @@ public class JSONWebKey implements Buildable<JSONWebKey> {
    */
   public static JSONWebKey build(PublicKey publicKey) {
     return new JSONWebKeyBuilder().build(publicKey);
+  }
+
+  /**
+   * Build a public key from a JSON Web Key containing a public RSA or EC key.
+   *
+   * @param key a JSON web key containing a public key
+   * @return a public key
+   */
+  public static PublicKey parse(JSONWebKey key) {
+    Objects.requireNonNull(key);
+    for (JSONWebKeyParserProvider provider : loader) {
+      JSONWebKeyParser parser = provider.get();
+      if (key.kty.equals(parser.keyType())) {
+        return parser.parse(key);
+      }
+    }
+
+    List<String> keyTypes = new ArrayList<>(3);
+    loader.iterator().forEachRemaining(p -> keyTypes.add(p.get().keyType().name));
+    throw new UnsupportedAlgorithmException("Unable to parse the JSON web key of type [" + key.kty.name + "]. Supported key types [" + String.join(", ", keyTypes) + "].");
   }
 
   @JsonIgnore
@@ -249,27 +265,31 @@ public class JSONWebKey implements Buildable<JSONWebKey> {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof JSONWebKey)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof JSONWebKey)) {
+      return false;
+    }
     JSONWebKey that = (JSONWebKey) o;
     return alg == that.alg &&
-        Objects.equals(crv, that.crv) &&
-        Objects.equals(d, that.d) &&
-        Objects.equals(dp, that.dp) &&
-        Objects.equals(dq, that.dq) &&
-        Objects.equals(e, that.e) &&
-        Objects.equals(kid, that.kid) &&
-        kty == that.kty &&
-        Objects.equals(n, that.n) &&
-        Objects.equals(p, that.p) &&
-        Objects.equals(q, that.q) &&
-        Objects.equals(qi, that.qi) &&
-        Objects.equals(use, that.use) &&
-        Objects.equals(x, that.x) &&
-        Objects.equals(x5c, that.x5c) &&
-        Objects.equals(x5t, that.x5t) &&
-        Objects.equals(x5t_256, that.x5t_256) &&
-        Objects.equals(y, that.y);
+           Objects.equals(crv, that.crv) &&
+           Objects.equals(d, that.d) &&
+           Objects.equals(dp, that.dp) &&
+           Objects.equals(dq, that.dq) &&
+           Objects.equals(e, that.e) &&
+           Objects.equals(kid, that.kid) &&
+           kty == that.kty &&
+           Objects.equals(n, that.n) &&
+           Objects.equals(p, that.p) &&
+           Objects.equals(q, that.q) &&
+           Objects.equals(qi, that.qi) &&
+           Objects.equals(use, that.use) &&
+           Objects.equals(x, that.x) &&
+           Objects.equals(x5c, that.x5c) &&
+           Objects.equals(x5t, that.x5t) &&
+           Objects.equals(x5t_256, that.x5t_256) &&
+           Objects.equals(y, that.y);
   }
 
   @JsonAnyGetter

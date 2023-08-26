@@ -13,18 +13,18 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package io.fusionauth.jwt.ec.provider;
+package io.fusionauth.jwt.rsa;
 
 import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.jwt.ec.EC;
+import io.fusionauth.jwt.rsa.RSA;
 import io.fusionauth.jwt.spi.AlgorithmProvider;
 
 /**
  * @author Daniel DeGroff
  */
-public class ES512AlgorithmProvider implements AlgorithmProvider {
+public class RSAPSS384AlgorithmProvider implements AlgorithmProvider {
   @Override
   public Algorithm get() {
-    return EC.ES512;
+    return RSA.PS384;
   }
 }

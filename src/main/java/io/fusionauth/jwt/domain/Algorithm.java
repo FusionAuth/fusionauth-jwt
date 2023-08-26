@@ -21,8 +21,8 @@ import java.util.ServiceLoader;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.fusionauth.jwt.SafeServiceLoader;
 import io.fusionauth.jwt.UnsupportedAlgorithmException;
+import io.fusionauth.jwt.json.Mapper;
 import io.fusionauth.jwt.spi.AlgorithmProvider;
 
 /**
@@ -31,7 +31,7 @@ import io.fusionauth.jwt.spi.AlgorithmProvider;
  * @author Daniel DeGroff
  */
 public class Algorithm {
-  private static final ServiceLoader<AlgorithmProvider> loader = SafeServiceLoader.load(AlgorithmProvider.class);
+  private static final ServiceLoader<AlgorithmProvider> loader = ServiceLoader.load(AlgorithmProvider.class);
 
   @JsonValue
   public final String name;
@@ -90,5 +90,10 @@ public class Algorithm {
   @Override
   public int hashCode() {
     return Objects.hash(value, saltLength, name);
+  }
+
+  @Override
+  public String toString() {
+    return new String(Mapper.prettyPrint(this));
   }
 }

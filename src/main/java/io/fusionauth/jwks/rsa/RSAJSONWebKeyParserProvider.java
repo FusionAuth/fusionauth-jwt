@@ -13,18 +13,17 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package io.fusionauth.jwt.rsa.provider;
+package io.fusionauth.jwks.rsa;
 
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.jwt.rsa.RSA;
-import io.fusionauth.jwt.spi.AlgorithmProvider;
+import io.fusionauth.jwks.JSONWebKeyParser;
+import io.fusionauth.jwks.spi.JSONWebKeyParserProvider;
 
 /**
  * @author Daniel DeGroff
  */
-public class RSAPSS512AlgorithmProvider implements AlgorithmProvider {
+public class RSAJSONWebKeyParserProvider implements JSONWebKeyParserProvider {
   @Override
-  public Algorithm get() {
-    return RSA.PS512;
+  public JSONWebKeyParser get() {
+    return new RSAJSONWebKeyParser();
   }
 }

@@ -1,2 +1,2 @@
-io.fusionauth.jwt.ec.provider.ECKeyDecoderProvider
-io.fusionauth.jwt.rsa.provider.RSAKeyDecoderProvider
+io.fusionauth.jwt.ec.ECKeyDecoderProvider
+io.fusionauth.jwt.rsa.RSAKeyDecoderProvider

@@ -29,7 +29,6 @@ import io.fusionauth.der.DerOutputStream;
 import io.fusionauth.der.DerValue;
 import io.fusionauth.der.Tag;
 import io.fusionauth.jwt.MissingKeyDecoderException;
-import io.fusionauth.jwt.SafeServiceLoader;
 import io.fusionauth.jwt.domain.KeyType;
 import io.fusionauth.jwt.spi.KeyDecoderProvider;
 import io.fusionauth.pem.domain.PEM;
@@ -40,7 +39,7 @@ import io.fusionauth.pem.domain.PEM;
  * @author Daniel DeGroff
  */
 public interface KeyDecoder {
-  ServiceLoader<KeyDecoderProvider> loader = SafeServiceLoader.load(KeyDecoderProvider.class);
+  ServiceLoader<KeyDecoderProvider> loader = ServiceLoader.load(KeyDecoderProvider.class);
 
   static KeyDecoder getByOID(String oid) {
     Objects.requireNonNull(oid);

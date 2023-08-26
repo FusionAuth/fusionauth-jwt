@@ -13,10 +13,9 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package io.fusionauth.jwt.rsa.provider;
+package io.fusionauth.jwt.rsa;
 
 import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.jwt.rsa.RSA;
 import io.fusionauth.jwt.spi.AlgorithmProvider;
 
 /**

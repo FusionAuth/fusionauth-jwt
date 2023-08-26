@@ -16,10 +16,11 @@
 
 package io.fusionauth.jwt.domain;
 
-import io.fusionauth.domain.Buildable;
-import io.fusionauth.pem.domain.PEM;
-
 import java.util.Objects;
+
+import io.fusionauth.domain.Buildable;
+import io.fusionauth.jwt.json.Mapper;
+import io.fusionauth.pem.domain.PEM;
 
 /**
  * @author Daniel DeGroff
@@ -38,16 +39,25 @@ public class KeyPair implements Buildable<KeyPair> {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     KeyPair that = (KeyPair) o;
     return Objects.equals(pem, that.pem) &&
-        Objects.equals(privateKey, that.privateKey) &&
-        Objects.equals(publicKey, that.publicKey);
+           Objects.equals(privateKey, that.privateKey) &&
+           Objects.equals(publicKey, that.publicKey);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(pem, privateKey, publicKey);
+  }
+
+  @Override
+  public String toString() {
+    return new String(Mapper.prettyPrint(this));
   }
 }

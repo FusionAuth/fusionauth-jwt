@@ -13,18 +13,17 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package io.fusionauth.jwt.hmac.provider;
+package io.fusionauth.jwks.ec;
 
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.jwt.hmac.HMAC;
-import io.fusionauth.jwt.spi.AlgorithmProvider;
+import io.fusionauth.jwks.JSONWebKeyParser;
+import io.fusionauth.jwks.spi.JSONWebKeyParserProvider;
 
 /**
  * @author Daniel DeGroff
  */
-public class HS256AlgorithmProvider implements AlgorithmProvider {
+public class ECJSONWebKeyParserProvider implements JSONWebKeyParserProvider {
   @Override
-  public Algorithm get() {
-    return HMAC.HS256;
+  public JSONWebKeyParser get() {
+    return new ECJSONWebKeyParser();
   }
 }

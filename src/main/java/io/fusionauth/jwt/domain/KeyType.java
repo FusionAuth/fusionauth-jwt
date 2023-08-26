@@ -22,9 +22,9 @@ import java.util.ServiceLoader;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.fusionauth.der.ObjectIdentifier;
-import io.fusionauth.jwt.SafeServiceLoader;
 import io.fusionauth.jwt.UnsupportedKeyTypeException;
 import io.fusionauth.jwt.UnsupportedObjectIdentifierException;
+import io.fusionauth.jwt.json.Mapper;
 import io.fusionauth.jwt.spi.KeyTypeProvider;
 
 /**
@@ -44,7 +44,7 @@ public class KeyType {
 
   public static final KeyType RSA = new KeyType("RSA", "RSA", ObjectIdentifier.RSA_ENCRYPTION);
 
-  private static final ServiceLoader<KeyTypeProvider> loader = SafeServiceLoader.load(KeyTypeProvider.class);
+  private static final ServiceLoader<KeyTypeProvider> loader = ServiceLoader.load(KeyTypeProvider.class);
 
   public final String algorithm;
 
@@ -82,5 +82,27 @@ public class KeyType {
     }
 
     throw new UnsupportedObjectIdentifierException("No KeyType has been registered for OID [" + oid + "].");
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    KeyType keyType = (KeyType) o;
+    return Objects.equals(algorithm, keyType.algorithm) && Objects.equals(name, keyType.name) && Objects.equals(oid, keyType.oid);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(algorithm, name, oid);
+  }
+
+  @Override
+  public String toString() {
+    return new String(Mapper.prettyPrint(this));
   }
 }

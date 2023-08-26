@@ -13,18 +13,18 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package io.fusionauth.jwt.hmac.provider;
+package io.fusionauth.jwt.rsa;
 
 import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.jwt.hmac.HMAC;
+import io.fusionauth.jwt.rsa.RSA;
 import io.fusionauth.jwt.spi.AlgorithmProvider;
 
 /**
  * @author Daniel DeGroff
  */
-public class HS384AlgorithmProvider implements AlgorithmProvider {
+public class RSA512AlgorithmProvider implements AlgorithmProvider {
   @Override
   public Algorithm get() {
-    return HMAC.HS384;
+    return RSA.RS512;
   }
 }

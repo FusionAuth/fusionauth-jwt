@@ -13,18 +13,18 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package io.fusionauth.jwt.ec.provider;
+package io.fusionauth.jwt.rsa;
 
-import io.fusionauth.jwt.ec.ECKeyDecoder;
-import io.fusionauth.jwt.spi.KeyDecoderProvider;
-import io.fusionauth.pem.KeyDecoder;
+import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.jwt.rsa.RSA;
+import io.fusionauth.jwt.spi.AlgorithmProvider;
 
 /**
  * @author Daniel DeGroff
  */
-public class ECKeyDecoderProvider implements KeyDecoderProvider {
+public class RSAPSS512AlgorithmProvider implements AlgorithmProvider {
   @Override
-  public KeyDecoder get() {
-    return new ECKeyDecoder();
+  public Algorithm get() {
+    return RSA.PS512;
   }
 }

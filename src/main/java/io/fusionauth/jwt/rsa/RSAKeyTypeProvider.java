@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, FusionAuth, All Rights Reserved
+ * Copyright (c) 2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,17 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
+package io.fusionauth.jwt.rsa;
 
-package io.fusionauth.jwks;
-
-import java.security.PublicKey;
-
-import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.domain.KeyType;
+import io.fusionauth.jwt.spi.KeyTypeProvider;
 
 /**
  * @author Daniel DeGroff
  */
-public interface JSONWebKeyParser {
-  /**
-   * @return the key type that can be parsed by this parser.
-   */
-  KeyType keyType();
-
-  /**
-   * Parse a JSON Web Key and extract the public key.
-   *
-   * @param key the JSON web key
-   * @return the public key
-   */
-  PublicKey parse(JSONWebKey key);
+public class RSAKeyTypeProvider implements KeyTypeProvider {
+  @Override
+  public KeyType get() {
+    return KeyType.RSA;
+  }
 }

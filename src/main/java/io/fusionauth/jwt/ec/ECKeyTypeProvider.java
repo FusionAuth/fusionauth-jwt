@@ -13,18 +13,17 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package io.fusionauth.jwt.ec.provider;
+package io.fusionauth.jwt.ec;
 
-import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.jwt.ec.EC;
-import io.fusionauth.jwt.spi.AlgorithmProvider;
+import io.fusionauth.jwt.domain.KeyType;
+import io.fusionauth.jwt.spi.KeyTypeProvider;
 
 /**
  * @author Daniel DeGroff
  */
-public class ES384AlgorithmProvider implements AlgorithmProvider {
+public class ECKeyTypeProvider implements KeyTypeProvider {
   @Override
-  public Algorithm get() {
-    return EC.ES384;
+  public KeyType get() {
+    return KeyType.EC;
   }
 }

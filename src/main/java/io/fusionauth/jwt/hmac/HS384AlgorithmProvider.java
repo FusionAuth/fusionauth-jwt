@@ -13,17 +13,18 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package io.fusionauth.jwt.ec.provider;
+package io.fusionauth.jwt.hmac;
 
-import io.fusionauth.jwt.domain.KeyType;
-import io.fusionauth.jwt.spi.KeyTypeProvider;
+import io.fusionauth.jwt.domain.Algorithm;
+import io.fusionauth.jwt.hmac.HMAC;
+import io.fusionauth.jwt.spi.AlgorithmProvider;
 
 /**
  * @author Daniel DeGroff
  */
-public class ECKeyTypeProvider implements KeyTypeProvider {
+public class HS384AlgorithmProvider implements AlgorithmProvider {
   @Override
-  public KeyType get() {
-    return KeyType.EC;
+  public Algorithm get() {
+    return HMAC.HS384;
   }
 }
