@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2023, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,12 +51,9 @@ public class JWTEncoder {
    * @return the encoded JWT string.
    */
   public String encode(JWT jwt, Signer signer, Supplier<Header> supplier) {
-    final Header header;
-    if (supplier != null) {
-      header = supplier.get();
-    } else {
-      header = new Header();
-    }
+    Header header = supplier != null
+        ? supplier.get()
+        : new Header();
     return encode(jwt, signer, header);
   }
 
