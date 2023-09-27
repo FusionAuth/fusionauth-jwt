@@ -16,7 +16,7 @@
 
 jacksonVersion = "2.14.0"
 
-project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.2.4", licenses: ["ApacheV2_0"]) {
+project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.3.0", licenses: ["ApacheV2_0"]) {
 
   workflow {
     fetch {
@@ -44,7 +44,7 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.2.4", licens
     }
     group(name: "test-compile", export: false) {
       dependency(id: "org.bouncycastle:bc-fips:1.0.2+P1")
-      dependency(id: "org.testng:testng:7.3.0")
+      dependency(id: "org.testng:testng:7.5.1")
     }
   }
 
@@ -89,7 +89,7 @@ target(name: "jar", description: "JARs the project", dependsOn: ["compile"]) {
 target(name: "test", description: "Runs the project's tests", dependsOn: ["jar"]) {
   // Uncomment to debug
 //    javaTestNG.settings.jvmArguments += "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"
-  javaTestNG.settings.listeners = [ "io.fusionauth.jwt.TestNGAnnotationTransformer" ]
+  javaTestNG.settings.listeners = ["io.fusionauth.jwt.TestNGAnnotationTransformer"]
   javaTestNG.test()
 }
 
