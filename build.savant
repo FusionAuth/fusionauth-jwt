@@ -44,7 +44,7 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "6.0.0", licens
     }
     group(name: "test-compile", export: false) {
       dependency(id: "org.bouncycastle:bc-fips:1.0.2+P1")
-      dependency(id: "org.testng:testng:7.3.0")
+      dependency(id: "org.testng:testng:7.5.1")
     }
   }
 
