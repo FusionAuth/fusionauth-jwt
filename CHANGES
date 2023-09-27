@@ -1,5 +1,12 @@
 FusionAuth JWT Changes
 
+Changes in 5.3.0
+
+ * Add support for providing your own JWT header. This wil, enable you to customize the header property order for example.
+
+ Resolves https://github.com/FusionAuth/fusionauth-jwt/issues/52
+ Thanks to @mdemille for the request and the PR!
+
 Changes in 5.2.4
 
  * Bind a deserializer using @JsonDeserialize the JWT object for all ZoneDateTime objects. This allows
