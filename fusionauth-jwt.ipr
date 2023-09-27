@@ -266,6 +266,10 @@
         <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
         <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
       </JavaCodeStyleSettings>
+      <Markdown>
+        <option name="WRAP_TEXT_IF_LONG" value="false" />
+        <option name="WRAP_TEXT_INSIDE_BLOCKQUOTES" value="false" />
+      </Markdown>
       <MarkdownNavigatorCodeStyleSettings>
         <option name="RIGHT_MARGIN" value="72" />
       </MarkdownNavigatorCodeStyleSettings>
