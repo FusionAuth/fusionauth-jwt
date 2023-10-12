@@ -333,9 +333,9 @@ JSONWebKey jwk=JSONWebKey.build(privateKey)
 
 ## Building with Maven
 
- ```bash
- $ mvn install
- ```
+```bash
+$ mvn install
+```
 
 ## Building with Savant
 
