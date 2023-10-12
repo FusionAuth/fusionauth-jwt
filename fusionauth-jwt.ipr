@@ -262,6 +262,11 @@
     <option name="USE_PER_PROJECT_SETTINGS" value="true" />
     <code_scheme name="Project" version="173">
       <option name="WRAP_COMMENTS" value="true" />
+      <option name="DO_NOT_FORMAT">
+        <list>
+          <fileSet type="globPattern" pattern="README.md" />
+        </list>
+      </option>
       <JavaCodeStyleSettings>
         <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
         <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
