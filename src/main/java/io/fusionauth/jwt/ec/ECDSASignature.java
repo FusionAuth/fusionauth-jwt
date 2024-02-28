@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2024, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,10 +86,17 @@ public class ECDSASignature {
     }
 
     int len = result.length / 2;
-    //noinspection ManualMinMaxCalculation
-    System.arraycopy(r, r.length > len ? 1 : 0, result, r.length < len ? 1 : 0, r.length > len ? len : r.length);
-    //noinspection ManualMinMaxCalculation
-    System.arraycopy(s, s.length > len ? 1 : 0, result, s.length < len ? (len + 1) : len, s.length > len ? len : s.length);
+
+    int rSrcPos = r.length > len ? (r.length - len) : 0;
+    int rDstPos = Math.max(0, len - r.length);
+    int rLength = Math.min(r.length, len);
+    System.arraycopy(r, rSrcPos, result, rDstPos, rLength);
+
+    int sSrcPos = s.length > len ? (s.length - len) : 0;
+    int sDstPos = s.length < len ? (len + (len - s.length)) : len;
+    int sLength = Math.min(s.length, len);
+    System.arraycopy(s, sSrcPos, result, sDstPos, sLength);
+
     return result;
   }
 

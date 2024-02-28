@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2024, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -742,8 +742,10 @@ public class JWTTest extends BaseJWTTest {
     assertEquals(actual.subject, "1234567890");
   }
 
-  @Test
+  @Test(invocationCount = 2_000)
   public void test_external_ec_521() {
+    // The purpose of the large invocation is to ensure we are consistently extracting the r and s components of the DER encoded signature.
+    // - Performing this test 1-3k times is generally sufficient to produce at least 1-3 errors prior to fixing the bug.
     JWT jwt = new JWT()
         .setSubject("1234567890")
         .addClaim("name", "John Doe")
@@ -778,8 +780,10 @@ public class JWTTest extends BaseJWTTest {
     assertEquals(actual.subject, jwt.subject);
   }
 
-  @Test
+  @Test(invocationCount = 2_000)
   public void test_external_ec_p256() {
+    // The purpose of the large invocation is to ensure we are consistently extracting the r and s components of the DER encoded signature.
+    // - Performing this test 1-3k times is generally sufficient to produce at least 1-3 errors prior to fixing the bug.
     JWT jwt = new JWT()
         .setSubject("1234567890")
         .addClaim("name", "John Doe")
@@ -806,8 +810,10 @@ public class JWTTest extends BaseJWTTest {
     assertEquals(actual.subject, jwt.subject);
   }
 
-  @Test
+  @Test(invocationCount = 2_000)
   public void test_external_ec_p384() {
+    // The purpose of the large invocation is to ensure we are consistently extracting the r and s components of the DER encoded signature.
+    // - Performing this test 1-3k times is generally sufficient to produce at least 1-3 errors prior to fixing the bug.
     JWT jwt = new JWT()
         .setSubject("1234567890")
         .addClaim("name", "John Doe")
@@ -887,7 +893,7 @@ public class JWTTest extends BaseJWTTest {
     verifiers.put("verifier2", verifier2);
     verifiers.put("verifier3", verifier3);
 
-    // decode all of the encoded JWTs and ensure they come out the same.
+    // decode all the encoded JWTs and ensure they come out the same.
     JWT jwt1 = JWT.getDecoder().decode(encodedJWT1, verifiers);
     JWT jwt2 = JWT.getDecoder().decode(encodedJWT2, verifiers);
     JWT jwt3 = JWT.getDecoder().decode(encodedJWT3, verifiers);
@@ -965,8 +971,10 @@ public class JWTTest extends BaseJWTTest {
     assertEquals(actual.subject, jwt.subject);
   }
 
-  @Test(invocationCount = 1000)
+  @Test(invocationCount = 2_000)
   public void test_openssl_keys_p_521() {
+    // The purpose of the large invocation is to ensure we are consistently extracting the r and s components of the DER encoded signature.
+    // - Performing this test 1-3k times is generally sufficient to produce at least 1-3 errors prior to fixing the bug.
     JWT jwt = new JWT()
         .setSubject("1234567890")
         .addClaim("name", "John Doe")
@@ -992,33 +1000,6 @@ public class JWTTest extends BaseJWTTest {
             "KuIz8/qAl5HUdgxkg/Q8U2vQSCGZgIgrnUxqZACURy+Gg+uLWmEXoVrqZm2sKppo\n" +
             "gHdUM1Fpptwl+wUeX3g=\n" +
             "-----END PUBLIC KEY-----");
-    JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
-    assertEquals(actual.subject, jwt.subject);
-  }
-
-  @Test(invocationCount = 1000)
-  public void test_openssl_keys_p_521_failed_validation() {
-    JWT jwt = new JWT()
-        .setSubject("1234567890")
-        .addClaim("name", "John Doe 208")
-        .addClaim("admin", true)
-        .addClaim("iat", 1516239022);
-
-    // PKCS#8 PEM, needs no encapsulation
-    Signer signer = ECSigner.newSHA512Signer("-----BEGIN PRIVATE KEY-----\n" +
-        "MF8CAQAwEAYHKoZIzj0CAQYFK4EEACMESDBGAgEBBEHNkRW+AZ87Hobcc0BIW1YV\n" +
-        "Ia5uQ0QVj8kkAN7sgTzKmawnf82FqFnHzqyhshHfwx9eIv723E3/XrA+3nw+8/l9\n" +
-        "ew==\n" +
-        "-----END PRIVATE KEY-----");
-    String encodedJWT = JWT.getEncoder().encode(jwt, signer, header
-        -> header.set("kid", "S-CdQFQmkHB1rFfzQS4kxhzKk8xtZPAECItUvB0plIM"));
-
-    Verifier verifier = ECVerifier.newVerifier("-----BEGIN PUBLIC KEY-----\n" +
-        "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBa5VzP87t5eGBqoZFLs9xQiodlD7E\n" +
-        "0xCzD7SrjshhOfOYei9kb7Yt5bvXShTfji16r1tgpaVzc5ffG693O4RVsUsBV7nl\n" +
-        "mCRG7g5x9FD2VIiSwnrDHyVf0bYNMeBM4vrt245VNT0E1xkJWhUB2JIl4dGvv0qE\n" +
-        "dYamwqrHFpoN7QW530Y=\n" +
-        "-----END PUBLIC KEY-----");
     JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
     assertEquals(actual.subject, jwt.subject);
   }

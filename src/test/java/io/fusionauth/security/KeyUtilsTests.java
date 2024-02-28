@@ -16,7 +16,6 @@
 
 package io.fusionauth.security;
 
-import io.fusionauth.pem.PEMDecoder;
 import io.fusionauth.pem.domain.PEM;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -35,8 +34,8 @@ public class KeyUtilsTests {
   @DataProvider(name = "ecKeyLengths")
   public Object[][] ecKeyLengths() {
     return new Object[][]{
-//        {"EC", 256, 256, 256},
-//        {"EC", 384, 384, 384},
+        {"EC", 256, 256, 256},
+        {"EC", 384, 384, 384},
         {"EC", 521, 521, 521}
     };
   }
@@ -64,7 +63,7 @@ public class KeyUtilsTests {
   // failures where the key is not an exact size and we have to figure out which key size it should be reported as.
   // - For testing locally, you can ramp up this invocation count to 100k or something like that to prove that we have
   //   consistency over time.
-  @Test(dataProvider = "ecKeyLengths", invocationCount = 20000)
+  @Test(dataProvider = "ecKeyLengths", invocationCount = 500)
   public void ec_getKeyLength(String algorithm, int keySize, int privateKeySize, int publicKeySize) throws Exception {
     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
     keyPairGenerator.initialize(keySize);

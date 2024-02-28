@@ -16,15 +16,8 @@
 
 package io.fusionauth.jwt.ec;
 
-import io.fusionauth.jwks.JSONWebKeyBuilder;
 import io.fusionauth.jwt.BaseJWTTest;
-import io.fusionauth.jwt.InvalidJWTSignatureException;
 import io.fusionauth.jwt.InvalidKeyTypeException;
-import io.fusionauth.jwt.JWTUtils;
-import io.fusionauth.jwt.Signer;
-import io.fusionauth.jwt.Verifier;
-import io.fusionauth.jwt.domain.JWT;
-import io.fusionauth.pem.PEMEncoder;
 import io.fusionauth.pem.domain.PEM;
 import io.fusionauth.security.BCFIPSCryptoProvider;
 import org.testng.annotations.Test;
@@ -34,7 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
@@ -67,61 +59,28 @@ public class ECSignerTest extends BaseJWTTest {
     }
   }
 
-  @Test(invocationCount = 1000)
+  @Test
   public void round_trip_raw1() throws Exception {
     // Generate a key-pair and sign and verify a message
     KeyPairGenerator g = KeyPairGenerator.getInstance("EC");
-    ECGenParameterSpec parameterSpec = new ECGenParameterSpec("secp384r1");
+    ECGenParameterSpec parameterSpec = new ECGenParameterSpec("secp256r1");
     g.initialize(parameterSpec);
     KeyPair pair = g.generateKeyPair();
-    System.out.println(new PEMEncoder().encode(pair.getPublic()));
-    System.out.println(new PEMEncoder().encode(pair.getPrivate()));
-    System.out.println(JWTUtils.generateJWS_kid_S256(new JSONWebKeyBuilder().build(pair.getPublic())));
 
     // Instance of signature class with SHA256withECDSA algorithm
-    Signature signature = Signature.getInstance("SHA384withECDSA");
+    Signature signature = Signature.getInstance("SHA256withECDSA");
     signature.initSign(pair.getPrivate());
-    Signer signer = ECSigner.newSHA384Signer(pair.getPrivate());
-    Verifier verifier = ECVerifier.newVerifier(pair.getPublic());
 
-    for (int i = 0; i < 250; i++) {
-      JWT jwt = new JWT()
-          .setSubject("1234567890")
-          .addClaim("name", "John Doe " + i)
-          .addClaim("admin", true)
-          .addClaim("iat", 1516239022);
+    // Sign a message
+    String message = "text ecdsa with sha256";
+    signature.update((message).getBytes(StandardCharsets.UTF_8));
+    byte[] signatureBytes = signature.sign();
 
-      String encodedJWT = JWT.getEncoder().encode(jwt, signer, header
-          -> header.set("kid", JWTUtils.generateJWS_kid_S256(new JSONWebKeyBuilder().build(pair.getPublic()))));
-
-        JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
-        assertEquals(actual.subject, jwt.subject);
-        assertEquals(actual.getString("name"), jwt.getString("name"));
-//      try {
-//        System.out.println("Good " + encodedJWT);
-//      } catch (InvalidJWTSignatureException e) {
-//        System.out.println("Bad " + encodedJWT);
-//      }
-    }
-
-//    for (int i = 0; i < 250; i++) {
-//      // Sign a message
-//      byte[] bytes = new byte[i+1];
-//      new SecureRandom().nextBytes(bytes);
-//      signature.update(bytes);
-//      byte[] signatureBytes = signature.sign();
-//
-//      // Validation
-//      Signature verifier = Signature.getInstance("SHA512withECDSA");
-//      verifier.initVerify(pair.getPublic());
-//      verifier.update(bytes);
-//      boolean verified = verifier.verify(signatureBytes);
-//      if (!verified) {
-//        System.out.println("Public: " + new String(pair.getPublic().getEncoded(), StandardCharsets.UTF_8));
-//        System.out.println("Private: " + new String(pair.getPrivate().getEncoded(), StandardCharsets.UTF_8));
-//      }
-//      assertTrue(verified);
-//    }
+    // Validation
+    Signature verifier = Signature.getInstance("SHA256withECDSA");
+    verifier.initVerify(pair.getPublic());
+    verifier.update(message.getBytes(StandardCharsets.UTF_8));
+    assertTrue(verifier.verify(signatureBytes));
   }
 
   @Test
