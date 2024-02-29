@@ -16,7 +16,7 @@
 
 jacksonVersion = "2.15.2"
 
-project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.3.1", licenses: ["ApacheV2_0"]) {
+project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.3.2", licenses: ["ApacheV2_0"]) {
 
   workflow {
     fetch {
