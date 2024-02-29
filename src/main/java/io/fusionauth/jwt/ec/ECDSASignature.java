@@ -89,31 +89,32 @@ public class ECDSASignature {
     // Because the response is not encoded, the r and s component must take up an equal amount of the resulting array.
     // This allows the consumer of this value to always safely split the value in half based upon an index value since
     // the result is not encoded and does not contain any meta-data about the contents.
-    int len = result.length / 2;
+    int componentLength = result.length / 2;
 
     // The extracted byte array of the DER encoded value can be left padded. For this reason, the component lengths
-    // may be greater than 'len' which is half of the result. So for example, if r is left padded, the length may be
-    // equal to 67 in ES512 even though len is only 66. This is why we must calculate the source position for reading
-    // when we copy the r byte array into the result. The same is potentially true for either component. We cannot
-    // make an assumption that the source position in r or s will be 0.
+    // may be greater than componentLength which is half of the result. So for example, if r is left padded, the
+    // length may be equal to 67 in ES512 even though componentLength is only 66. This is why we must calculate the
+    // source position for reading when we copy the r byte array into the result. The same is potentially true for
+    // either component. We cannot make an assumption that the source position in r or s will be 0.
     //
-    // Similarly, when the r and s components are not padded, but they are shorter than len, we need to pad the value
-    // to be right aligned in the result. This is why the destination position may not be 0 or len respectively for
+    // Similarly, when the r and s components are not padded, but they are shorter than componentLength, we need to
+    // pad the value to be right aligned in the result. This is why the destination position may not be 0 or
+    // componentLength respectively for
     // r and s.
     //
-    // If s is 65 bytes, then the destination position in the 0 initialized resulting array needs to be len + 1 so that
-    // we write the final byte of s at the end of the result.
+    // If s is 65 bytes, then the destination position in the 0 initialized resulting array needs to be
+    // componentLength + 1 so that we write the final byte of s at the end of the result.
     //
     // For clarity, calculate each input to the arraycopy method first.
 
-    int rSrcPos = r.length > len ? (r.length - len) : 0;
-    int rDstPos = Math.max(0, len - r.length);
-    int rLength = Math.min(r.length, len);
+    int rSrcPos = r.length > componentLength ? (r.length - componentLength) : 0;
+    int rDstPos = Math.max(0, componentLength - r.length);
+    int rLength = Math.min(r.length, componentLength);
     System.arraycopy(r, rSrcPos, result, rDstPos, rLength);
 
-    int sSrcPos = s.length > len ? (s.length - len) : 0;
-    int sDstPos = s.length < len ? (len + (len - s.length)) : len;
-    int sLength = Math.min(s.length, len);
+    int sSrcPos = s.length > componentLength ? (s.length - componentLength) : 0;
+    int sDstPos = s.length < componentLength ? (componentLength + (componentLength - s.length)) : componentLength;
+    int sLength = Math.min(s.length, componentLength);
     System.arraycopy(s, sSrcPos, result, sDstPos, sLength);
 
     return result;
