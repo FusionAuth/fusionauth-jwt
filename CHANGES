@@ -1,5 +1,10 @@
 FusionAuth JWT Changes
 
+Changes in 5.3.3
+
+ * Upgraded com.fasterxml.jackson.core:jackson-* to 2.15.4.
+ * Upgraded test dependency org.bouncycastle.bc-fips to 1.0.2.5
+
 Changes in 5.3.2
 
  * Correct the padding when extracting the r and s components from a DER encoded public key.
