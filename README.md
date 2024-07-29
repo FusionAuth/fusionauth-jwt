@@ -2,7 +2,7 @@
 FusionAuth JWT is intended to be fast and easy to use. FusionAuth JWT has a single external dependency on Jackson, no Bouncy Castle, Apache Commons or Guava.
 
 ## Security disclosures
-If you find a vulnerability or other security related bug, please send a note to security@fusionauth.io before opening a GitHub issue. This will allow us to assess the disclosure and prepare a fix prior to a public disclosure. 
+If you find a vulnerability or other security related bug, [please report the vulnerability here](https://fusionauth.io/security) before opening a GitHub issue. This will allow us to assess the disclosure and prepare a fix prior to a public disclosure.
 
 We are very interested in compensating anyone that can identify a security related bug or vulnerability and properly disclose it to us.
 
