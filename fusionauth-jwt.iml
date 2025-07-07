@@ -49,7 +49,7 @@
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/.savant/cache/org/bouncycastle/bc-fips/1.0.2.5/bc-fips-1.0.2.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/.savant/cache/org/bouncycastle/bc-fips/1.0.2+P5/bc-fips-1.0.2+P5.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
