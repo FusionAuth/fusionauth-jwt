@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.3.3", licens
       cache()
     }
     semanticVersions {
-      mapping(id: "org.bouncycastle:bc-fips:1.0.2.5", version: "1.0.2+P5")
+      mapping(id: "org.bouncycastle:bc-fips:1.0.2.6", version: "1.0.2+P6")
     }
   }
 
@@ -46,7 +46,7 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.3.3", licens
       dependency(id: "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
     }
     group(name: "test-compile", export: false) {
-      dependency(id: "org.bouncycastle:bc-fips:1.0.2.5")
+      dependency(id: "org.bouncycastle:bc-fips:1.0.2.6")
       dependency(id: "org.testng:testng:7.5.1")
     }
   }
@@ -59,12 +59,14 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.3.3", licens
 /*
  * Define Plugins
  */
-dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:2.0.0-RC.6")
-java = loadPlugin(id: "org.savantbuild.plugin:java:2.0.0-RC.6")
-javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:2.0.0-RC.6")
-groovy = loadPlugin(id: "org.savantbuild.plugin:groovy:2.0.0-RC.6")
-idea = loadPlugin(id: "org.savantbuild.plugin:idea:2.0.0-RC.7")
-release = loadPlugin(id: "org.savantbuild.plugin:release-git:2.0.0-RC.6")
+dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:2.0.0")
+file = loadPlugin(id: "org.savantbuild.plugin:file:2.0.0")
+java = loadPlugin(id: "org.savantbuild.plugin:java:2.0.0")
+javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:2.1.0")
+groovy = loadPlugin(id: "org.savantbuild.plugin:groovy:2.0.0")
+idea = loadPlugin(id: "org.savantbuild.plugin:idea:2.0.0")
+pom = loadPlugin(id: "org.savantbuild.plugin:pom:2.0.0")
+release = loadPlugin(id: "org.savantbuild.plugin:release-git:2.0.0")
 
 /*
  * Plugin Settings
@@ -106,6 +108,15 @@ target(name: "int", description: "Releases a local integration build of the proj
 
 target(name: "release", description: "Releases a full version of the project", dependsOn: ["test"]) {
   release.release()
+}
+
+target(name: "pom", description: "Updates the pom.xml file") {
+  pom.update()
+
+  file.copy(to: ".") {
+    fileSet(dir: ".", includePatterns: [~/pom.xml/])
+    filter(token: "1.0.2\\+P6", value: "1.0.2.6")
+  }
 }
 
 target(name: "publish", description: "Publish to MVN repo", dependsOn: ["clean", "compile"]) {
