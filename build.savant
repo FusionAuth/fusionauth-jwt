@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.3.3", licens
     }
     group(name: "test-compile", export: false) {
       dependency(id: "org.bouncycastle:bc-fips:1.0.2.5")
-      dependency(id: "org.testng:testng:7.5.1")
+      dependency(id: "org.testng:testng:7.9.0")
     }
   }
 
@@ -62,17 +62,14 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "5.3.3", licens
 dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:2.0.0-RC.6")
 java = loadPlugin(id: "org.savantbuild.plugin:java:2.0.0-RC.6")
 javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:2.0.0-RC.6")
-groovy = loadPlugin(id: "org.savantbuild.plugin:groovy:2.0.0-RC.6")
 idea = loadPlugin(id: "org.savantbuild.plugin:idea:2.0.0-RC.7")
 release = loadPlugin(id: "org.savantbuild.plugin:release-git:2.0.0-RC.6")
 
 /*
  * Plugin Settings
  */
-java.settings.javaVersion = "1.8"
-groovy.settings.javaVersion = "1.8"
-groovy.settings.groovyVersion = "2.2"
-javaTestNG.settings.javaVersion = "1.8"
+java.settings.javaVersion = "17"
+javaTestNG.settings.javaVersion = "17"
 
 /*
  * Targets

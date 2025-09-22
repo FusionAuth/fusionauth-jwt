@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package io.fusionauth.jwt.domain;
 import java.util.Objects;
 
 import static io.fusionauth.der.ObjectIdentifier.EC_ENCRYPTION;
+import static io.fusionauth.der.ObjectIdentifier.EdDSA;
 import static io.fusionauth.der.ObjectIdentifier.RSA_ENCRYPTION;
 
 /**
@@ -34,19 +35,28 @@ import static io.fusionauth.der.ObjectIdentifier.RSA_ENCRYPTION;
  * @author Daniel DeGroff
  */
 public enum KeyType {
-  RSA,
-  EC;
+  RSA("RSA"),
+  EC("EC"),
+  ED("EdDSA");
+
+  private final String algorithm;
+
+  KeyType(String algorithm) {
+    this.algorithm = algorithm;
+  }
 
   public static KeyType getKeyTypeFromOid(String oid) {
     Objects.requireNonNull(oid);
 
-    switch (oid) {
-      case EC_ENCRYPTION:
-        return EC;
-      case RSA_ENCRYPTION:
-        return RSA;
-      default:
-        return null;
-    }
+    return switch (oid) {
+      case EC_ENCRYPTION -> EC;
+      case EdDSA -> ED;
+      case RSA_ENCRYPTION -> RSA;
+      default -> null;
+    };
+  }
+
+  public String getAlgorithm() {
+    return algorithm;
   }
 }

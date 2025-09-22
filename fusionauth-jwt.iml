@@ -60,44 +60,44 @@
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/.savant/cache/org/testng/testng/7.5.1/testng-7.5.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/.savant/cache/org/testng/testng/7.9.0/testng-7.9.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/.savant/cache/org/testng/testng/7.5.1/testng-7.5.1-src.jar!/" />
+          <root url="jar://$MODULE_DIR$/.savant/cache/org/testng/testng/7.9.0/testng-7.9.0-src.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/.savant/cache/com/google/code/findbugs/jsr305/3.0.1/jsr305-3.0.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/.savant/cache/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/.savant/cache/com/google/code/findbugs/jsr305/3.0.1/jsr305-3.0.1-src.jar!/" />
+          <root url="jar://$MODULE_DIR$/.savant/cache/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36-src.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/.savant/cache/com/beust/jcommander/1.78.0/jcommander-1.78.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/.savant/cache/com/beust/jcommander/1.82.0/jcommander-1.82.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/.savant/cache/com/beust/jcommander/1.78.0/jcommander-1.78.0-src.jar!/" />
+          <root url="jar://$MODULE_DIR$/.savant/cache/com/beust/jcommander/1.82.0/jcommander-1.82.0-src.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/.savant/cache/org/webjars/jquery/3.5.1/jquery-3.5.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/.savant/cache/org/webjars/jquery/3.7.1/jquery-3.7.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/.savant/cache/org/webjars/jquery/3.5.1/jquery-3.5.1-src.jar!/" />
+          <root url="jar://$MODULE_DIR$/.savant/cache/org/webjars/jquery/3.7.1/jquery-3.7.1-src.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

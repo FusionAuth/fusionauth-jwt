@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,11 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
    * X9.62/SECG curve over a 256 bit prime field
    */
   public static final String ECDSA_P256 = "1.2.840.10045.3.1.7";
+
+  /**
+   * Edwards-curve Digital Signature Algorithm (EdDSA) Ed25519
+   */
+  public static final String EdDSA = "1.3.101.112";
 
   /**
    * Elliptic curve / 384 bit / secp384r1 / prime384v1
@@ -99,8 +104,7 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof ObjectIdentifier)) return false;
-    ObjectIdentifier that = (ObjectIdentifier) o;
+    if (!(o instanceof ObjectIdentifier that)) return false;
     return Arrays.equals(value, that.value) &&
         Objects.equals(decoded, that.decoded);
   }

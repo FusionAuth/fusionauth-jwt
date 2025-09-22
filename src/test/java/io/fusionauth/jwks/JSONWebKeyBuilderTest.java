@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@ import java.nio.file.Paths;
 import java.security.cert.Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.EdECPrivateKey;
+import java.security.interfaces.EdECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
@@ -163,5 +165,23 @@ public class JSONWebKeyBuilderTest extends BaseJWTTest {
     // X509 certificate with a chain, not yet calculating the x5c chain
     Certificate cert2 = PEM.decode(Paths.get("src/test/resources/rsa_certificate_gd_bundle_g2.pem")).certificate;
     assertJSONEquals(JSONWebKey.build(cert2), "src/test/resources/jwk/rsa_certificate_gd_bundle_g2.json");
+  }
+
+  @Test
+  public void eddsa_private() throws Exception {
+    // EdDSA 256 Private key - PKCS#8 encapsulated already
+    EdECPrivateKey key = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_private_key.pem")).getPrivateKey();
+    assertJSONEquals(JSONWebKey.build(key), "src/test/resources/jwk/ed_dsa_ed25519_private_key.json");
+  }
+
+  @Test
+  public void eddsa_public() throws Exception {
+    // ed25519
+    EdECPublicKey publicKey = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_public_key.pem")).getPublicKey();
+    assertJSONEquals(JSONWebKey.build(publicKey), "src/test/resources/jwk/ed_dsa_ed25519_public_key.json");
+
+    // EC 256 Certificate
+    Certificate certificate = PEM.decode(Paths.get("src/test/resources/ec_certificate_p_256.pem")).getCertificate();
+    assertJSONEquals(JSONWebKey.build(certificate), "src/test/resources/jwk/ec_certificate_p_256.json");
   }
 }

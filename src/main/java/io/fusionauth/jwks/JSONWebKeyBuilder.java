@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.ECKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.EdECPrivateKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -46,6 +47,7 @@ import java.util.Objects;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P256;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P384;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P521;
+import static io.fusionauth.der.ObjectIdentifier.EdDSA;
 import static io.fusionauth.jwks.JWKUtils.base64EncodeUint;
 
 /**
@@ -85,15 +87,13 @@ public class JSONWebKeyBuilder {
 
     key.kty = getKeyType(privateKey);
     key.use = "sig";
-    if (privateKey instanceof RSAPrivateKey) {
-      RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) privateKey;
+    if (privateKey instanceof RSAPrivateKey rsaPrivateKey) {
       key.n = base64EncodeUint(rsaPrivateKey.getModulus());
       key.d = base64EncodeUint(rsaPrivateKey.getPrivateExponent());
     }
 
     // If this is a CRT (Chinese Remainder Theorem) private key, collect additional information
-    if (privateKey instanceof RSAPrivateCrtKey) {
-      RSAPrivateCrtKey rsaPrivateKey = (RSAPrivateCrtKey) privateKey;
+    if (privateKey instanceof RSAPrivateCrtKey rsaPrivateKey) {
       key.e = base64EncodeUint(rsaPrivateKey.getPublicExponent());
       key.p = base64EncodeUint(rsaPrivateKey.getPrimeP());
       key.q = base64EncodeUint(rsaPrivateKey.getPrimeQ());
@@ -108,8 +108,7 @@ public class JSONWebKeyBuilder {
       key.dq = base64EncodeUint(dq);
     }
 
-    if (privateKey instanceof ECPrivateKey) {
-      ECPrivateKey ecPrivateKey = (ECPrivateKey) privateKey;
+    if (privateKey instanceof ECPrivateKey ecPrivateKey) {
       key.crv = getCurveOID(privateKey);
       if (key.crv != null) {
         switch (key.crv) {
@@ -129,6 +128,14 @@ public class JSONWebKeyBuilder {
       key.d = base64EncodeUint(ecPrivateKey.getS(), byteLength);
       key.x = base64EncodeUint(ecPrivateKey.getParams().getGenerator().getAffineX(), byteLength);
       key.y = base64EncodeUint(ecPrivateKey.getParams().getGenerator().getAffineY(), byteLength);
+    } else if (privateKey instanceof EdECPrivateKey edPrivateKey) {
+      key.crv = getCurveOID(privateKey);
+      key.alg = Algorithm.EdDSA;
+
+//      int byteLength = getCoordinateLength(edPrivateKey);
+//      key.d = base64EncodeUint(edPrivateKey.getS(), byteLength);
+//      key.x = base64EncodeUint(edPrivateKey.getParams().getGenerator().getAffineX(), byteLength);
+//      key.y = base64EncodeUint(edPrivateKey.getParams().getGenerator().getAffineY(), byteLength);
     }
 
     return key;
@@ -146,8 +153,7 @@ public class JSONWebKeyBuilder {
 
     key.kty = getKeyType(publicKey);
     key.use = "sig";
-    if (publicKey instanceof RSAPublicKey) {
-      RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+    if (publicKey instanceof RSAPublicKey rsaPublicKey) {
       key.e = base64EncodeUint(rsaPublicKey.getPublicExponent());
       key.n = base64EncodeUint(rsaPublicKey.getModulus());
     }
@@ -205,6 +211,8 @@ public class JSONWebKeyBuilder {
       return KeyType.RSA;
     } else if (key.getAlgorithm().equals("EC")) {
       return KeyType.EC;
+    } else if (key.getAlgorithm().equals("EdDSA")) {
+      return KeyType.ED;
     }
 
     return null;
@@ -237,6 +245,8 @@ public class JSONWebKeyBuilder {
         return "P-384";
       case ECDSA_P521:
         return "P-521";
+      case EdDSA:
+        return "Ed25519";
       default:
         return null;
     }
