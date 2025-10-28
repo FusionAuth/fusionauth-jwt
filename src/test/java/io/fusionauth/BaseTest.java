@@ -19,9 +19,12 @@ package io.fusionauth;
 import com.sun.net.httpserver.HttpServer;
 import io.fusionauth.http.BuilderHTTPHandler;
 import io.fusionauth.http.HttpServerBuilder;
+import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeSuite;
 
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +43,17 @@ public abstract class BaseTest {
         httpServer.stop(0);
       } catch (Exception ignore) {
       }
+    }
+  }
+
+  @BeforeSuite
+  public void beforeSuite() {
+    boolean testFips = Boolean.getBoolean("test.fips");
+    if (testFips) {
+      System.out.println("Testing in FIPS mode");
+      Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);
+    } else {
+      System.out.println("Testing in default JCA mode");
     }
   }
 

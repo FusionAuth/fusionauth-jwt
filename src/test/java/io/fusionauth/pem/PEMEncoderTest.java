@@ -16,6 +16,7 @@
 
 package io.fusionauth.pem;
 
+import io.fusionauth.BaseTest;
 import io.fusionauth.pem.domain.PEM;
 import org.testng.annotations.Test;
 
@@ -37,7 +38,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * @author Daniel DeGroff
  */
-public class PEMEncoderTest {
+public class PEMEncoderTest extends BaseTest {
   @Test
   public void ec() throws Exception {
     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");

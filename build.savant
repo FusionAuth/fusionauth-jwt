@@ -92,8 +92,12 @@ target(name: "jar", description: "JARs the project", dependsOn: ["compile"]) {
 }
 
 target(name: "test", description: "Runs the project's tests", dependsOn: ["jar"]) {
-  // Uncomment to debug
-//    javaTestNG.settings.jvmArguments += "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"
+  // Add "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" to the jvmArguments lines below to enable remote debugging
+//  javaTestNG.settings.jvmArguments = "-Dtest.fips=false"
+//  javaTestNG.settings.listeners = ["io.fusionauth.jwt.TestNGAnnotationTransformer"]
+//  javaTestNG.test()
+
+  javaTestNG.settings.jvmArguments = "-Dtest.fips=true"
   javaTestNG.settings.listeners = ["io.fusionauth.jwt.TestNGAnnotationTransformer"]
   javaTestNG.test()
 }

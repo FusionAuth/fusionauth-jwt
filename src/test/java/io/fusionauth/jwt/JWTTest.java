@@ -28,8 +28,6 @@ import io.fusionauth.jwt.rsa.RSAPSSVerifier;
 import io.fusionauth.jwt.rsa.RSASigner;
 import io.fusionauth.jwt.rsa.RSAVerifier;
 import io.fusionauth.pem.domain.PEM;
-import io.fusionauth.security.BCFIPSCryptoProvider;
-import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -38,8 +36,8 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.Security;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
@@ -64,6 +62,24 @@ import static org.testng.Assert.assertTrue;
  * @author Daniel DeGroff
  */
 public class JWTTest extends BaseJWTTest {
+  private final String rsaPrivateKey4096Pem;
+
+  private final Path ecPublicKey256Path;
+
+  private final Path rsaPublicKey4096Path;
+
+  private final Path rsaPublicKey2048Path;
+
+  private final Path secretPath;
+
+  public JWTTest() throws Exception {
+    rsaPrivateKey4096Pem = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem")));
+    ecPublicKey256Path = Paths.get("src/test/resources/ec_public_key_p_256.pem");
+    rsaPublicKey4096Path = Paths.get("src/test/resources/rsa_public_key_4096.pem");
+    rsaPublicKey2048Path = Paths.get("src/test/resources/rsa_public_key_2048.pem");
+    secretPath = Paths.get("src/test/resources/secret.txt");
+  }
+
   @Test(enabled = false)
   public void buildSignerPerformance() throws Exception {
     long iterationCount = 500_000;
@@ -92,7 +108,7 @@ public class JWTTest extends BaseJWTTest {
   @Test(enabled = false)
   public void buildVerifierPerformance() throws Exception {
     long iterationCount = 500_000;
-    String publicKey = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem")));
+    String publicKey = new String(Files.readAllBytes(rsaPublicKey2048Path));
 
     Instant start = Instant.now();
     for (int i = 0; i < iterationCount; i++) {
@@ -135,7 +151,7 @@ public class JWTTest extends BaseJWTTest {
     Signer rsaSigner = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048.pem"))));
 
     Verifier hmacVerifier = HMACVerifier.newVerifier(secret);
-    Verifier rsaVerifier = RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
+    Verifier rsaVerifier = RSAVerifier.newVerifier(new String(Files.readAllBytes(rsaPublicKey2048Path)));
 
     JWT jwt = new JWT().setSubject(UUID.randomUUID().toString())
         .addClaim("exp", ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(5).toInstant().toEpochMilli())
@@ -269,34 +285,14 @@ public class JWTTest extends BaseJWTTest {
   @Test
   public void test_ES256() {
     String encodedJWT = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.vPn7xrCNOLWbBRaWdVn53ddj2hW0E87FYl4gPnWy5d1Qj3WgyF8FS6I_hj_3kIJ77tbvy0GXdr7fO91NeWMD1A";
-    Verifier verifier = ECVerifier.newVerifier(Paths.get("src/test/resources/ec_public_key_p_256.pem"));
+    Verifier verifier = ECVerifier.newVerifier(ecPublicKey256Path);
     JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
     assertEquals(jwt.subject, "123456789");
     assertEquals(jwt.header.algorithm, Algorithm.ES256);
     assertEquals(jwt.header.type, "JWT");
 
     // Re-test using a pre-built EC Public Key
-    assertEquals(JWT.getDecoder().decode(encodedJWT, ECVerifier.newVerifier((ECPublicKey) PEM.decode(Paths.get("src/test/resources/ec_public_key_p_256.pem")).getPublicKey())).subject, "123456789");
-  }
-
-  @Test
-  public void test_ES256_BC_FIPS() {
-    Security.addProvider(new BouncyCastleFipsProvider());
-    String encodedJWT = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.vPn7xrCNOLWbBRaWdVn53ddj2hW0E87FYl4gPnWy5d1Qj3WgyF8FS6I_hj_3kIJ77tbvy0GXdr7fO91NeWMD1A";
-    Verifier verifier = ECVerifier.newVerifier(Paths.get("src/test/resources/ec_public_key_p_256.pem"), new BCFIPSCryptoProvider());
-    JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
-    assertEquals(jwt.subject, "123456789");
-
-    // Re-test using a pre-built EC Public Key
-    assertEquals(JWT.getDecoder().decode(encodedJWT, ECVerifier.newVerifier((ECPublicKey) PEM.decode(Paths.get("src/test/resources/ec_public_key_p_256.pem")).getPublicKey())).subject, "123456789");
-  }
-
-  @Test(expectedExceptions = RuntimeException.class)
-  public void test_ES256_BC_FIPS_notAvailable() {
-    // RuntimeException, provider BCFIPS not found
-    String encodedJWT = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.vPn7xrCNOLWbBRaWdVn53ddj2hW0E87FYl4gPnWy5d1Qj3WgyF8FS6I_hj_3kIJ77tbvy0GXdr7fO91NeWMD1A";
-    Verifier verifier = ECVerifier.newVerifier(Paths.get("src/test/resources/ec_public_key_p_256.pem"), new BCFIPSCryptoProvider());
-    JWT.getDecoder().decode(encodedJWT, verifier);
+    assertEquals(JWT.getDecoder().decode(encodedJWT, ECVerifier.newVerifier((ECPublicKey) PEM.decode(ecPublicKey256Path).getPublicKey())).subject, "123456789");
   }
 
   @Test
@@ -379,7 +375,7 @@ public class JWTTest extends BaseJWTTest {
   @Test
   public void test_ES_2() throws IOException {
     Signer signer = ECSigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/ec_private_key_p_256.pem"))));
-    Verifier verifier = ECVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/ec_public_key_p_256.pem"))));
+    Verifier verifier = ECVerifier.newVerifier(new String(Files.readAllBytes(ecPublicKey256Path)));
 
     JWT jwt = new JWT().setSubject("123456789");
     String encodedJWT = JWT.getEncoder().encode(jwt, signer);
@@ -435,9 +431,9 @@ public class JWTTest extends BaseJWTTest {
   }
 
   @Test
-  public void test_RS256() throws Exception {
+  public void test_RS256() {
     JWT jwt = new JWT().setSubject("123456789");
-    Signer signer = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
+    Signer signer = RSASigner.newSHA256Signer(rsaPrivateKey4096Pem);
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.kRXJkOHC98D0LCT2oPg5fTmQJDFXkMRQJopbt7QM6prmQDHwjJL_xO-_EXRXnbvf5NLORto45By3XNn2ZzWmY3pAOxj46MlQ5elhROx2S-EnHZNLfQhoG8ZXPZ54q-Obz_6K7ZSlkAQ8jmeZUO3Ryi8jRlHQ2PT4LbBtLpaf982SGJfeTyUMw1LbvowZUTZSF-E6JARaokmmx8M2GeLuKcFhU-YsBTXUarKp0IJCy3jpMQ2zW_HGjyVWH8WwSIbSdpBn7ztoQEJYO-R5H3qVaAz2BsTuGLRxoyIu1iy2-QcDp5uTufmX1roXM8ciQMpcfwKGiyNpKVIZm-lF8aROXRL4kk4rqp6KUzJuOPljPXRU--xKSua-DeR0BEerKzI9hbwIMWiblCslAciNminoSc9G7pUyVwV5Z5IT8CGJkVgoyVGELeBmYCDy7LHwXrr0poc0hPbE3mJXhzolga4BB84nCg2Hb9tCNiHU8F-rKgZWCONaSSIdhQ49x8OiPafFh2DJBEBe5Xbm6xdCfh3KVG0qe4XL18R5s98aIP9UIC4i62UEgPy6W7Fr7QgUxpXrjRCERBV3MiNu4L8NNJb3oZleq5lQi72EfdS-Bt8ZUOVInIcAvSmu-3i8jB_2sF38XUXdl8gkW8k_b9dJkzDcivCFehvSqGmm3vBm5X4bNmk");
   }
@@ -452,7 +448,7 @@ public class JWTTest extends BaseJWTTest {
     String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 
     // Verify the JWT
-    Verifier verifier = RSAPSSVerifier.newVerifier(Paths.get("src/test/resources/rsa_public_key_2048.pem"));
+    Verifier verifier = RSAPSSVerifier.newVerifier(rsaPublicKey2048Path);
     JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
 
     assertEquals(actual.subject, jwt.subject);
@@ -468,7 +464,7 @@ public class JWTTest extends BaseJWTTest {
     String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 
     // Verify the JWT
-    Verifier verifier = RSAPSSVerifier.newVerifier(Paths.get("src/test/resources/rsa_public_key_2048.pem"));
+    Verifier verifier = RSAPSSVerifier.newVerifier(rsaPublicKey2048Path);
     JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
 
     assertEquals(actual.subject, jwt.subject);
@@ -491,32 +487,23 @@ public class JWTTest extends BaseJWTTest {
   }
 
   @Test
-  public void test_RS256_BC_FIPS() throws Exception {
-    Security.addProvider(new BouncyCastleFipsProvider());
-    JWT jwt = new JWT().setSubject("123456789");
-    Signer signer = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))), new BCFIPSCryptoProvider());
-
-    assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.kRXJkOHC98D0LCT2oPg5fTmQJDFXkMRQJopbt7QM6prmQDHwjJL_xO-_EXRXnbvf5NLORto45By3XNn2ZzWmY3pAOxj46MlQ5elhROx2S-EnHZNLfQhoG8ZXPZ54q-Obz_6K7ZSlkAQ8jmeZUO3Ryi8jRlHQ2PT4LbBtLpaf982SGJfeTyUMw1LbvowZUTZSF-E6JARaokmmx8M2GeLuKcFhU-YsBTXUarKp0IJCy3jpMQ2zW_HGjyVWH8WwSIbSdpBn7ztoQEJYO-R5H3qVaAz2BsTuGLRxoyIu1iy2-QcDp5uTufmX1roXM8ciQMpcfwKGiyNpKVIZm-lF8aROXRL4kk4rqp6KUzJuOPljPXRU--xKSua-DeR0BEerKzI9hbwIMWiblCslAciNminoSc9G7pUyVwV5Z5IT8CGJkVgoyVGELeBmYCDy7LHwXrr0poc0hPbE3mJXhzolga4BB84nCg2Hb9tCNiHU8F-rKgZWCONaSSIdhQ49x8OiPafFh2DJBEBe5Xbm6xdCfh3KVG0qe4XL18R5s98aIP9UIC4i62UEgPy6W7Fr7QgUxpXrjRCERBV3MiNu4L8NNJb3oZleq5lQi72EfdS-Bt8ZUOVInIcAvSmu-3i8jB_2sF38XUXdl8gkW8k_b9dJkzDcivCFehvSqGmm3vBm5X4bNmk");
-  }
-
-  @Test
   public void test_RS384() throws Exception {
     JWT jwt = new JWT().setSubject("123456789");
-    Signer signer = RSASigner.newSHA384Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
+    Signer signer = RSASigner.newSHA384Signer(rsaPrivateKey4096Pem);
 
     String encodedJWT = JWT.getEncoder().encode(jwt, signer);
     assertEquals(encodedJWT, "eyJhbGciOiJSUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.OkmWXzhTm7mtfpeMVNLlFjw3fJvc7yMQ1rgI5BXBPqaLSb_fpLHYAq_q5pQDDaIGg8klg9y2f784smc7-o9czX3JnzEDvO9e_sA10YIEA6Q9qRh17EATNXFG-WzSocpxPgEOQZ8lqSqZ_0waCGaUMwK5J5BB1A_70AcNGPnI7PrX76lWNNHwdK0OjkhkxX7vHR6B-uAIzih0ntQP_afr1UIzXkllmnnb1oU9cgFFD1AGDa3V0XCgitVYZA_ozbGELGMrUl_7fB_uNVEvcreUoZIEI4cfUKI6iZ8Ll4j_iLAdlpH4GRGNiQ7gMLq35AqqxKbEG8r-S-SrlRL6PkKlaJ-viMVLxoHreZow634r8A1fxR1mnrdUnn0vGmOthyjpP_TgfAsER9EJ_UUIamsKC8s6pip2jcPB7G6huHocyKBTxsoxclQgk1jOy4lZq4Js2KKM5sGfcq5SWQTW4B44KlUU1kWWmUg21jtflna38sWFdTk845phi5ITOBZ_ElJ9MdYVAgjvDsRFs_XxFENlwpwKeLD9PsaCiJhdG7EJN5qJvVogYuUMM0wyS-SOGZ1ILsTeYsjc7TtI0JUKndlUXFPubwaaxW_06zrCJR-dvWye99fIDH-u3I74XK5MKhknlgewzsXpsiPdvsMW59WUbdIZqkvok5vdkIlm4XGIqcM");
 
-    assertEquals(JWT.getDecoder().decode(encodedJWT, RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_4096.pem"))))).subject, jwt.subject);
+    assertEquals(JWT.getDecoder().decode(encodedJWT, RSAVerifier.newVerifier(new String(Files.readAllBytes(rsaPublicKey4096Path)))).subject, jwt.subject);
 
     // Re-test using a pre-built RSAPublicKey
-    assertEquals(JWT.getDecoder().decode(encodedJWT, RSAVerifier.newVerifier((RSAPublicKey) PEM.decode(Paths.get("src/test/resources/rsa_public_key_4096.pem")).getPublicKey())).subject, jwt.subject);
+    assertEquals(JWT.getDecoder().decode(encodedJWT, RSAVerifier.newVerifier((RSAPublicKey) PEM.decode(rsaPublicKey4096Path).getPublicKey())).subject, jwt.subject);
   }
 
   @Test
-  public void test_RS512() throws Exception {
+  public void test_RS512() {
     JWT jwt = new JWT().setSubject("123456789");
-    Signer signer = RSASigner.newSHA512Signer(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_4096.pem"))));
+    Signer signer = RSASigner.newSHA512Signer(rsaPrivateKey4096Pem);
 
     assertEquals(JWT.getEncoder().encode(jwt, signer), "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkifQ.ei28WNoJdUpMlLnHr78HiTnnuKwSRLYcOpgUC3daVInT5RAc0kk2Ipx16Z-bHL_eFLSYgF3TSKdymFpNf8cnEu5T6rH0azYSZLrPmVCetDxjo-ixXK9asPOF3JuIbDjN7ow3K-CMbMCWzWp04ZAh-DNecYEd3HiGgooPVGA4HuVXZFHH8XfQ9TD-64ppBQTWgW32vkna8ILKyIXdwWXSEfCZYfLzLZnilJrz820wZJ5JMXimv2au0OwwRobUMLEBUM4iuEPXLf5wFJU6LcU0XMuovavfIXKDpvP9Yfz6UplMlFvIr9y72xExfaNt32vwneAP-Fpg2x9wYvR0W8LhXKZaFRfcYwhbj17GCAbpx34hjiqnwyFStn5Qx_QHz_Y7ck-ZXB2MGUkiYGj9y_8bQNx-LIaTQUX6sONTNdVVCfnOnMHFqVbupGho24K7885-8BxCRojvA0ggneF6dsKCQvAt2rsVRso0TrCVxwYItb9tRsyhCbWou-zh_08JlYGVXPiGY3RRQDfxCc9RHQUflWRS9CBcPtoaco4mFKZSM-9e_xoYx__DEzM3UjaI4jReLM-IARwlVPoHJa2Vcb5wngZTaxGf2ToMq7R_8KecZymb3OaA2X1e8GS2300ySwsXbOz0sJv2a7_JUncSEBPSsb2vMMurxSJ4E3RTAc4s3aU");
   }
@@ -533,7 +520,7 @@ public class JWTTest extends BaseJWTTest {
 
   @Test
   public void test_badEncoding() throws Exception {
-    Verifier verifier = RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
+    Verifier verifier = RSAVerifier.newVerifier(new String(Files.readAllBytes(rsaPublicKey2048Path)));
     // add a space to the header, invalid Base64 character point 20 (space)
     expectException(InvalidJWTException.class, ()
         -> JWT.getDecoder().decode("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9 .foo.bar", verifier));
@@ -851,23 +838,23 @@ public class JWTTest extends BaseJWTTest {
     // Ensure no explosions, loading different ways
 
     // RSA
-    assertNotNull(RSAVerifier.newVerifier(Paths.get("src/test/resources/rsa_public_key_2048.pem")));
-    assertNotNull(RSAVerifier.newVerifier(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
-    assertNotNull(RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem")))));
+    assertNotNull(RSAVerifier.newVerifier(rsaPublicKey2048Path));
+    assertNotNull(RSAVerifier.newVerifier(Files.readAllBytes(rsaPublicKey2048Path)));
+    assertNotNull(RSAVerifier.newVerifier(new String(Files.readAllBytes(rsaPublicKey2048Path))));
     // RSA Verifier can also take a pre-built key
-    assertNotNull(RSAVerifier.newVerifier((RSAPublicKey) PEM.decode(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))).getPublicKey()));
+    assertNotNull(RSAVerifier.newVerifier((RSAPublicKey) PEM.decode(Files.readAllBytes(rsaPublicKey2048Path)).getPublicKey()));
 
     // EC
-    assertNotNull(ECVerifier.newVerifier(Paths.get("src/test/resources/ec_public_key_p_256.pem")));
-    assertNotNull(ECVerifier.newVerifier(Files.readAllBytes(Paths.get("src/test/resources/ec_public_key_p_256.pem"))));
-    assertNotNull(ECVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/ec_public_key_p_256.pem")))));
+    assertNotNull(ECVerifier.newVerifier(ecPublicKey256Path));
+    assertNotNull(ECVerifier.newVerifier(Files.readAllBytes(ecPublicKey256Path)));
+    assertNotNull(ECVerifier.newVerifier(new String(Files.readAllBytes(ecPublicKey256Path))));
     // EC Verifier can also take a pre-built key
-    assertNotNull(ECVerifier.newVerifier((ECPublicKey) PEM.decode(Files.readAllBytes(Paths.get("src/test/resources/ec_public_key_p_256.pem"))).getPublicKey()));
+    assertNotNull(ECVerifier.newVerifier((ECPublicKey) PEM.decode(Files.readAllBytes(ecPublicKey256Path)).getPublicKey()));
 
     // HMAC
-    assertNotNull(HMACVerifier.newVerifier(Paths.get("src/test/resources/secret.txt")));
-    assertNotNull(HMACVerifier.newVerifier(Files.readAllBytes(Paths.get("src/test/resources/secret.txt"))));
-    assertNotNull(HMACVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/secret.txt")))));
+    assertNotNull(HMACVerifier.newVerifier(secretPath));
+    assertNotNull(HMACVerifier.newVerifier(Files.readAllBytes(secretPath)));
+    assertNotNull(HMACVerifier.newVerifier(new String(Files.readAllBytes(secretPath))));
   }
 
   @Test
@@ -886,7 +873,7 @@ public class JWTTest extends BaseJWTTest {
 
     Verifier verifier1 = HMACVerifier.newVerifier("secret1");
     Verifier verifier2 = HMACVerifier.newVerifier("secret2");
-    Verifier verifier3 = RSAVerifier.newVerifier(new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_public_key_2048.pem"))));
+    Verifier verifier3 = RSAVerifier.newVerifier(new String(Files.readAllBytes(rsaPublicKey2048Path)));
 
     Map<String, Verifier> verifiers = new HashMap<>();
     verifiers.put("verifier1", verifier1);
