@@ -142,7 +142,7 @@ public class PEMEncoder {
 
         // Check if the PrivateKey already includes the public key
         DerValue[] nested = new DerInputStream(sequence[2]).getSequence();
-        if (nested.length == 2) {
+        if (nested.length >= 2) {
           // The Private Key did not contain the Public Key
           DerValue[] publicSequence = new DerInputStream(publicKey.getEncoded()).getSequence();
           // Re-build the PrivateKey and embed the public key if it is not already there.

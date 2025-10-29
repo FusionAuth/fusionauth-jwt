@@ -36,6 +36,8 @@ public abstract class BaseTest {
 
   public List<HttpServer> httpServers = new ArrayList<>();
 
+  public boolean testFips;
+
   @AfterMethod
   public void afterMethod(ITestResult result) {
     for (HttpServer httpServer : httpServers) {
@@ -48,7 +50,7 @@ public abstract class BaseTest {
 
   @BeforeSuite
   public void beforeSuite() {
-    boolean testFips = Boolean.getBoolean("test.fips");
+    testFips = Boolean.getBoolean("test.fips");
     if (testFips) {
       System.out.println("Testing in FIPS mode");
       Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);

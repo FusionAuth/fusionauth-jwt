@@ -36,8 +36,7 @@ public class KeyUtils {
   public static int getKeyLength(Key key) {
     if (key instanceof ECKey) {
       int bytes;
-      if (key instanceof ECPublicKey) {
-        ECPublicKey ecPublicKey = (ECPublicKey) key;
+      if (key instanceof ECPublicKey ecPublicKey) {
         bytes = ecPublicKey.getW().getAffineX().toByteArray().length;
       } else {
         ECPrivateKey ecPrivateKey = (ECPrivateKey) key;
@@ -56,8 +55,8 @@ public class KeyUtils {
       }
 
       return ((bytes / 8) * 8) * 8;
-    } else if (key instanceof RSAKey) {
-      return ((RSAKey) key).getModulus().bitLength();
+    } else if (key instanceof RSAKey rsaKey) {
+      return rsaKey.getModulus().bitLength();
     }
 
     throw new IllegalArgumentException();

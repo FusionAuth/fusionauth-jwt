@@ -85,15 +85,13 @@ public class JSONWebKeyBuilder {
 
     key.kty = getKeyType(privateKey);
     key.use = "sig";
-    if (privateKey instanceof RSAPrivateKey) {
-      RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) privateKey;
+    if (privateKey instanceof RSAPrivateKey rsaPrivateKey) {
       key.n = base64EncodeUint(rsaPrivateKey.getModulus());
       key.d = base64EncodeUint(rsaPrivateKey.getPrivateExponent());
     }
 
     // If this is a CRT (Chinese Remainder Theorem) private key, collect additional information
-    if (privateKey instanceof RSAPrivateCrtKey) {
-      RSAPrivateCrtKey rsaPrivateKey = (RSAPrivateCrtKey) privateKey;
+    if (privateKey instanceof RSAPrivateCrtKey rsaPrivateKey) {
       key.e = base64EncodeUint(rsaPrivateKey.getPublicExponent());
       key.p = base64EncodeUint(rsaPrivateKey.getPrimeP());
       key.q = base64EncodeUint(rsaPrivateKey.getPrimeQ());
@@ -108,8 +106,7 @@ public class JSONWebKeyBuilder {
       key.dq = base64EncodeUint(dq);
     }
 
-    if (privateKey instanceof ECPrivateKey) {
-      ECPrivateKey ecPrivateKey = (ECPrivateKey) privateKey;
+    if (privateKey instanceof ECPrivateKey ecPrivateKey) {
       key.crv = getCurveOID(privateKey);
       if (key.crv != null) {
         switch (key.crv) {
@@ -146,13 +143,10 @@ public class JSONWebKeyBuilder {
 
     key.kty = getKeyType(publicKey);
     key.use = "sig";
-    if (publicKey instanceof RSAPublicKey) {
-      RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+    if (publicKey instanceof RSAPublicKey rsaPublicKey) {
       key.e = base64EncodeUint(rsaPublicKey.getPublicExponent());
       key.n = base64EncodeUint(rsaPublicKey.getModulus());
-    }
-
-    if (key.kty == KeyType.EC) {
+    } else if (key.kty == KeyType.EC) {
       ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
       key.crv = getCurveOID(ecPublicKey);
 
@@ -161,7 +155,7 @@ public class JSONWebKeyBuilder {
         key.alg = Algorithm.ES256;
       } else if (length == 384) {
         key.alg = Algorithm.ES384;
-      } else {
+      } else if (length == 521) {
         key.alg = Algorithm.ES512;
       }
 
@@ -183,7 +177,10 @@ public class JSONWebKeyBuilder {
     Objects.requireNonNull(certificate);
     JSONWebKey key = build(certificate.getPublicKey());
     if (certificate instanceof X509Certificate) {
-      key.alg = Algorithm.fromName(((X509Certificate) certificate).getSigAlgName());
+      if (key.alg == null) {
+        key.alg = Algorithm.fromName(((X509Certificate) certificate).getSigAlgName());
+      }
+
       try {
         String encodedCertificate = new String(Base64.getEncoder().encode(certificate.getEncoded()));
         key.x5c = Collections.singletonList(encodedCertificate);
@@ -230,15 +227,11 @@ public class JSONWebKeyBuilder {
   String getCurveOID(Key key) {
     // Match up the Curve Object Identifier to a string value
     String oid = readCurveObjectIdentifier(key);
-    switch (oid) {
-      case ECDSA_P256:
-        return "P-256";
-      case ECDSA_P384:
-        return "P-384";
-      case ECDSA_P521:
-        return "P-521";
-      default:
-        return null;
-    }
+    return switch (oid) {
+      case ECDSA_P256 -> "P-256";
+      case ECDSA_P384 -> "P-384";
+      case ECDSA_P521 -> "P-521";
+      default -> null;
+    };
   }
 }

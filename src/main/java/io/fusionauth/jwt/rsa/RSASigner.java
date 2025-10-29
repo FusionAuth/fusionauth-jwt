@@ -228,8 +228,6 @@ public class RSASigner implements Signer {
       Signature signature = Signature.getInstance(algorithm.getName());
       signature.initSign(privateKey);
       signature.update(message.getBytes(StandardCharsets.UTF_8));
-      System.out.println(signature.getClass());
-      System.out.println(signature.getProvider());
       return signature.sign();
     } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
       throw new JWTSigningException("An unexpected exception occurred when attempting to sign the JWT", e);
