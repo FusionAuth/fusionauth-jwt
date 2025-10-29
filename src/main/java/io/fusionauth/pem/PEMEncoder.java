@@ -133,23 +133,22 @@ public class PEMEncoder {
         //
         // EC Private Key - un-encapsulated
         //
-        // SEQUENCE {
-        //   version         Version,
-        //   PrivateKey      OCTET STRING
-        //   [1] publicKey   Context Specific
-        //                     BIT STRING
+        // ECPrivateKey ::= SEQUENCE {
+        //     version        INTEGER { ecPrivkeyVer1(1) } (ecPrivkeyVer1),
+        //     privateKey     OCTET STRING,
+        //     parameters [0] ECParameters {{ NamedCurve }} OPTIONAL,
+        //     publicKey  [1] BIT STRING OPTIONAL
         // }
 
         // Check if the PrivateKey already includes the public key
         DerValue[] nested = new DerInputStream(sequence[2]).getSequence();
         if (nested.length >= 2) {
-          // The Private Key did not contain the Public Key
+          // Re-build the PrivateKey and include the PublicKey passed into the method and NOT the PublicKey from the DER
+          // (because it's optional)
           DerValue[] publicSequence = new DerInputStream(publicKey.getEncoded()).getSequence();
-          // Re-build the PrivateKey and embed the public key if it is not already there.
           byte[] nestedPrivateKeyBytes = new DerOutputStream().writeValue(new DerValue(Tag.Sequence, new DerOutputStream()
               .writeValue(new DerValue(nested[0].getBigInteger()))
               .writeValue(new DerValue(Tag.OctetString, nested[1].toByteArray()))
-              // [1] Context specific Bit String
               .writeValue(new DerValue(0xA1,
                   new DerOutputStream().writeValue(new DerValue(Tag.BitString, publicSequence[1].toByteArray()))))
           )).toByteArray();

@@ -211,11 +211,11 @@ public class JSONWebKeyBuilder {
     try {
       DerValue[] sequence = new DerInputStream(key.getEncoded()).getSequence();
       if (key instanceof PrivateKey) {
-        // Read the first value in the sequence, it is the algorithm OID, the second wil be the curve
+        // Read the first value in the sequence, it is the algorithm OID, the second will be the curve
         sequence[1].getOID();
         return sequence[1].getOID().decode();
       } else {
-        // Read the first value in the sequence, it is the algorithm OID, the second wil be the curve
+        // Read the first value in the sequence, it is the algorithm OID, the second will be the curve
         sequence[0].getOID();
         return sequence[0].getOID().decode();
       }
