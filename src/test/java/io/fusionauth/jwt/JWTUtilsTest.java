@@ -16,6 +16,7 @@
 
 package io.fusionauth.jwt;
 
+import io.fusionauth.BaseTest;
 import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.JWT;
@@ -42,7 +43,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * @author Daniel DeGroff
  */
-public class JWTUtilsTest {
+public class JWTUtilsTest extends BaseTest {
   @Test
   public void decodePayload() {
     JWT jwt = new JWT().setSubject("123456789");
@@ -79,7 +80,9 @@ public class JWTUtilsTest {
     assertSuffix(keyPair256.publicKey, X509_PUBLIC_KEY_SUFFIX);
 
     // Now go backwards from the key to a PEM and assert they come out the same.
-    String actualPrivateKey256 = PEM.encode(privateKey256);
+    //   NOTE: some JCE providers don't include the public key from calling privateKey.getEncoded(), which is why we are
+    //   passing both in here. This is the only way to consistently ensure that the PEM encoding is the same as the original
+    String actualPrivateKey256 = PEM.encode(privateKey256, publicKey256);
     String actualPublicKey256 = PEM.encode(publicKey256);
     assertEquals(actualPrivateKey256, keyPair256.privateKey);
     assertEquals(actualPublicKey256, keyPair256.publicKey);
@@ -103,7 +106,9 @@ public class JWTUtilsTest {
     assertSuffix(keyPair384.publicKey, X509_PUBLIC_KEY_SUFFIX);
 
     // Now go backwards from the key to a PEM and assert they come out the same.
-    String actualPrivateKey384 = PEM.encode(privateKey384);
+    //   NOTE: some JCE providers don't include the public key from calling privateKey.getEncoded(), which is why we are
+    //   passing both in here. This is the only way to consistently ensure that the PEM encoding is the same as the original
+    String actualPrivateKey384 = PEM.encode(privateKey384, publicKey384);
     String actualPublicKey384 = PEM.encode(publicKey384);
     assertEquals(actualPrivateKey384, keyPair384.privateKey);
     assertEquals(actualPublicKey384, keyPair384.publicKey);
@@ -127,7 +132,9 @@ public class JWTUtilsTest {
     assertSuffix(keyPair521.publicKey, X509_PUBLIC_KEY_SUFFIX);
 
     // Now go backwards from the key to a PEM and assert they come out the same.
-    String actualPrivateKey521 = PEM.encode(privateKey521);
+    //   NOTE: some JCE providers don't include the public key from calling privateKey.getEncoded(), which is why we are
+    //   passing both in here. This is the only way to consistently ensure that the PEM encoding is the same as the original
+    String actualPrivateKey521 = PEM.encode(privateKey521, publicKey521);
     String actualPublicKey521 = PEM.encode(publicKey521);
     assertEquals(actualPrivateKey521, keyPair521.privateKey);
     assertEquals(actualPublicKey521, keyPair521.publicKey);
@@ -261,12 +268,12 @@ public class JWTUtilsTest {
     rsaKey.e = "AQAB";
 
     // SHA-1
-    assertEquals("nMGlFRw9Y5POaSOaIaRBc9P2nfA", JWTUtils.generateJWS_kid(rsaKey));
-    assertEquals("nMGlFRw9Y5POaSOaIaRBc9P2nfA", JWTUtils.generateJWS_kid("SHA-1", rsaKey));
+    assertEquals(JWTUtils.generateJWS_kid(rsaKey), "nMGlFRw9Y5POaSOaIaRBc9P2nfA");
+    assertEquals(JWTUtils.generateJWS_kid("SHA-1", rsaKey), "nMGlFRw9Y5POaSOaIaRBc9P2nfA");
 
     // SHA-256
-    assertEquals("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs", JWTUtils.generateJWS_kid_S256(rsaKey));
-    assertEquals("NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs", JWTUtils.generateJWS_kid("SHA-256", rsaKey));
+    assertEquals(JWTUtils.generateJWS_kid_S256(rsaKey), "NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs");
+    assertEquals(JWTUtils.generateJWS_kid("SHA-256", rsaKey), "NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs");
   }
 
   @Test
@@ -278,12 +285,12 @@ public class JWTUtilsTest {
     ecKey.y = "4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM";
 
     // SHA-1
-    assertEquals("VHriznG7vJAFpXMXRmGgAkA5sEE", JWTUtils.generateJWS_kid(ecKey));
-    assertEquals("VHriznG7vJAFpXMXRmGgAkA5sEE", JWTUtils.generateJWS_kid("SHA-1", ecKey));
+    assertEquals(JWTUtils.generateJWS_kid(ecKey), "VHriznG7vJAFpXMXRmGgAkA5sEE");
+    assertEquals(JWTUtils.generateJWS_kid("SHA-1", ecKey), "VHriznG7vJAFpXMXRmGgAkA5sEE");
 
     // SHA-256
-    assertEquals("cn-I_WNMClehiVp51i_0VpOENW1upEerA8sEam5hn-s", JWTUtils.generateJWS_kid_S256(ecKey));
-    assertEquals("cn-I_WNMClehiVp51i_0VpOENW1upEerA8sEam5hn-s", JWTUtils.generateJWS_kid("SHA-256", ecKey));
+    assertEquals(JWTUtils.generateJWS_kid_S256(ecKey), "cn-I_WNMClehiVp51i_0VpOENW1upEerA8sEam5hn-s");
+    assertEquals(JWTUtils.generateJWS_kid("SHA-256", ecKey), "cn-I_WNMClehiVp51i_0VpOENW1upEerA8sEam5hn-s");
   }
 
   private void assertPrefix(String key, String prefix) {

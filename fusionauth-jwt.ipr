@@ -30,13 +30,9 @@
   <component name="InspectionProjectProfileManager">
     <profile version="1.0">
       <option name="myName" value="Project Default" />
+      <inspection_tool class="DuplicatedCode" enabled="true" level="WARNING" enabled_by_default="true" />
       <inspection_tool class="Duplicates" enabled="true" level="WARNING" enabled_by_default="true">
         <option name="minCloneLength" value="35" />
-      </inspection_tool>
-      <inspection_tool class="WeakerAccess" enabled="false" level="WARNING" enabled_by_default="false">
-        <option name="SUGGEST_PACKAGE_LOCAL_FOR_MEMBERS" value="true" />
-        <option name="SUGGEST_PACKAGE_LOCAL_FOR_TOP_CLASSES" value="true" />
-        <option name="SUGGEST_PRIVATE_FOR_INNERS" value="false" />
       </inspection_tool>
     </profile>
     <version value="1.0" />
@@ -656,7 +652,7 @@
       <module fileurl="file://$PROJECT_DIR$/fusionauth-jwt.iml" filepath="$PROJECT_DIR$/fusionauth-jwt.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="14" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="Java 17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="PropertiesComponent">

@@ -16,6 +16,8 @@
 
 package io.fusionauth.jwt.domain;
 
+import java.util.Locale;
+
 /**
  * Available JSON Web Algorithms (JWA) as described in RFC 7518 available for this JWT implementation.
  *
@@ -104,7 +106,7 @@ public enum Algorithm {
 
   public static Algorithm fromName(String name) {
     for (Algorithm alg : Algorithm.values()) {
-      if (alg.getName().equals(name)) {
+      if (alg.getName().toUpperCase(Locale.ROOT).equals(name.toUpperCase(Locale.ROOT))) {
         return alg;
       }
     }

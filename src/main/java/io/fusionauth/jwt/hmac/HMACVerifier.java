@@ -20,8 +20,6 @@ import io.fusionauth.jwt.InvalidJWTSignatureException;
 import io.fusionauth.jwt.JWTVerifierException;
 import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.Algorithm;
-import io.fusionauth.security.CryptoProvider;
-import io.fusionauth.security.DefaultCryptoProvider;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -30,9 +28,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
-import java.util.Arrays;
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 /**
@@ -43,21 +40,13 @@ import java.util.Objects;
 public class HMACVerifier implements Verifier {
   private final byte[] secret;
 
-  private final CryptoProvider cryptoProvider;
-
-  private HMACVerifier(String secret, CryptoProvider cryptoProvider) {
+  private HMACVerifier(String secret) {
     Objects.requireNonNull(secret);
-    Objects.requireNonNull(cryptoProvider);
-
-    this.cryptoProvider = cryptoProvider;
     this.secret = secret.getBytes(StandardCharsets.UTF_8);
   }
 
-  private HMACVerifier(byte[] secret, CryptoProvider cryptoProvider) {
+  private HMACVerifier(byte[] secret) {
     Objects.requireNonNull(secret);
-    Objects.requireNonNull(cryptoProvider);
-
-    this.cryptoProvider = cryptoProvider;
     this.secret = secret;
   }
 
@@ -68,7 +57,8 @@ public class HMACVerifier implements Verifier {
    * @return a new instance of the HMAC verifier.
    */
   public static HMACVerifier newVerifier(String secret) {
-    return newVerifier(secret, new DefaultCryptoProvider());
+    Objects.requireNonNull(secret);
+    return new HMACVerifier(secret);
   }
 
   /**
@@ -78,7 +68,13 @@ public class HMACVerifier implements Verifier {
    * @return a new instance of the HMAC verifier.
    */
   public static HMACVerifier newVerifier(Path path) {
-    return newVerifier(path, new DefaultCryptoProvider());
+    Objects.requireNonNull(path);
+
+    try {
+      return new HMACVerifier(Files.readAllBytes(path));
+    } catch (IOException e) {
+      throw new JWTVerifierException("Unable to read the file from path [" + path.toAbsolutePath() + "]", e);
+    }
   }
 
   /**
@@ -88,48 +84,8 @@ public class HMACVerifier implements Verifier {
    * @return a new instance of the HMAC verifier.
    */
   public static HMACVerifier newVerifier(byte[] bytes) {
-    return newVerifier(bytes, new DefaultCryptoProvider());
-  }
-
-  /**
-   * Return a new instance of the HMAC Verifier with the provided secret.
-   *
-   * @param secret         The secret.
-   * @param cryptoProvider The crypto provider used to get the MAC digest algorithm.
-   * @return a new instance of the HMAC verifier.
-   */
-  public static HMACVerifier newVerifier(String secret, CryptoProvider cryptoProvider) {
-    Objects.requireNonNull(secret);
-    return new HMACVerifier(secret, cryptoProvider);
-  }
-
-  /**
-   * Return a new instance of the HMAC Verifier with the provided secret.
-   *
-   * @param path           The path to the secret.
-   * @param cryptoProvider The crypto provider used to get the MAC digest algorithm.
-   * @return a new instance of the HMAC verifier.
-   */
-  public static HMACVerifier newVerifier(Path path, CryptoProvider cryptoProvider) {
-    Objects.requireNonNull(path);
-
-    try {
-      return new HMACVerifier(Files.readAllBytes(path), cryptoProvider);
-    } catch (IOException e) {
-      throw new JWTVerifierException("Unable to read the file from path [" + path.toAbsolutePath().toString() + "]", e);
-    }
-  }
-
-  /**
-   * Return a new instance of the HMAC Verifier with the provided secret.
-   *
-   * @param bytes          The bytes of the secret.
-   * @param cryptoProvider The crypto provider used to get the MAC digest algorithm.
-   * @return a new instance of the HMAC verifier.
-   */
-  public static HMACVerifier newVerifier(byte[] bytes, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(bytes);
-    return new HMACVerifier(bytes, cryptoProvider);
+    return new HMACVerifier(bytes);
   }
 
   @Override
@@ -152,7 +108,7 @@ public class HMACVerifier implements Verifier {
     Objects.requireNonNull(signature);
 
     try {
-      Mac mac = cryptoProvider.getMacInstance(algorithm.getName());
+      Mac mac = Mac.getInstance(algorithm.getName());
       mac.init(new SecretKeySpec(secret, algorithm.getName()));
       byte[] actualSignature = mac.doFinal(message);
 

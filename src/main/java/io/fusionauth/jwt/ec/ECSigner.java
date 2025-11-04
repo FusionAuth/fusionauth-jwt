@@ -22,8 +22,6 @@ import io.fusionauth.jwt.MissingPrivateKeyException;
 import io.fusionauth.jwt.Signer;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.pem.domain.PEM;
-import io.fusionauth.security.CryptoProvider;
-import io.fusionauth.security.DefaultCryptoProvider;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -45,15 +43,11 @@ public class ECSigner implements Signer {
 
   private final ECPrivateKey privateKey;
 
-  private final CryptoProvider cryptoProvider;
-
-  private ECSigner(Algorithm algorithm, PrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
+  private ECSigner(Algorithm algorithm, PrivateKey privateKey, String kid) {
     Objects.requireNonNull(algorithm);
-    Objects.requireNonNull(cryptoProvider);
     Objects.requireNonNull(privateKey);
 
     this.algorithm = algorithm;
-    this.cryptoProvider = cryptoProvider;
     this.kid = kid;
 
     if (!(privateKey instanceof ECPrivateKey)) {
@@ -63,13 +57,11 @@ public class ECSigner implements Signer {
     this.privateKey = (ECPrivateKey) privateKey;
   }
 
-  private ECSigner(Algorithm algorithm, String privateKey, String kid, CryptoProvider cryptoProvider) {
+  private ECSigner(Algorithm algorithm, String privateKey, String kid) {
     Objects.requireNonNull(algorithm);
-    Objects.requireNonNull(cryptoProvider);
     Objects.requireNonNull(privateKey);
 
     this.algorithm = algorithm;
-    this.cryptoProvider = cryptoProvider;
     this.kid = kid;
     PEM pem = PEM.decode(privateKey);
     if (pem.privateKey == null) {
@@ -90,7 +82,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA256Signer(String privateKey) {
-    return new ECSigner(Algorithm.ES256, privateKey, null, new DefaultCryptoProvider());
+    return new ECSigner(Algorithm.ES256, privateKey, null);
   }
 
   /**
@@ -101,30 +93,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA256Signer(String privateKey, String kid) {
-    return new ECSigner(Algorithm.ES256, privateKey, kid, new DefaultCryptoProvider());
-  }
-
-  /**
-   * Build a new EC signer using a SHA-256 hash.
-   *
-   * @param privateKey     The private key PEM expected to be in PKCS#1 or PKCS#8 format.
-   * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
-   * @return a new EC signer.
-   */
-  public static ECSigner newSHA256Signer(String privateKey, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES256, privateKey, null, cryptoProvider);
-  }
-
-  /**
-   * Build a new EC signer using a SHA-256 hash.
-   *
-   * @param privateKey     The private key PEM expected to be in PKCS#1 or PKCS#8 format.
-   * @param kid            The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
-   * @param cryptoProvider The crypto provider used to get the ECDSA Signature Algorithm.
-   * @return a new EC signer.
-   */
-  public static ECSigner newSHA256Signer(String privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES256, privateKey, kid, cryptoProvider);
+    return new ECSigner(Algorithm.ES256, privateKey, kid);
   }
 
   /**
@@ -134,7 +103,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA256Signer(PrivateKey privateKey) {
-    return new ECSigner(Algorithm.ES256, privateKey, null, new DefaultCryptoProvider());
+    return new ECSigner(Algorithm.ES256, privateKey, null);
   }
 
   /**
@@ -145,30 +114,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA256Signer(PrivateKey privateKey, String kid) {
-    return new ECSigner(Algorithm.ES256, privateKey, kid, new DefaultCryptoProvider());
-  }
-
-  /**
-   * Build a new EC signer using a SHA-256 hash.
-   *
-   * @param privateKey     The private key.
-   * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
-   * @return a new EC signer.
-   */
-  public static ECSigner newSHA256Signer(PrivateKey privateKey, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES256, privateKey, null, cryptoProvider);
-  }
-
-  /**
-   * Build a new EC signer using a SHA-256 hash.
-   *
-   * @param privateKey     The private key.
-   * @param kid            The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
-   * @param cryptoProvider The crypto provider used to get the ECDSA Signature Algorithm.
-   * @return a new EC signer.
-   */
-  public static ECSigner newSHA256Signer(PrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES256, privateKey, kid, cryptoProvider);
+    return new ECSigner(Algorithm.ES256, privateKey, kid);
   }
 
   /**
@@ -178,7 +124,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA384Signer(String privateKey) {
-    return new ECSigner(Algorithm.ES384, privateKey, null, new DefaultCryptoProvider());
+    return new ECSigner(Algorithm.ES384, privateKey, null);
   }
 
   /**
@@ -189,30 +135,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA384Signer(String privateKey, String kid) {
-    return new ECSigner(Algorithm.ES384, privateKey, kid, new DefaultCryptoProvider());
-  }
-
-  /**
-   * Build a new EC signer using a SHA-384 hash.
-   *
-   * @param privateKey     The private key PEM expected to be in PKCS#1 or PKCS#8 format.
-   * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
-   * @return a new EC signer.
-   */
-  public static ECSigner newSHA384Signer(String privateKey, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES384, privateKey, null, cryptoProvider);
-  }
-
-  /**
-   * Build a new EC signer using a SHA-384 hash.
-   *
-   * @param privateKey     The private key PEM expected to be in PKCS#1 or PKCS#8 format.
-   * @param kid            The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
-   * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
-   * @return a new EC signer.
-   */
-  public static ECSigner newSHA384Signer(String privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES384, privateKey, kid, cryptoProvider);
+    return new ECSigner(Algorithm.ES384, privateKey, kid);
   }
 
   /**
@@ -222,7 +145,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA384Signer(PrivateKey privateKey) {
-    return new ECSigner(Algorithm.ES384, privateKey, null, new DefaultCryptoProvider());
+    return new ECSigner(Algorithm.ES384, privateKey, null);
   }
 
   /**
@@ -233,30 +156,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA384Signer(PrivateKey privateKey, String kid) {
-    return new ECSigner(Algorithm.ES384, privateKey, kid, new DefaultCryptoProvider());
-  }
-
-  /**
-   * Build a new EC signer using a SHA-384 hash.
-   *
-   * @param privateKey     The private key.
-   * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
-   * @return a new EC signer.
-   */
-  public static ECSigner newSHA384Signer(PrivateKey privateKey, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES384, privateKey, null, cryptoProvider);
-  }
-
-  /**
-   * Build a new EC signer using a SHA-384 hash.
-   *
-   * @param privateKey     The private key.
-   * @param kid            The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
-   * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
-   * @return a new EC signer.
-   */
-  public static ECSigner newSHA384Signer(PrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES384, privateKey, kid, cryptoProvider);
+    return new ECSigner(Algorithm.ES384, privateKey, kid);
   }
 
   /**
@@ -266,7 +166,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA512Signer(String privateKey) {
-    return new ECSigner(Algorithm.ES512, privateKey, null, new DefaultCryptoProvider());
+    return new ECSigner(Algorithm.ES512, privateKey, null);
   }
 
   /**
@@ -277,30 +177,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA512Signer(String privateKey, String kid) {
-    return new ECSigner(Algorithm.ES512, privateKey, kid, new DefaultCryptoProvider());
-  }
-
-  /**
-   * Build a new EC signer using a SHA-512 hash.
-   *
-   * @param privateKey     The private key PEM expected to be in PKCS#1 or PKCS#8 format.
-   * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
-   * @return a new EC signer.
-   */
-  public static ECSigner newSHA512Signer(String privateKey, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES512, privateKey, null, cryptoProvider);
-  }
-
-  /**
-   * Build a new EC signer using a SHA-512 hash.
-   *
-   * @param privateKey     The private key PEM expected to be in PKCS#1 or PKCS#8 format.
-   * @param kid            The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
-   * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
-   * @return a new EC signer.
-   */
-  public static ECSigner newSHA512Signer(String privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES512, privateKey, kid, cryptoProvider);
+    return new ECSigner(Algorithm.ES512, privateKey, kid);
   }
 
   /**
@@ -310,7 +187,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA512Signer(PrivateKey privateKey) {
-    return new ECSigner(Algorithm.ES512, privateKey, null, new DefaultCryptoProvider());
+    return new ECSigner(Algorithm.ES512, privateKey, null);
   }
 
   /**
@@ -321,30 +198,7 @@ public class ECSigner implements Signer {
    * @return a new EC signer.
    */
   public static ECSigner newSHA512Signer(PrivateKey privateKey, String kid) {
-    return new ECSigner(Algorithm.ES512, privateKey, kid, new DefaultCryptoProvider());
-  }
-
-  /**
-   * Build a new EC signer using a SHA-512 hash.
-   *
-   * @param privateKey     The private key.
-   * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
-   * @return a new EC signer.
-   */
-  public static ECSigner newSHA512Signer(PrivateKey privateKey, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES512, privateKey, null, cryptoProvider);
-  }
-
-  /**
-   * Build a new EC signer using a SHA-512 hash.
-   *
-   * @param privateKey     The private key.
-   * @param kid            The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
-   * @param cryptoProvider The crypto provider used to get the ECDSA Signature algorithm.
-   * @return a new EC signer.
-   */
-  public static ECSigner newSHA512Signer(PrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
-    return new ECSigner(Algorithm.ES512, privateKey, kid, cryptoProvider);
+    return new ECSigner(Algorithm.ES512, privateKey, kid);
   }
 
   @Override
@@ -366,7 +220,7 @@ public class ECSigner implements Signer {
       // - We could revisit this in the future if we want to depend on a later version of Java.
       //   To request the version we want, you can append "inP1363Format" to the algorithm name.
       //   Example : ES256inP1363Format instead of ES256.
-      Signature signature = cryptoProvider.getSignatureInstance(algorithm.getName());
+      Signature signature = Signature.getInstance(algorithm.getName());
       signature.initSign(privateKey);
       signature.update((message).getBytes(StandardCharsets.UTF_8));
       byte[] derEncoded = signature.sign();
