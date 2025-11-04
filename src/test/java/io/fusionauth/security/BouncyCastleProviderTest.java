@@ -5,6 +5,7 @@ import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 import org.testng.annotations.Test;
 
 import javax.crypto.Mac;
+import javax.net.ssl.SSLContext;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
@@ -16,9 +17,18 @@ import java.security.Signature;
  * @author Brian Pontarelli
  */
 public class BouncyCastleProviderTest {
-  static {
-    System.setProperty("org.bouncycastle.fips.approved_only", "true");
-  }
+//  static {
+//    System.setProperty("org.bouncycastle.fips.approved_only", "true");
+//    Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);
+//    SSLContext context = null;
+//    try {
+//      context = SSLContext.getDefault();
+//      System.out.println(context.getProvider().getClass());
+//    } catch (NoSuchAlgorithmException e) {
+//      e.printStackTrace();
+//    }
+//    System.out.println(context);
+//  }
 
   @Test(enabled = false)
   public void jca() {
@@ -59,5 +69,12 @@ public class BouncyCastleProviderTest {
     } catch (NoSuchAlgorithmException e) {
       System.out.println(e);
     }
+  }
+
+  @Test(enabled = false)
+  public void sslContext() throws Exception {
+    Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);
+    var context = SSLContext.getDefault();
+    System.out.println(context);
   }
 }

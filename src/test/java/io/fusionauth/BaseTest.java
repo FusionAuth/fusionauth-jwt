@@ -53,6 +53,7 @@ public abstract class BaseTest {
     testFips = Boolean.getBoolean("test.fips");
     if (testFips) {
       System.out.println("Testing in FIPS mode");
+      System.setProperty("org.bouncycastle.fips.approved_only", "true");
       Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);
     } else {
       System.out.println("Testing in default JCA mode");
