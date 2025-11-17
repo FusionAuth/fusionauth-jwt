@@ -11,10 +11,8 @@ We are very interested in compensating anyone that can identify a security relat
    - `HS256`, `HS384`, `HS512`, `RS256`, `RS384`, `RS512`, `ES256`, `ES384`, `ES512`
  - JWT signing using RSA-PSS signatures
    - `PS256`, `PS384`, `PS512`
-   - Requires Java 8 update 251 or greater, or any version that includes support RSASSA-PSS
-   - https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8146293
    - Available in versions >= 3.5.0
- - Modular crypto provider so you can drop in support for BC FIPS or other JCE security providers.   
+ - Support for Bouncy Castle JCE or other third party providers.   
  - PEM decoding / encoding
    - Decode PEM files to PrivateKey or PublicKey
      - Decode private EC keys un-encapsulated in PKCS#8, returned PEM will be in PKCS#8 form.
@@ -41,23 +39,23 @@ We are very interested in compensating anyone that can identify a security relat
 <dependency>
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>5.3.3</version>
+  <version>6.0.0</version>
 </dependency>
  ```
 
 ### Gradle
 ```groovy
-implementation 'io.fusionauth:fusionauth-jwt:5.3.3'
+implementation 'io.fusionauth:fusionauth-jwt:6.0.0'
 ```
 
 ### Gradle Kotlin
 ```kotlin
-implementation("io.fusionauth:fusionauth-jwt:5.3.3")
+implementation("io.fusionauth:fusionauth-jwt:6.0.0")
 ```
 
 ### Savant 
 ```groovy
-dependency(id: "io.fusionauth:fusionauth-jwt:5.3.3")
+dependency(id: "io.fusionauth:fusionauth-jwt:6.0.0")
 ```
 
 For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/4.0.1/jar).
@@ -203,16 +201,13 @@ assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 ```
 
 
-### Build a Signer, or a Verifier using a provided CryptoProvider
+### Enable a third party JCE provider sucha s Bouncy Castle
 
-This pattern is available on the HMAC, RSA and EC verifier and signers.
+Once you have enabled an additional provider no change should be necessary to your code. 
  
 ```java
-// Build and EC signer using a BC Fips ready Crypto Provider
-Signer signer = ECSigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))), new BCFIPSCryptoProvider());
-
-// Build an EC verifier using a BC Fips ready Crypto Provider
-Verifier verifier = ECVerifier.newVerifier(Paths.get("public_key.pem"), new BCFIPSCryptoProvider());
+// Insert the provider ahead of the JCA.
+Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);
 ```
 
 ## JSON Web Keys

@@ -16,6 +16,7 @@
 
 package io.fusionauth.pem;
 
+import io.fusionauth.BaseTest;
 import io.fusionauth.pem.domain.PEM;
 import org.testng.annotations.Test;
 
@@ -37,7 +38,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * @author Daniel DeGroff
  */
-public class PEMEncoderTest {
+public class PEMEncoderTest extends BaseTest {
   @Test
   public void ec() throws Exception {
     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
@@ -84,8 +85,10 @@ public class PEMEncoderTest {
     assertEquals(publicKey.getW().getAffineX(), new BigInteger("7676a6ec4ee9058b59c11c8e3038e02979ccd47fca46f20fa1b130d379d9038f", 16));
     assertEquals(publicKey.getW().getAffineY(), new BigInteger("8abdebcea6831f8ec07c1b4f95ceb7eb0d121cb3d23c54cfa572fba97a0de510", 16));
 
-    // Re-encode the private key to PEM PKCS#8 format and ensure it equals the original
-    String encodedPrivateKey = PEM.encode((Key) pem.getPrivateKey());
+    // Re-encode the public and private keys to PEM PKCS#8 format and ensure it equals the original
+    //   NOTE: some JCE providers don't include the public key from calling privateKey.getEncoded(), which is why we are
+    //   passing both in here. This is the only way to consistently ensure that the PEM encoding is the same as the original
+    String encodedPrivateKey = PEM.encode(pem.getPrivateKey(), pem.getPublicKey());
     assertEquals(encodedPrivateKey, expectedPrivate);
 
     // Re-encode the public key to PEM X.509 format and ensure it equals the original

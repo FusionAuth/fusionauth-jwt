@@ -30,13 +30,9 @@
   <component name="InspectionProjectProfileManager">
     <profile version="1.0">
       <option name="myName" value="Project Default" />
+      <inspection_tool class="DuplicatedCode" enabled="true" level="WARNING" enabled_by_default="true" />
       <inspection_tool class="Duplicates" enabled="true" level="WARNING" enabled_by_default="true">
         <option name="minCloneLength" value="35" />
-      </inspection_tool>
-      <inspection_tool class="WeakerAccess" enabled="false" level="WARNING" enabled_by_default="false">
-        <option name="SUGGEST_PACKAGE_LOCAL_FOR_MEMBERS" value="true" />
-        <option name="SUGGEST_PACKAGE_LOCAL_FOR_TOP_CLASSES" value="true" />
-        <option name="SUGGEST_PRIVATE_FOR_INNERS" value="false" />
       </inspection_tool>
     </profile>
     <version value="1.0" />

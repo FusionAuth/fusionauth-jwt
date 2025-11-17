@@ -1,5 +1,10 @@
 FusionAuth JWT Changes
 
+Changes in 6.0.0
+ * Move to Java 17 LTS as the minimum requirement.
+ * Remove CryptoProvider and just use JCE to use a third party provider such as BouncyCastle.
+   * Tested against Bouncy Castle FIPS provider, but any provider could be used.
+
 Changes in 5.3.3
 
  * Upgraded com.fasterxml.jackson.core:jackson-* to 2.15.4.

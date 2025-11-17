@@ -156,9 +156,7 @@ public class JSONWebKeyBuilder {
     if (publicKey instanceof RSAPublicKey rsaPublicKey) {
       key.e = base64EncodeUint(rsaPublicKey.getPublicExponent());
       key.n = base64EncodeUint(rsaPublicKey.getModulus());
-    }
-
-    if (key.kty == KeyType.EC) {
+    } else if (key.kty == KeyType.EC) {
       ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
       key.crv = getCurveOID(ecPublicKey);
 
@@ -167,7 +165,7 @@ public class JSONWebKeyBuilder {
         key.alg = Algorithm.ES256;
       } else if (length == 384) {
         key.alg = Algorithm.ES384;
-      } else {
+      } else if (length == 521) {
         key.alg = Algorithm.ES512;
       }
 
@@ -189,7 +187,10 @@ public class JSONWebKeyBuilder {
     Objects.requireNonNull(certificate);
     JSONWebKey key = build(certificate.getPublicKey());
     if (certificate instanceof X509Certificate) {
-      key.alg = Algorithm.fromName(((X509Certificate) certificate).getSigAlgName());
+      if (key.alg == null) {
+        key.alg = Algorithm.fromName(((X509Certificate) certificate).getSigAlgName());
+      }
+
       try {
         String encodedCertificate = new String(Base64.getEncoder().encode(certificate.getEncoded()));
         key.x5c = Collections.singletonList(encodedCertificate);
@@ -222,11 +223,11 @@ public class JSONWebKeyBuilder {
     try {
       DerValue[] sequence = new DerInputStream(key.getEncoded()).getSequence();
       if (key instanceof PrivateKey) {
-        // Read the first value in the sequence, it is the algorithm OID, the second wil be the curve
+        // Read the first value in the sequence, it is the algorithm OID, the second will be the curve
         sequence[1].getOID();
         return sequence[1].getOID().decode();
       } else {
-        // Read the first value in the sequence, it is the algorithm OID, the second wil be the curve
+        // Read the first value in the sequence, it is the algorithm OID, the second will be the curve
         sequence[0].getOID();
         return sequence[0].getOID().decode();
       }
@@ -238,17 +239,12 @@ public class JSONWebKeyBuilder {
   String getCurveOID(Key key) {
     // Match up the Curve Object Identifier to a string value
     String oid = readCurveObjectIdentifier(key);
-    switch (oid) {
-      case ECDSA_P256:
-        return "P-256";
-      case ECDSA_P384:
-        return "P-384";
-      case ECDSA_P521:
-        return "P-521";
-      case EdDSA:
-        return "Ed25519";
-      default:
-        return null;
-    }
+    return switch (oid) {
+      case ECDSA_P256 -> "P-256";
+      case ECDSA_P384 -> "P-384";
+      case ECDSA_P521 -> "P-521";
+      case EdDSA -> "Ed25519";
+      default -> null;
+    };
   }
 }

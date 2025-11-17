@@ -18,15 +18,12 @@ package io.fusionauth.jwt;
 
 import io.fusionauth.BaseTest;
 import io.fusionauth.jwt.json.Mapper;
-import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.Security;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -70,11 +67,6 @@ public abstract class BaseJWTTest extends BaseTest {
 
     sorted.sort(Comparator.comparing(value -> new String(Mapper.prettyPrint(value))));
     return sorted;
-  }
-
-  @AfterMethod
-  public void afterMethod() {
-    Security.removeProvider(BouncyCastleFipsProvider.PROVIDER_NAME);
   }
 
   @SuppressWarnings("unchecked")

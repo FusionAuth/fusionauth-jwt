@@ -17,7 +17,6 @@
 package io.fusionauth.jwt.rsa;
 
 import io.fusionauth.jwt.BaseJWTTest;
-import io.fusionauth.security.BCFIPSCryptoProvider;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -60,21 +59,5 @@ public class RSAPSSSignerTest extends BaseJWTTest {
     assertEquals(RSAPSSSigner.newSHA512Signer(readFile("rsa_private_key_2048_with_meta.pem"), "abc").getKid(), "abc");
     assertEquals(RSAPSSSigner.newSHA512Signer(readFile("rsa_private_key_3072.pem"), "abc").getKid(), "abc");
     assertEquals(RSAPSSSigner.newSHA512Signer(readFile("rsa_private_key_4096.pem"), "abc").getKid(), "abc");
-
-    // With provided crypto provider
-    assertNotNull(RSAPSSSigner.newSHA256Signer(readFile("rsa_private_key_2048.pem"), new BCFIPSCryptoProvider()));
-    assertNotNull(RSAPSSSigner.newSHA256Signer(readFile("rsa_private_key_2048_with_meta.pem"), new BCFIPSCryptoProvider()));
-    assertNotNull(RSAPSSSigner.newSHA256Signer(readFile("rsa_private_key_3072.pem"), new BCFIPSCryptoProvider()));
-    assertNotNull(RSAPSSSigner.newSHA256Signer(readFile("rsa_private_key_4096.pem"), new BCFIPSCryptoProvider()));
-
-    assertNotNull(RSAPSSSigner.newSHA384Signer(readFile("rsa_private_key_2048.pem"), new BCFIPSCryptoProvider()));
-    assertNotNull(RSAPSSSigner.newSHA384Signer(readFile("rsa_private_key_2048_with_meta.pem"), new BCFIPSCryptoProvider()));
-    assertNotNull(RSAPSSSigner.newSHA384Signer(readFile("rsa_private_key_3072.pem"), new BCFIPSCryptoProvider()));
-    assertNotNull(RSAPSSSigner.newSHA384Signer(readFile("rsa_private_key_4096.pem"), new BCFIPSCryptoProvider()));
-
-    assertNotNull(RSAPSSSigner.newSHA512Signer(readFile("rsa_private_key_2048.pem"), new BCFIPSCryptoProvider()));
-    assertNotNull(RSAPSSSigner.newSHA512Signer(readFile("rsa_private_key_2048_with_meta.pem"), new BCFIPSCryptoProvider()));
-    assertNotNull(RSAPSSSigner.newSHA512Signer(readFile("rsa_private_key_3072.pem"), new BCFIPSCryptoProvider()));
-    assertNotNull(RSAPSSSigner.newSHA512Signer(readFile("rsa_private_key_4096.pem"), new BCFIPSCryptoProvider()));
   }
 }
