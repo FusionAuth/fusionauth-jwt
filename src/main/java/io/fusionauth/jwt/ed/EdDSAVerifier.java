@@ -23,8 +23,6 @@ import io.fusionauth.jwt.MissingPublicKeyException;
 import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.pem.domain.PEM;
-import io.fusionauth.security.CryptoProvider;
-import io.fusionauth.security.DefaultCryptoProvider;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,15 +39,11 @@ import java.util.Objects;
  * @author Daniel DeGroff
  */
 public class EdDSAVerifier implements Verifier {
-  private final CryptoProvider cryptoProvider;
-
   private final EdECPublicKey publicKey;
 
-  private EdDSAVerifier(PublicKey publicKey, CryptoProvider cryptoProvider) {
+  private EdDSAVerifier(PublicKey publicKey) {
     Objects.requireNonNull(publicKey);
-    Objects.requireNonNull(cryptoProvider);
 
-    this.cryptoProvider = cryptoProvider;
     if (!(publicKey instanceof EdECPublicKey)) {
       throw new InvalidKeyTypeException("Expecting a public key of type [EdECPublicKey], but found [" + publicKey.getClass().getSimpleName() + "].");
     }
@@ -57,11 +51,9 @@ public class EdDSAVerifier implements Verifier {
     this.publicKey = (EdECPublicKey) publicKey;
   }
 
-  private EdDSAVerifier(String publicKey, CryptoProvider cryptoProvider) {
+  private EdDSAVerifier(String publicKey) {
     Objects.requireNonNull(publicKey);
-    Objects.requireNonNull(cryptoProvider);
 
-    this.cryptoProvider = cryptoProvider;
     PEM pem = PEM.decode(publicKey);
     if (pem.publicKey == null) {
       throw new MissingPublicKeyException("The provided PEM encoded string did not contain a public key.");
@@ -75,14 +67,10 @@ public class EdDSAVerifier implements Verifier {
   }
 
   public static EdDSAVerifier newVerifier(Path path) {
-    return newVerifier(path, new DefaultCryptoProvider());
-  }
-
-  public static EdDSAVerifier newVerifier(Path path, CryptoProvider cryptoProvider) {
     Objects.requireNonNull(path);
 
     try {
-      return new EdDSAVerifier(new String(Files.readAllBytes(path)), cryptoProvider);
+      return new EdDSAVerifier(new String(Files.readAllBytes(path)));
     } catch (IOException e) {
       throw new JWTVerifierException("Unable to read the file from path [" + path.toAbsolutePath() + "]", e);
     }
@@ -100,7 +88,7 @@ public class EdDSAVerifier implements Verifier {
     Objects.requireNonNull(signature);
 
     try {
-      Signature verifier = cryptoProvider.getSignatureInstance(algorithm.getName());
+      Signature verifier = Signature.getInstance(algorithm.getName());
       verifier.initVerify(publicKey);
       verifier.update(message);
 

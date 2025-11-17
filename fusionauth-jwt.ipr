@@ -30,6 +30,7 @@
   <component name="InspectionProjectProfileManager">
     <profile version="1.0">
       <option name="myName" value="Project Default" />
+      <inspection_tool class="ClassCanBeRecord" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
       <inspection_tool class="DuplicatedCode" enabled="true" level="WARNING" enabled_by_default="true" />
       <inspection_tool class="Duplicates" enabled="true" level="WARNING" enabled_by_default="true">
         <option name="minCloneLength" value="35" />

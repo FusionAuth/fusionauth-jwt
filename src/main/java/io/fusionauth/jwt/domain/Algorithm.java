@@ -25,8 +25,8 @@ import java.util.Locale;
  */
 public enum Algorithm {
   /**
-   * EdDSA
-   * OID: 1.3.101.112
+   * EdDSA (ed25519, ed448)
+   * OID: 1.3.101.112, and 1.3.101.112
    */
   EdDSA("EdDSA"),
 
@@ -125,15 +125,12 @@ public enum Algorithm {
   }
 
   public int getSaltLength() {
-    switch (this) {
-      case PS256:
-        return 32;
-      case PS384:
-        return 48;
-      case PS512:
-        return 64;
-      default:
-        throw new IllegalStateException("An incompatible algorithm was provided, this method is only used for RSASSA-PSS algorithms.");
-    }
+    return switch (this) {
+      case PS256 -> 32;
+      case PS384 -> 48;
+      case PS512 -> 64;
+      default ->
+          throw new IllegalStateException("An incompatible algorithm was provided, this method is only used for RSASSA-PSS algorithms.");
+    };
   }
 }

@@ -22,8 +22,6 @@ import io.fusionauth.jwt.MissingPrivateKeyException;
 import io.fusionauth.jwt.Signer;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.pem.domain.PEM;
-import io.fusionauth.security.CryptoProvider;
-import io.fusionauth.security.DefaultCryptoProvider;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -40,19 +38,15 @@ import java.util.Objects;
 public class EdDSASigner implements Signer {
   private final Algorithm algorithm;
 
-  private final CryptoProvider cryptoProvider;
-
   private final String kid;
 
   private final EdECPrivateKey privateKey;
 
-  private EdDSASigner(Algorithm algorithm, PrivateKey privateKey, String kid, CryptoProvider cryptoProvider) {
+  private EdDSASigner(Algorithm algorithm, PrivateKey privateKey, String kid) {
     Objects.requireNonNull(algorithm);
-    Objects.requireNonNull(cryptoProvider);
     Objects.requireNonNull(privateKey);
 
     this.algorithm = algorithm;
-    this.cryptoProvider = cryptoProvider;
     this.kid = kid;
 
     if (!(privateKey instanceof EdECPrivateKey)) {
@@ -62,13 +56,11 @@ public class EdDSASigner implements Signer {
     this.privateKey = (EdECPrivateKey) privateKey;
   }
 
-  private EdDSASigner(Algorithm algorithm, String privateKey, String kid, CryptoProvider cryptoProvider) {
+  private EdDSASigner(Algorithm algorithm, String privateKey, String kid) {
     Objects.requireNonNull(algorithm);
-    Objects.requireNonNull(cryptoProvider);
     Objects.requireNonNull(privateKey);
 
     this.algorithm = algorithm;
-    this.cryptoProvider = cryptoProvider;
     this.kid = kid;
     PEM pem = PEM.decode(privateKey);
     if (pem.privateKey == null) {
@@ -83,7 +75,7 @@ public class EdDSASigner implements Signer {
   }
 
   public static EdDSASigner newSigner(String privateKey) {
-    return new EdDSASigner(Algorithm.EdDSA, privateKey, null, new DefaultCryptoProvider());
+    return new EdDSASigner(Algorithm.EdDSA, privateKey, null);
   }
 
   @Override
@@ -101,7 +93,7 @@ public class EdDSASigner implements Signer {
     Objects.requireNonNull(message);
 
     try {
-      Signature signature = cryptoProvider.getSignatureInstance(algorithm.getName());
+      Signature signature = Signature.getInstance(algorithm.getName());
       signature.initSign(privateKey);
       signature.update((message).getBytes(StandardCharsets.UTF_8));
 

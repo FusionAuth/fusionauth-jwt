@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,8 +52,7 @@ public class DerValue {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof DerValue)) return false;
-    DerValue derValue = (DerValue) o;
+    if (!(o instanceof DerValue derValue)) return false;
     return tag == derValue.tag &&
         Arrays.equals(value.toByteArray(), derValue.value.toByteArray());
   }

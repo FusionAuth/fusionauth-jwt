@@ -1,7 +1,6 @@
 {
   "kty": "OKP",
   "alg": "EdDSA",
-  "kid": "9d9e739a-1c66-4f51-ae58-62ffab702d4e",
   "crv": "Ed25519",
   "x": "un73P2PfgPZTvbRvlHjVkjhqUhAQOVC1wRa-vmX-dIc",
   "d": "q66bJV1LcCEUCt44Ycti1Pg7bVhRgGJtqQY3OraRzCI",

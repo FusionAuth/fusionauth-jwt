@@ -34,7 +34,12 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
   /**
    * Edwards-curve Digital Signature Algorithm (EdDSA) Ed25519
    */
-  public static final String EdDSA = "1.3.101.112";
+  public static final String EdDSA_25519 = "1.3.101.112";
+
+  /**
+   * Edwards-curve Digital Signature Algorithm (EdDSA) Ed448
+   */
+  public static final String EdDSA_448 = "1.3.101.113";
 
   /**
    * Elliptic curve / 384 bit / secp384r1 / prime384v1

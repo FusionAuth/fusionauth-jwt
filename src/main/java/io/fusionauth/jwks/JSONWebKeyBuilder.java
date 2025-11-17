@@ -16,6 +16,7 @@
 
 package io.fusionauth.jwks;
 
+import io.fusionauth.der.DerDecodingException;
 import io.fusionauth.der.DerInputStream;
 import io.fusionauth.der.DerValue;
 import io.fusionauth.jwks.domain.JSONWebKey;
@@ -27,9 +28,13 @@ import io.fusionauth.security.KeyUtils;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.Key;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -37,9 +42,12 @@ import java.security.interfaces.ECKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.EdECPrivateKey;
+import java.security.interfaces.EdECPublicKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.NamedParameterSpec;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Objects;
@@ -47,7 +55,8 @@ import java.util.Objects;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P256;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P384;
 import static io.fusionauth.der.ObjectIdentifier.ECDSA_P521;
-import static io.fusionauth.der.ObjectIdentifier.EdDSA;
+import static io.fusionauth.der.ObjectIdentifier.EdDSA_25519;
+import static io.fusionauth.der.ObjectIdentifier.EdDSA_448;
 import static io.fusionauth.jwks.JWKUtils.base64EncodeUint;
 
 /**
@@ -129,13 +138,12 @@ public class JSONWebKeyBuilder {
       key.x = base64EncodeUint(ecPrivateKey.getParams().getGenerator().getAffineX(), byteLength);
       key.y = base64EncodeUint(ecPrivateKey.getParams().getGenerator().getAffineY(), byteLength);
     } else if (privateKey instanceof EdECPrivateKey edPrivateKey) {
-      key.crv = getCurveOID(privateKey);
+      key.crv = getCurveOID(edPrivateKey);
       key.alg = Algorithm.EdDSA;
 
-//      int byteLength = getCoordinateLength(edPrivateKey);
-//      key.d = base64EncodeUint(edPrivateKey.getS(), byteLength);
-//      key.x = base64EncodeUint(edPrivateKey.getParams().getGenerator().getAffineX(), byteLength);
-//      key.y = base64EncodeUint(edPrivateKey.getParams().getGenerator().getAffineY(), byteLength);
+      var privateKeyBytes = edPrivateKey.getBytes().orElseThrow(() -> new JSONWebKeyBuilderException("Unable to obtain the private key bytes."));
+      key.d = Base64.getUrlEncoder().withoutPadding().encodeToString(privateKeyBytes);
+      key.x = Base64.getUrlEncoder().withoutPadding().encodeToString(generateEdDSAPublicKeyFromPrivate(privateKeyBytes, key.crv));
     }
 
     return key;
@@ -172,6 +180,10 @@ public class JSONWebKeyBuilder {
       int byteLength = getCoordinateLength(ecPublicKey);
       key.x = base64EncodeUint(ecPublicKey.getW().getAffineX(), byteLength);
       key.y = base64EncodeUint(ecPublicKey.getW().getAffineY(), byteLength);
+    } else if (key.kty == KeyType.OKP) {
+      key.alg = Algorithm.EdDSA;
+      key.crv = getCurveOID(publicKey);
+      key.x = base64EncodeUint(extractX(publicKey.getEncoded()));
     }
 
     return key;
@@ -197,7 +209,7 @@ public class JSONWebKeyBuilder {
         key.x5t = JWTUtils.generateJWS_x5t(encodedCertificate);
         key.x5t_256 = JWTUtils.generateJWS_x5t("SHA-256", encodedCertificate);
       } catch (CertificateEncodingException e) {
-        throw new JSONWebKeyBuilderException("Failed to decode X.509 certificate", e);
+        throw new JSONWebKeyBuilderException("Failed to decode X.509 certificate.", e);
       }
     }
     return key;
@@ -208,25 +220,32 @@ public class JSONWebKeyBuilder {
   }
 
   private KeyType getKeyType(Key key) {
-    if (key.getAlgorithm().equals("RSA")) {
-      return KeyType.RSA;
-    } else if (key.getAlgorithm().equals("EC")) {
-      return KeyType.EC;
-    } else if (key.getAlgorithm().equals("EdDSA")) {
-      return KeyType.ED;
-    }
+    return switch (key.getAlgorithm()) {
+      case "RSA" -> KeyType.RSA;
+      case "EC" -> KeyType.EC;
+      // JCE returns EdDSA, and BC returns Ed25519 or Ed448 respectively
+      case "EdDSA", "Ed25519", "Ed448" -> KeyType.OKP;
+      default -> null;
+    };
 
-    return null;
   }
 
   private String readCurveObjectIdentifier(Key key) {
     try {
       DerValue[] sequence = new DerInputStream(key.getEncoded()).getSequence();
       if (key instanceof PrivateKey) {
+        if (key instanceof EdECPrivateKey) {
+          return sequence[1].getOID().decode();
+        }
+
         // Read the first value in the sequence, it is the algorithm OID, the second will be the curve
         sequence[1].getOID();
         return sequence[1].getOID().decode();
       } else {
+        if (key instanceof EdECPublicKey) {
+          return sequence[0].getOID().decode();
+        }
+
         // Read the first value in the sequence, it is the algorithm OID, the second will be the curve
         sequence[0].getOID();
         return sequence[0].getOID().decode();
@@ -236,14 +255,40 @@ public class JSONWebKeyBuilder {
     }
   }
 
-  String getCurveOID(Key key) {
+  private BigInteger extractX(byte[] bytes) {
+    var is = new DerInputStream(bytes);
+    try {
+      var sequence = is.getSequence();
+      return sequence[1].getBigInteger();
+    } catch (DerDecodingException e) {
+      throw new JSONWebKeyBuilderException("Unable to read x coordinate from the public key.", e);
+    }
+  }
+
+  private byte[] generateEdDSAPublicKeyFromPrivate(byte[] privateKey, String curve) {
+    try {
+      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(curve);
+      keyPairGenerator.initialize(new NamedParameterSpec(curve), new SecureRandom() {
+        public void nextBytes(byte[] bytes) {
+          System.arraycopy(privateKey, 0, bytes, 0, privateKey.length);
+        }
+      });
+      byte[] spki = keyPairGenerator.generateKeyPair().getPublic().getEncoded();
+      return Arrays.copyOfRange(spki, spki.length - privateKey.length, spki.length);
+    } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
+      throw new JSONWebKeyBuilderException("Unable to build the public key for the EdDSA private key using curve [" + curve + "]", e);
+    }
+  }
+
+  private String getCurveOID(Key key) {
     // Match up the Curve Object Identifier to a string value
     String oid = readCurveObjectIdentifier(key);
     return switch (oid) {
       case ECDSA_P256 -> "P-256";
       case ECDSA_P384 -> "P-384";
       case ECDSA_P521 -> "P-521";
-      case EdDSA -> "Ed25519";
+      case EdDSA_25519 -> "Ed25519";
+      case EdDSA_448 -> "Ed448";
       default -> null;
     };
   }

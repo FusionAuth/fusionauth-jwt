@@ -169,19 +169,23 @@ public class JSONWebKeyBuilderTest extends BaseJWTTest {
 
   @Test
   public void eddsa_private() throws Exception {
-    // EdDSA 256 Private key - PKCS#8 encapsulated already
-    EdECPrivateKey key = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_private_key.pem")).getPrivateKey();
-    assertJSONEquals(JSONWebKey.build(key), "src/test/resources/jwk/ed_dsa_ed25519_private_key.json");
+    // ed25519
+    EdECPrivateKey key25519 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_private_key.pem")).getPrivateKey();
+    assertJSONEquals(JSONWebKey.build(key25519), "src/test/resources/jwk/ed_dsa_ed25519_private_key.json");
+
+    // ed448
+    EdECPrivateKey key448 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed448_private_key.pem")).getPrivateKey();
+    assertJSONEquals(JSONWebKey.build(key448), "src/test/resources/jwk/ed_dsa_ed448_private_key.json");
   }
 
   @Test
   public void eddsa_public() throws Exception {
     // ed25519
-    EdECPublicKey publicKey = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_public_key.pem")).getPublicKey();
-    assertJSONEquals(JSONWebKey.build(publicKey), "src/test/resources/jwk/ed_dsa_ed25519_public_key.json");
+    EdECPublicKey key25519 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_public_key.pem")).getPublicKey();
+    assertJSONEquals(JSONWebKey.build(key25519), "src/test/resources/jwk/ed_dsa_ed25519_public_key.json");
 
-    // EC 256 Certificate
-    Certificate certificate = PEM.decode(Paths.get("src/test/resources/ec_certificate_p_256.pem")).getCertificate();
-    assertJSONEquals(JSONWebKey.build(certificate), "src/test/resources/jwk/ec_certificate_p_256.json");
+    // ed448
+    EdECPublicKey key448 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed448_public_key.pem")).getPublicKey();
+    assertJSONEquals(JSONWebKey.build(key448), "src/test/resources/jwk/ed_dsa_ed448_public_key.json");
   }
 }
