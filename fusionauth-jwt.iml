@@ -71,17 +71,6 @@
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/.savant/cache/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/.savant/cache/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36-src.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="TEST">
-      <library>
-        <CLASSES>
           <root url="jar://$MODULE_DIR$/.savant/cache/com/beust/jcommander/1.82.0/jcommander-1.82.0.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -98,6 +87,28 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$MODULE_DIR$/.savant/cache/org/webjars/jquery/3.7.1/jquery-3.7.1-src.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/.savant/cache/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/.savant/cache/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36-src.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/.savant/cache/org/slf4j/slf4j-nop/1.7.36/slf4j-nop-1.7.36.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/.savant/cache/org/slf4j/slf4j-nop/1.7.36/slf4j-nop-1.7.36-src.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
