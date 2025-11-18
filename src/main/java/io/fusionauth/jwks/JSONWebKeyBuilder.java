@@ -188,17 +188,15 @@ public class JSONWebKeyBuilder {
         key.y = base64EncodeUint(edECPublicKey.getPoint().getY(), keyLength);
       }
 
-      byte[] publicKeyBytes = getPublicKeyFromDEREncodedBytes(publicKey.getEncoded());
-      BigInteger xBigInteger = new BigInteger(publicKeyBytes);
-      String x1 = base64EncodeUint(xBigInteger, keyLength);
-      key.x = x1;
-//      key.x = Base64.getUrlEncoder().withoutPadding().encodeToString(publicKeyBytes);
-//      if (!x1.equals(key.x)) {
-//        System.out.println("Not equal!");
-//        System.out.println(x1);
-//        System.out.println(key.x);
-//      }
-//      key.x = base64EncodeUint(extractXFromDerEncodedPublicKey(publicKey.getEncoded()), keyLength);
+      byte[] publicKeyBytes;
+      try {
+        var sequence = new DerInputStream(publicKey.getEncoded()).getSequence();
+        publicKeyBytes = sequence[1].toByteArray();
+      } catch (DerDecodingException e) {
+        throw new JSONWebKeyBuilderException("Unable to read the public key from the DER encoded key.", e);
+      }
+
+      key.x = base64EncodeUint(new BigInteger(publicKeyBytes), keyLength);
     }
 
     return key;
@@ -242,15 +240,5 @@ public class JSONWebKeyBuilder {
       case "EdDSA", "Ed25519", "Ed448" -> KeyType.OKP;
       default -> null;
     };
-  }
-
-  private byte[] getPublicKeyFromDEREncodedBytes(byte[] bytes) {
-    var is = new DerInputStream(bytes);
-    try {
-      var sequence = is.getSequence();
-      return sequence[1].toByteArray();
-    } catch (DerDecodingException e) {
-      throw new JSONWebKeyBuilderException("Unable to read the public key from the DER encoded key.", e);
-    }
   }
 }
