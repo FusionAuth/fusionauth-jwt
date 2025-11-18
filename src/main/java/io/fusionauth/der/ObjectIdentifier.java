@@ -55,11 +55,6 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
   public static final String EdDSA_25519 = "1.3.101.112";
 
   /**
-   * RSA Public Key cryptography Signature Scheme with Appendix - Probabilistic Signature Scheme
-   */
-  public static final String RSASSA_PSS_ENCRYPTION = "1.2.840.113549.1.1.10";
-
-  /**
    * Edwards-curve Digital Signature Algorithm (EdDSA) Ed448
    */
   public static final String EdDSA_448 = "1.3.101.113";
@@ -68,6 +63,11 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
    * RSA Public Key cryptography
    */
   public static final String RSA_ENCRYPTION = "1.2.840.113549.1.1.1";
+
+  /**
+   * RSA Public Key cryptography Signature Scheme with Appendix - Probabilistic Signature Scheme
+   */
+  public static final String RSASSA_PSS_ENCRYPTION = "1.2.840.113549.1.1.10";
 
   /**
    * RSA Encryption / SHA-256 / SHA256withRSA
