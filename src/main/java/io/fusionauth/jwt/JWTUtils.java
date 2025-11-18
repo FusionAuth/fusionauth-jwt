@@ -193,10 +193,20 @@ public class JWTUtils {
     return generateKeyPair("EC", 521);
   }
 
+  /**
+   * Generate a new public / private key pair using the Ed25529 curve.
+   *
+   * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
+   */
   public static KeyPair generate_ed25519_EdDSAKeyPair() {
     return generateKeyPair("ed25519", null);
   }
 
+  /**
+   * Generate a new public / private key pair using the Ed448 curve.
+   *
+   * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
+   */
   public static KeyPair generate_ed448_EdDSAKeyPair() {
     return generateKeyPair("ed448", null);
   }

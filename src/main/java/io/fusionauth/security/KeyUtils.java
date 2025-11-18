@@ -16,7 +16,16 @@
 
 package io.fusionauth.security;
 
+import io.fusionauth.der.DerInputStream;
+import io.fusionauth.der.DerValue;
+
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.Key;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.SecureRandom;
 import java.security.interfaces.ECKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
@@ -24,11 +33,76 @@ import java.security.interfaces.EdECKey;
 import java.security.interfaces.EdECPrivateKey;
 import java.security.interfaces.EdECPublicKey;
 import java.security.interfaces.RSAKey;
+import java.security.spec.NamedParameterSpec;
+import java.util.Arrays;
+
+import static io.fusionauth.der.ObjectIdentifier.ECDSA_P256;
+import static io.fusionauth.der.ObjectIdentifier.ECDSA_P384;
+import static io.fusionauth.der.ObjectIdentifier.ECDSA_P521;
+import static io.fusionauth.der.ObjectIdentifier.EdDSA_25519;
+import static io.fusionauth.der.ObjectIdentifier.EdDSA_448;
 
 /**
  * @author Daniel DeGroff
  */
 public class KeyUtils {
+
+  /**
+   *
+   * @param key the key
+   * @return the name of the curve used by the key or null if it cannot be identified.
+   */
+  public static String getCurveOID(Key key) throws IOException {
+    // Match up the Curve Object Identifier to a string value
+    String oid = readCurveObjectIdentifier(key);
+    return switch (oid) {
+      case ECDSA_P256 -> "P-256";
+      case ECDSA_P384 -> "P-384";
+      case ECDSA_P521 -> "P-521";
+      case EdDSA_25519 -> "Ed25519";
+      case EdDSA_448 -> "Ed448";
+      default -> null;
+    };
+  }
+
+  private static String readCurveObjectIdentifier(Key key) throws IOException {
+    DerValue[] sequence = new DerInputStream(key.getEncoded()).getSequence();
+    if (key instanceof PrivateKey) {
+      if (key instanceof EdECPrivateKey) {
+        return sequence[1].getOID().decode();
+      }
+
+      // Read the first value in the sequence, it is the algorithm OID, the second will be the curve
+      sequence[1].getOID();
+      return sequence[1].getOID().decode();
+    } else {
+      if (key instanceof EdECPublicKey) {
+        return sequence[0].getOID().decode();
+      }
+
+      // Read the first value in the sequence, it is the algorithm OID, the second will be the curve
+      sequence[0].getOID();
+      return sequence[0].getOID().decode();
+    }
+  }
+
+  /**
+   * Calculate the public key for the provided EdDSA private key.
+   *
+   * @param privateKey the private EdDSA key
+   * @param curve      the curve used by the private key
+   * @return the public key
+   */
+  public static byte[] deriveEdDSAPublicKeyFromPrivate(byte[] privateKey, String curve) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(curve);
+    keyPairGenerator.initialize(new NamedParameterSpec(curve), new SecureRandom() {
+      public void nextBytes(byte[] bytes) {
+        System.arraycopy(privateKey, 0, bytes, 0, privateKey.length);
+      }
+    });
+    byte[] spki = keyPairGenerator.generateKeyPair().getPublic().getEncoded();
+    return Arrays.copyOfRange(spki, spki.length - privateKey.length, spki.length);
+  }
 
   /**
    * Return the length of the key in bits.

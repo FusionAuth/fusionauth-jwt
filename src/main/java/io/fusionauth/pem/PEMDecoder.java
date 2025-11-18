@@ -21,15 +21,16 @@ import io.fusionauth.der.DerOutputStream;
 import io.fusionauth.der.DerValue;
 import io.fusionauth.der.ObjectIdentifier;
 import io.fusionauth.der.Tag;
-import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.KeyType;
 import io.fusionauth.pem.domain.PEM;
+import io.fusionauth.security.KeyUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.KeyFactory;
@@ -124,58 +125,11 @@ public class PEMDecoder {
       } else {
         throw new PEMDecoderException(new InvalidParameterException("Unexpected PEM Format"));
       }
-    } catch (CertificateException | InvalidKeyException | InvalidKeySpecException | IOException |
-             NoSuchAlgorithmException e) {
+    } catch (CertificateException | InvalidAlgorithmParameterException | InvalidKeyException | InvalidKeySpecException |
+             IOException | NoSuchAlgorithmException e) {
       throw new PEMDecoderException(e);
     }
   }
-
-//  private PEM decode_ed_key(byte[] bytes) {
-  //
-  // Inpput: MC4CAQAwBQYDK2VwBCIEIIJtJBnTuKbIy5YjoNiH95ky3DcA3kRB0I2i7DkVM6Cf
-  //   -> https://lapo.it/asn1js/#MC4CAQAwBQYDK2VwBCIEIIJtJBnTuKbIy5YjoNiH95ky3DcA3kRB0I2i7DkVM6Cf
-
-  // Example w/out public key
-  //
-  // SEQUENCE (3 elem)
-  //   INTEGER 0
-  //   SEQUENCE (1 elem)
-  //     OBJECT IDENTIFIER 1.3.101.112 curveEd25519 (EdDSA 25519 signature algorithm)
-  //   OCTET STRING (34 byte) 0420826D2419D3B8A6C8CB9623A0D887F79932DC3700DE4441D08DA2EC391533A09F
-  //     OCTET STRING (32 byte) 826D2419D3B8A6C8CB9623A0D887F79932DC3700DE4441D08DA2EC391533A09F
-  //
-
-  // https://www.rfc-editor.org/rfc/rfc8410
-  // https://www.rfc-editor.org/rfc/rfc8410#section-10.3
-
-  // Example w/ public ke
-  //
-  // SEQUENCE (5 elem)
-  //   INTEGER 1
-  //   SEQUENCE (1 elem)
-  //     OBJECT IDENTIFIER 1.3.101.112 curveEd25519 (EdDSA 25519 signature algorithm)
-  //   OCTET STRING (34 byte) 0420D4EE72DBF913584AD5B6D8F1F769F8AD3AFE7C28CBF1D4FBE097A88F44755842
-  //     OCTET STRING (32 byte) D4EE72DBF913584AD5B6D8F1F769F8AD3AFE7C28CBF1D4FBE097A88F44755842
-  //   [0] (1 elem)
-  //     SEQUENCE (2 elem)
-  //       OBJECT IDENTIFIER 1.2.840.113549.1.9.9.20
-  //       SET (1 elem)
-  //         UTF8String Curdle Chairs
-  //   [1] (33 byte) 0019BF44096984CDFE8541BAC167DC3B96C85086AA30B6B6CB0C5C38AD703166E1
-
-  // Grab the public key
-//    DerValue[] sequence = new DerInputStream(bytes).getSequence();
-//    if (sequence.length == 5) {
-//      byte[] bytes = sequence[4].toByteArray();
-//      byte[] encodedPublicKey = getEncodedPublicKeyFromPrivate(bytes, privateKey.getEncoded());
-//      PublicKey publicKey = KeyFactory.getInstance(EdDSA.KeyType.algorithm)
-//          .generatePublic(new X509EncodedKeySpec(encodedPublicKey));
-//      return new PEM(privateKey, publicKey);
-//    } else {
-//      // The private key did not contain the public key
-//      return new PEM(privateKey);
-//    }
-//  }
 
   private PEM decode_EC_privateKey(String encodedKey) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
     byte[] bytes = getKeyBytes(encodedKey, EC_PRIVATE_KEY_PREFIX, EC_PRIVATE_KEY_SUFFIX);
@@ -304,7 +258,7 @@ public class PEMDecoder {
     return new PEM(KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent)));
   }
 
-  private PEM decode_PKCS_8(String encodedKey) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, InvalidKeyException {
+  private PEM decode_PKCS_8(String encodedKey) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, InvalidKeyException, InvalidAlgorithmParameterException {
     byte[] bytes = getKeyBytes(encodedKey, PKCS_8_PRIVATE_KEY_PREFIX, PKCS_8_PRIVATE_KEY_SUFFIX);
     DerValue[] sequence = new DerInputStream(bytes).getSequence();
 
@@ -351,18 +305,34 @@ public class PEMDecoder {
       BigInteger publicExponent = ((RSAPrivateCrtKey) privateKey).getPublicExponent();
       PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
       return new PEM(privateKey, publicKey);
-    } else if (privateKey instanceof EdECPrivateKey) {
+    } else if (privateKey instanceof EdECPrivateKey edECPrivateKey) {
+
+      byte[] algorithmIdentifier = sequence[1].toByteArray();
+      byte[] publicKeyBytes;
+      byte[] derEncodedPublicKey;
       if (sequence.length >= 4) {
         int index = sequence.length - 1;
-        byte[] bitString = sequence[index].toByteArray();
-        byte[] encodedPublicKey = getEncodedPublicKeyFromPrivate(bitString, privateKey.getEncoded());
-        PublicKey publicKey = KeyFactory.getInstance(Algorithm.EdDSA.getName())
-            .generatePublic(new X509EncodedKeySpec(encodedPublicKey));
-        return new PEM(privateKey, publicKey);
+        publicKeyBytes = sequence[index].toByteArray();
+        derEncodedPublicKey = derEncodePublicKey(algorithmIdentifier, publicKeyBytes);
       } else {
-        // The private key did not contain the public key
-        return new PEM(privateKey);
+        // The private key did not contain the public key. The public key can be derived from the privat key.
+        String curve = KeyUtils.getCurveOID(privateKey);
+        publicKeyBytes = KeyUtils.deriveEdDSAPublicKeyFromPrivate(edECPrivateKey.getBytes().orElseThrow(), curve);
+
+        byte[] bitStringKeyBytes = new byte[publicKeyBytes.length + 1];
+        bitStringKeyBytes[0] = 0x0;
+        System.arraycopy(publicKeyBytes, 0, bitStringKeyBytes, 1, publicKeyBytes.length);
+        // [48, 67, 48, 5, 6, 3, 43, 101, 113, 3, 58, 0]
+        derEncodedPublicKey = new DerOutputStream()
+            .writeValue(new DerValue(Tag.Sequence, new DerOutputStream()
+                .writeValue(new DerValue(Tag.Sequence, algorithmIdentifier))
+                .writeValue(new DerValue(Tag.BitString, bitStringKeyBytes))))
+            .toByteArray();
       }
+
+      PublicKey publicKey = KeyFactory.getInstance(edECPrivateKey.getAlgorithm())
+          .generatePublic(new X509EncodedKeySpec(derEncodedPublicKey, edECPrivateKey.getAlgorithm()));
+      return new PEM(privateKey, publicKey);
     }
 
     return new PEM(privateKey);
@@ -409,17 +379,21 @@ public class PEMDecoder {
   }
 
   private byte[] getEncodedPublicKeyFromPrivate(byte[] bitString, byte[] encodedKey) throws IOException {
-    // Build an X.509 DER encoded byte array from the provided bitString
+    DerValue[] sequence = new DerInputStream(encodedKey).getSequence();
+    return derEncodePublicKey(sequence[1].toByteArray(), bitString);
+  }
+
+  private byte[] derEncodePublicKey(byte[] algorithmIdentifier, byte[] publicKeyBytes) throws IOException {
+    // Build an X.509 DER encoded byte array from the provided byte[]
     //
     // SubjectPublicKeyInfo ::= SEQUENCE {
     //   algorithm         AlgorithmIdentifier,
     //   subjectPublicKey  BIT STRING
     // }
-    DerValue[] sequence = new DerInputStream(encodedKey).getSequence();
     return new DerOutputStream()
         .writeValue(new DerValue(Tag.Sequence, new DerOutputStream()
-            .writeValue(new DerValue(Tag.Sequence, sequence[1].toByteArray()))
-            .writeValue(new DerValue(Tag.BitString, bitString))))
+            .writeValue(new DerValue(Tag.Sequence, algorithmIdentifier))
+            .writeValue(new DerValue(Tag.BitString, publicKeyBytes))))
         .toByteArray();
   }
 
