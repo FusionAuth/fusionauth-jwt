@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,12 @@ import io.fusionauth.jwt.domain.KeyPair;
 import io.fusionauth.jwt.domain.KeyType;
 import io.fusionauth.jwt.json.Mapper;
 import io.fusionauth.pem.domain.PEM;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.StringReader;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -136,7 +139,6 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
     assertEquals(JSONWebKey.build(pem.publicKey).y, expected.y);
   }
 
-
   @Test(dataProvider = "rsaPublicKeys")
   public void parse_well_known(String exponent, String modulus) {
     JSONWebKey expected = new JSONWebKey();
@@ -184,7 +186,7 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
     assertEquals(key.e, encodedE);
   }
 
-  @Test
+  @Test(invocationCount = 1_000)
   public void parse_ec() {
     KeyPair keyPair = JWTUtils.generate256_ECKeyPair();
 
@@ -206,7 +208,69 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
     assertEquals(JSONWebKey.build(pem.publicKey).y, expected.y);
   }
 
-  @Test
+  @DataProvider(name = "EdDSA")
+  public Object[][] edDSA() {
+    return new Object[][]{
+        {"Ed25519"},
+        {"Ed448"},
+    };
+  }
+
+  @Test(dataProvider = "EdDSA", invocationCount = 1_000)
+  public void parse_eddsa(String curve) throws Exception {
+    KeyPair keyPair = curve.equals("Ed25519")
+        ? JWTUtils.generate_ed25519_EdDSAKeyPair()
+        : JWTUtils.generate_ed448_EdDSAKeyPair();
+
+    // Build a JSON Web Key from our own EdDSA key pair
+    JSONWebKey expected = JSONWebKey.build(keyPair.publicKey);
+    expected.alg = Algorithm.EdDSA;
+
+    PublicKey publicKey = JSONWebKey.parse(expected);
+    assertNotNull(publicKey);
+
+    // Compare to the original expected key
+    String encodedPEM = PEM.encode(publicKey);
+    PemReader bcPEMReader = new PemReader(new StringReader(encodedPEM));
+    PemObject bcPEMObject = bcPEMReader.readPemObject();
+    byte[] bcPublicKeyBytes = bcPEMObject.getContent();
+
+    // BC bytes
+    // [48, 42, 48, 5, 6, 3, 43, 101, 112, 3, 33, 0, -24, 70, 53, 73, 35, -31, 108, -115, 115, -115, -63, 123, -8, -116, 112, 74, -40, -55, 116, -35, 57, -96, 114, -53, 4, 99, -74, 61, 55, 91, 59, 68]
+    // publicKey.getEncoded()
+    // [48, 42, 48, 5, 6, 3, 43, 101, 112, 3, 33, 0, -24, 70, 53, 73, 35, -31, 108, -115, 115, -115, -63, 123, -8, -116, 112, 74, -40, -55, 116, -35, 57, -96, 114, -53, 4, 99, -74, 61, 55, 91, 59, 68]
+//    System.out.println("here");
+
+//    JSONWebKey newJSONWebKey = JSONWebKey.build(encodedPEM);
+//    if (!newJSONWebKey.x.equals(expected.x)) {
+//      String actualX = newJSONWebKey.x;
+//      byte[] actualXBytes = base64DecodeUint(actualX).toByteArray();
+//      byte[] expectedXBytes = base64DecodeUint(expected.x).toByteArray();
+//      System.out.println("yo!");
+//    }
+    // It is plausible the base64 encoding may vary based upon padding. Assert equality on the integer values instead.
+//    BigInteger actualXInteger = base64DecodeUint(newJSONWebKey.x);
+//    BigInteger expectedXInteger = base64DecodeUint(expected.x);
+//    assertEquals(actualXInteger, expectedXInteger);
+
+//    byte[] expectedXBytes = base64DecodeUint(expected.x).toByteArray();
+
+
+    if (!JSONWebKey.build(encodedPEM).x.equals(expected.x)) {
+      System.out.println(encodedPEM);
+      System.out.println("Actual:   " + JSONWebKey.build(encodedPEM).x);
+      System.out.println("Expected: " + expected.x);
+    }
+    assertEquals(JSONWebKey.build(encodedPEM).x, expected.x);
+    assertEquals(JSONWebKey.build(encodedPEM).y, expected.y);
+
+    // Get the public key from the PEM, and assert against the expected values
+    PEM pem = PEM.decode(encodedPEM);
+    assertEquals(JSONWebKey.build(pem.publicKey).x, expected.x);
+    assertEquals(JSONWebKey.build(pem.publicKey).y, expected.y);
+  }
+
+  @Test(invocationCount = 1_000)
   public void parse_rsa() {
     KeyPair keyPair = JWTUtils.generate2048_RSAKeyPair();
 

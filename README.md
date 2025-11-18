@@ -8,10 +8,19 @@ We are very interested in compensating anyone that can identify a security relat
 
 ## Features
  - JWT signing using HMAC, RSA and Elliptic Curve support
-   - `HS256`, `HS384`, `HS512`, `RS256`, `RS384`, `RS512`, `ES256`, `ES384`, `ES512`
- - JWT signing using RSA-PSS signatures
-   - `PS256`, `PS384`, `PS512`
-   - Available in versions >= 3.5.0
+   - `HS256`
+   - `HS384`
+   - `HS512`
+   - `RS256`
+   - `RS384`
+   - `RS512`
+   - `ES256`
+   - `ES384`
+   - `ES512`
+   - `PS256` 
+   - `PS384`
+   - `PS512`
+   - `EdDSA` (`ed25519` and `ed448`)
  - Support for Bouncy Castle JCE or other third party providers.   
  - PEM decoding / encoding
    - Decode PEM files to PrivateKey or PublicKey
@@ -26,7 +35,9 @@ We are very interested in compensating anyone that can identify a security relat
    - Retrieve JWK from JWKS endpoints
  - Helpers
    - Generate RSA Key Pairs in `2048`, `3072` or `4096` bit sizes
+   - Generate RSA pSS Key Pairs in `2048`, `3072` or `4096` bit sizes
    - Generate EC Key Pairs in `256`, `384` and `521` bit sizes
+   - Generate EdDSA Key Pairs for `ed2559` and `ed448`
    - Generate `x5t` and `x5t#256` values from X.509 Certificates
    - Generate JWK thumbprint using `SHA-1` or `SHA-256` 
    - Generate ideal HMAC secret lengths for `SHA-256`, `SHA-384` and `SHA-512`

@@ -35,6 +35,16 @@
       <inspection_tool class="Duplicates" enabled="true" level="WARNING" enabled_by_default="true">
         <option name="minCloneLength" value="35" />
       </inspection_tool>
+      <inspection_tool class="ExtractMethodRecommender" enabled="true" level="WARNING" enabled_by_default="true">
+        <option name="minLength" value="550" />
+      </inspection_tool>
+      <inspection_tool class="SizeReplaceableByIsEmpty" enabled="true" level="WARNING" enabled_by_default="true">
+        <option name="ignoredTypes">
+          <set>
+            <option value="java.util.List" />
+          </set>
+        </option>
+      </inspection_tool>
     </profile>
     <version value="1.0" />
   </component>

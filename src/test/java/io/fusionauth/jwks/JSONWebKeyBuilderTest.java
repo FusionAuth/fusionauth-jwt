@@ -167,7 +167,7 @@ public class JSONWebKeyBuilderTest extends BaseJWTTest {
     assertJSONEquals(JSONWebKey.build(cert2), "src/test/resources/jwk/rsa_certificate_gd_bundle_g2.json");
   }
 
-  @Test
+  @Test(invocationCount = 100)
   public void eddsa_private() throws Exception {
     // ed25519
     EdECPrivateKey key25519 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_private_key.pem")).getPrivateKey();
@@ -178,7 +178,7 @@ public class JSONWebKeyBuilderTest extends BaseJWTTest {
     assertJSONEquals(JSONWebKey.build(key448), "src/test/resources/jwk/ed_dsa_ed448_private_key.json");
   }
 
-  @Test
+  @Test(invocationCount = 100)
   public void eddsa_public() throws Exception {
     // ed25519
     EdECPublicKey key25519 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_public_key.pem")).getPublicKey();

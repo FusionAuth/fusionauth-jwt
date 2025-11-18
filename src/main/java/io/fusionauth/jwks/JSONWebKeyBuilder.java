@@ -36,6 +36,7 @@ import java.security.interfaces.ECKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.EdECPrivateKey;
+import java.security.interfaces.EdECPublicKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -142,7 +143,7 @@ public class JSONWebKeyBuilder {
 
   private String getCurveOID(Key key) {
     try {
-      return KeyUtils.getCurveOID(key);
+      return KeyUtils.getCurveName(key);
     } catch (Exception e) {
       throw new JSONWebKeyBuilderException("Unable to read the Object Identifier of the public key.", e);
     }
@@ -182,7 +183,22 @@ public class JSONWebKeyBuilder {
     } else if (key.kty == KeyType.OKP) {
       key.alg = Algorithm.EdDSA;
       key.crv = getCurveOID(publicKey);
-      key.x = base64EncodeUint(extractX(publicKey.getEncoded()));
+      int keyLength = KeyUtils.getKeyLength(publicKey);
+      if (publicKey instanceof EdECPublicKey edECPublicKey) {
+        key.y = base64EncodeUint(edECPublicKey.getPoint().getY(), keyLength);
+      }
+
+      byte[] publicKeyBytes = getPublicKeyFromDEREncodedBytes(publicKey.getEncoded());
+      BigInteger xBigInteger = new BigInteger(publicKeyBytes);
+      String x1 = base64EncodeUint(xBigInteger, keyLength);
+      key.x = x1;
+//      key.x = Base64.getUrlEncoder().withoutPadding().encodeToString(publicKeyBytes);
+//      if (!x1.equals(key.x)) {
+//        System.out.println("Not equal!");
+//        System.out.println(x1);
+//        System.out.println(key.x);
+//      }
+//      key.x = base64EncodeUint(extractXFromDerEncodedPublicKey(publicKey.getEncoded()), keyLength);
     }
 
     return key;
@@ -226,16 +242,15 @@ public class JSONWebKeyBuilder {
       case "EdDSA", "Ed25519", "Ed448" -> KeyType.OKP;
       default -> null;
     };
-
   }
 
-  private BigInteger extractX(byte[] bytes) {
+  private byte[] getPublicKeyFromDEREncodedBytes(byte[] bytes) {
     var is = new DerInputStream(bytes);
     try {
       var sequence = is.getSequence();
-      return sequence[1].getBigInteger();
+      return sequence[1].toByteArray();
     } catch (DerDecodingException e) {
-      throw new JSONWebKeyBuilderException("Unable to read x coordinate from the public key.", e);
+      throw new JSONWebKeyBuilderException("Unable to read the public key from the DER encoded key.", e);
     }
   }
 }

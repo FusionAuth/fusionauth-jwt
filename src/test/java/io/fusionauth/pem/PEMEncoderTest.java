@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,57 @@ import static org.testng.Assert.assertTrue;
  * @author Daniel DeGroff
  */
 public class PEMEncoderTest extends BaseTest {
-  @Test
+  @Test(invocationCount = 250)
+  public void eddsa() throws Exception {
+    String privateKeyPEM = new String(Files.readAllBytes(Paths.get("src/test/resources/ed_dsa_ed25519_private_key.pem"))).trim();
+    String publicKeyPEM = new String(Files.readAllBytes(Paths.get("src/test/resources/ed_dsa_ed25519_public_key.pem"))).trim();
+
+    PEM pem = PEM.decode(privateKeyPEM);
+    String extractedPublicKeyPEM = PEM.encode(pem.publicKey);
+    assertEquals(publicKeyPEM, extractedPublicKeyPEM);
+
+    // The key is already in the correct format, and we don't recombine them. So the result should be equal to the private key.
+    String pkcs8PEM = PEM.encode(pem.getPrivateKey(), pem.getPublicKey());
+    assertEquals(privateKeyPEM, pkcs8PEM);
+
+    // Key generation and PEM Encoding
+    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("Ed25519");
+    KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+    String encodedPublicKey = PEM.encode(keyPair.getPublic());
+    assertNotNull(encodedPublicKey);
+    assertTrue(encodedPublicKey.startsWith(PEM.X509_PUBLIC_KEY_PREFIX));
+    assertTrue(encodedPublicKey.endsWith(PEM.X509_PUBLIC_KEY_SUFFIX));
+
+    String encodedPrivateKey = PEM.encode(keyPair.getPrivate());
+    assertNotNull(encodedPrivateKey);
+    assertTrue(encodedPrivateKey.startsWith(PEM.PKCS_8_PRIVATE_KEY_PREFIX));
+    assertTrue(encodedPrivateKey.endsWith(PEM.PKCS_8_PRIVATE_KEY_SUFFIX));
+
+    // The public key can always be derived from the private key, so expect them both to be returned.
+    PEM pem2 = PEM.decode(encodedPrivateKey);
+    assertNotNull(pem2.getPrivateKey());
+    assertEquals(pem2.getPrivateKey().getFormat(), "PKCS#8");
+    assertEquals(pem2.getPrivateKey().getAlgorithm(), FipsEnabled ? "Ed25519" : "EdDSA");
+    assertNotNull(pem2.getPublicKey());
+    assertEquals(pem2.getPublicKey().getFormat(), "X.509");
+    assertEquals(pem2.getPublicKey().getAlgorithm(), FipsEnabled ? "Ed25519" : "EdDSA");
+
+    // Try again, but provide both keys to encode into the PEM. The PEM won't include the public key, but it can always be derived.
+    String encodedPrivateKey2 = PEM.encode(keyPair.getPrivate(), keyPair.getPublic());
+    assertNotNull(encodedPrivateKey2);
+    PEM pem3 = PEM.decode(encodedPrivateKey2);
+    // They will be the same, we didn't repackage it.
+    assertEquals(encodedPrivateKey, encodedPrivateKey2);
+    assertNotNull(pem3.getPrivateKey());
+    assertEquals(pem3.getPrivateKey().getFormat(), "PKCS#8");
+    assertEquals(pem3.getPrivateKey().getAlgorithm(), FipsEnabled ? "Ed25519" : "EdDSA");
+    assertNotNull(pem3.getPublicKey());
+    assertEquals(pem3.getPublicKey().getFormat(), "X.509");
+    assertEquals(pem3.getPublicKey().getAlgorithm(), FipsEnabled ? "Ed25519" : "EdDSA");
+  }
+
+  @Test(invocationCount = 250)
   public void ec() throws Exception {
     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
     keyPairGenerator.initialize(256);
@@ -68,7 +118,7 @@ public class PEMEncoderTest extends BaseTest {
     assertNotNull(pem2.getPublicKey());
   }
 
-  @Test
+  @Test(invocationCount = 250)
   public void ec_backAndForth() throws Exception {
     // Start with openSSL PKCS#8 private key and X.509 public key
     String expectedPrivate = new String(Files.readAllBytes(Paths.get("src/test/resources/ec_private_prime256v1_p_256_openssl_pkcs8.pem"))).trim();
@@ -96,7 +146,7 @@ public class PEMEncoderTest extends BaseTest {
     assertEquals(encodedPublicKey, expectedPublic);
   }
 
-  @Test
+  @Test(invocationCount = 250)
   public void rsa() throws Exception {
     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
     keyPairGenerator.initialize(2048);
@@ -121,7 +171,7 @@ public class PEMEncoderTest extends BaseTest {
     assertNotNull(pem.getPublicKey());
   }
 
-  @Test
+  @Test(invocationCount = 250)
   public void rsa_backAndForth_pkcs_1() throws Exception {
     // Start externally created PKCS#1 private key and X.509 public key
     String expectedPrivate_pkcs_1 = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048_pkcs_1_control.pem"))).trim();
@@ -153,7 +203,7 @@ public class PEMEncoderTest extends BaseTest {
     assertEquals(encodedPublicKey, expectedPublic);
   }
 
-  @Test
+  @Test(invocationCount = 250)
   public void rsa_backAndForth_pkcs_8() throws Exception {
     // Start externally created PKCS#1 private key and X.509 public key
     String expectedPrivate = new String(Files.readAllBytes(Paths.get("src/test/resources/rsa_private_key_2048_pkcs_8_control.pem"))).trim();

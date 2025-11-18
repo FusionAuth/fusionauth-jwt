@@ -18,6 +18,7 @@ package io.fusionauth.security;
 
 import io.fusionauth.der.DerInputStream;
 import io.fusionauth.der.DerValue;
+import io.fusionauth.der.ObjectIdentifier;
 
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
@@ -46,15 +47,13 @@ import static io.fusionauth.der.ObjectIdentifier.EdDSA_448;
  * @author Daniel DeGroff
  */
 public class KeyUtils {
-
   /**
-   *
    * @param key the key
    * @return the name of the curve used by the key or null if it cannot be identified.
    */
-  public static String getCurveOID(Key key) throws IOException {
+  public static String getCurveName(Key key) throws IOException {
     // Match up the Curve Object Identifier to a string value
-    String oid = readCurveObjectIdentifier(key);
+    String oid = getCurveOID(key).decode();
     return switch (oid) {
       case ECDSA_P256 -> "P-256";
       case ECDSA_P384 -> "P-384";
@@ -65,24 +64,28 @@ public class KeyUtils {
     };
   }
 
-  private static String readCurveObjectIdentifier(Key key) throws IOException {
+  /**
+   * @param key the key
+   * @return the Object Identifier (OID) of the curve used by the key.
+   */
+  public static ObjectIdentifier getCurveOID(Key key) throws IOException {
     DerValue[] sequence = new DerInputStream(key.getEncoded()).getSequence();
     if (key instanceof PrivateKey) {
       if (key instanceof EdECPrivateKey) {
-        return sequence[1].getOID().decode();
+        return sequence[1].getOID();
       }
 
       // Read the first value in the sequence, it is the algorithm OID, the second will be the curve
       sequence[1].getOID();
-      return sequence[1].getOID().decode();
+      return sequence[1].getOID();
     } else {
       if (key instanceof EdECPublicKey) {
-        return sequence[0].getOID().decode();
+        return sequence[0].getOID();
       }
 
       // Read the first value in the sequence, it is the algorithm OID, the second will be the curve
       sequence[0].getOID();
-      return sequence[0].getOID().decode();
+      return sequence[0].getOID();
     }
   }
 

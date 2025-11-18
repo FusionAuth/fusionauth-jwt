@@ -316,7 +316,7 @@ public class PEMDecoder {
         derEncodedPublicKey = derEncodePublicKey(algorithmIdentifier, publicKeyBytes);
       } else {
         // The private key did not contain the public key. The public key can be derived from the privat key.
-        String curve = KeyUtils.getCurveOID(privateKey);
+        String curve = KeyUtils.getCurveName(privateKey);
         publicKeyBytes = KeyUtils.deriveEdDSAPublicKeyFromPrivate(edECPrivateKey.getBytes().orElseThrow(), curve);
 
         byte[] bitStringKeyBytes = new byte[publicKeyBytes.length + 1];

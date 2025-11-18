@@ -1,7 +1,8 @@
 {
-  "kty": "OKP",
   "alg": "EdDSA",
   "crv": "Ed448",
+  "kty": "OKP",
+  "use": "sig",
   "x": "gWl4sYkZhkljqw4C0GDCjDgU44Q3-Sxnd9XXZKcP-kcIoEMmcoSFW7aMWJXcWKa5BB6_eyuTE1IA",
-  "use": "sig"
+  "y": "AFITkyt7vx4EuaZY3JVYjLZbhYRyJkOgCEf6D6dk19V3Zyz5N4TjFDiMwmDQAg6rY0mGGYmxeGmB"
 }

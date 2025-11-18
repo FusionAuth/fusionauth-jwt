@@ -1,8 +1,8 @@
 {
   "alg": "EdDSA",
   "crv": "Ed25519",
-  "d": "1O5y2_kTWErVttjx92n4rTr-fCjL8dT74Jeoj0R1WEI",
+  "d": "GTDyWShKV_tcBWleClj9I9qxuSCqoxPrGvV5-RZSeJU",
   "kty": "OKP",
   "use": "sig",
-  "x": "Gb9ECWmEzf6FQbrBZ9w7lshQhqowtrbLDFw4rXAxZuE"
+  "x": "m3hg6spkvQ31omhXHH__ux5BwleSlufOXEfOlUWOl30"
 }
