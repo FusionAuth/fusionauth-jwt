@@ -322,7 +322,6 @@ public class PEMDecoder {
         byte[] bitStringKeyBytes = new byte[publicKeyBytes.length + 1];
         bitStringKeyBytes[0] = 0x0;
         System.arraycopy(publicKeyBytes, 0, bitStringKeyBytes, 1, publicKeyBytes.length);
-        // [48, 67, 48, 5, 6, 3, 43, 101, 113, 3, 58, 0]
         derEncodedPublicKey = new DerOutputStream()
             .writeValue(new DerValue(Tag.Sequence, new DerOutputStream()
                 .writeValue(new DerValue(Tag.Sequence, algorithmIdentifier))
