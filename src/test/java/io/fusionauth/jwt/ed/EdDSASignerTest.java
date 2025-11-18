@@ -37,7 +37,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * @author Daniel DeGroff
  */
-public class EdSignerTest extends BaseJWTTest {
+public class EdDSASignerTest extends BaseJWTTest {
   @Test
   public void canVerify() {
     Verifier verifier = EdDSAVerifier.newVerifier(getPath("ed_dsa_public_key.pem"));
@@ -108,5 +108,26 @@ public class EdSignerTest extends BaseJWTTest {
 
     assertEquals(actual.subject, jwt.subject);
     assertEquals(actual.header.algorithm.name(), "EdDSA");
+  }
+
+  @Test
+  public void test_private_pem_parsing() {
+    // Key as string
+    assertNotNull(EdDSASigner.newSigner(readFile("ed_dsa_ed25519_private_key.pem")));
+    assertNotNull(EdDSASigner.newSigner(readFile("ed_dsa_ed448_private_key.pem")));
+
+    // Key as object
+    assertNotNull(EdDSASigner.newSigner(PEM.decode(getPath("ed_dsa_ed25519_private_key.pem")).privateKey));
+    assertNotNull(EdDSASigner.newSigner(PEM.decode(getPath("ed_dsa_ed448_private_key.pem")).privateKey));
+
+    // Add kid
+
+    // Key as string
+    assertNotNull(EdDSASigner.newSigner(readFile("ed_dsa_ed25519_private_key.pem"), "abc").getKid(), "abc");
+    assertNotNull(EdDSASigner.newSigner(readFile("ed_dsa_ed448_private_key.pem"), "abc").getKid(), "abc");
+
+    // Key as object
+    assertNotNull(EdDSASigner.newSigner(PEM.decode(getPath("ed_dsa_ed25519_private_key.pem")).privateKey, "abc").getKid(), "abc");
+    assertNotNull(EdDSASigner.newSigner(PEM.decode(getPath("ed_dsa_ed448_private_key.pem")).privateKey, "abc").getKid(), "abc");
   }
 }

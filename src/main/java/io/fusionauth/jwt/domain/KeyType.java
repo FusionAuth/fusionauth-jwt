@@ -21,6 +21,7 @@ import java.util.Objects;
 import static io.fusionauth.der.ObjectIdentifier.EC_ENCRYPTION;
 import static io.fusionauth.der.ObjectIdentifier.EdDSA_25519;
 import static io.fusionauth.der.ObjectIdentifier.EdDSA_448;
+import static io.fusionauth.der.ObjectIdentifier.RSASSA_PSS_ENCRYPTION;
 import static io.fusionauth.der.ObjectIdentifier.RSA_ENCRYPTION;
 
 /**
@@ -37,6 +38,7 @@ import static io.fusionauth.der.ObjectIdentifier.RSA_ENCRYPTION;
  */
 public enum KeyType {
   RSA("RSA"),
+  RSASSA_PSS("RSASSA-PSS"),
   EC("EC"),
   OKP("EdDSA");
 
@@ -53,6 +55,7 @@ public enum KeyType {
       case EC_ENCRYPTION -> EC;
       case EdDSA_448, EdDSA_25519 -> OKP;
       case RSA_ENCRYPTION -> RSA;
+      case RSASSA_PSS_ENCRYPTION -> RSASSA_PSS;
       default -> null;
     };
   }

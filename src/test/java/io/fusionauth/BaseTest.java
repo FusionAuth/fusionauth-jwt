@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2020-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public abstract class BaseTest {
 
   public List<HttpServer> httpServers = new ArrayList<>();
 
-  public boolean testFips;
+  public boolean fipsEnabled;
 
   @AfterMethod
   public void afterMethod(ITestResult result) {
@@ -50,8 +50,8 @@ public abstract class BaseTest {
 
   @BeforeSuite
   public void beforeSuite() {
-    testFips = Boolean.getBoolean("test.fips");
-    if (testFips) {
+    fipsEnabled = Boolean.getBoolean("test.fips");
+    if (fipsEnabled) {
       System.out.println("Testing in FIPS mode");
       System.setProperty("org.bouncycastle.fips.approved_only", "true");
       Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);

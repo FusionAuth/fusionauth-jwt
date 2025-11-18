@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,16 +113,11 @@ public class ECVerifier implements Verifier {
   }
 
   @Override
-  @SuppressWarnings("Duplicates")
   public boolean canVerify(Algorithm algorithm) {
-    switch (algorithm) {
-      case ES256:
-      case ES384:
-      case ES512:
-        return true;
-      default:
-        return false;
-    }
+    return switch (algorithm) {
+      case ES256, ES384, ES512 -> true;
+      default -> false;
+    };
   }
 
   private void checkFor_CVE_2022_21449(byte[] signature) {

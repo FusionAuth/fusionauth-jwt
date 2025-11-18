@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,14 +91,10 @@ public class HMACVerifier implements Verifier {
   @Override
   @SuppressWarnings("Duplicates")
   public boolean canVerify(Algorithm algorithm) {
-    switch (algorithm) {
-      case HS256:
-      case HS384:
-      case HS512:
-        return true;
-      default:
-        return false;
-    }
+    return switch (algorithm) {
+      case HS256, HS384, HS512 -> true;
+      default -> false;
+    };
   }
 
   @Override

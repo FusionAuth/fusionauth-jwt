@@ -24,22 +24,13 @@ import java.util.Objects;
 /**
  * @author Daniel DeGroff
  */
+@SuppressWarnings("unused")
 public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
   /**
    * Elliptic curve / 256 bit / secp256r1 / prime256v1
    * X9.62/SECG curve over a 256 bit prime field
    */
   public static final String ECDSA_P256 = "1.2.840.10045.3.1.7";
-
-  /**
-   * Edwards-curve Digital Signature Algorithm (EdDSA) Ed25519
-   */
-  public static final String EdDSA_25519 = "1.3.101.112";
-
-  /**
-   * Edwards-curve Digital Signature Algorithm (EdDSA) Ed448
-   */
-  public static final String EdDSA_448 = "1.3.101.113";
 
   /**
    * Elliptic curve / 384 bit / secp384r1 / prime384v1
@@ -57,6 +48,21 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
    * Elliptic Curve Public Key cryptography
    */
   public static final String EC_ENCRYPTION = "1.2.840.10045.2.1";
+
+  /**
+   * Edwards-curve Digital Signature Algorithm (EdDSA) Ed25519
+   */
+  public static final String EdDSA_25519 = "1.3.101.112";
+
+  /**
+   * RSA Public Key cryptography Signature Scheme with Appendix - Probabilistic Signature Scheme
+   */
+  public static final String RSASSA_PSS_ENCRYPTION = "1.2.840.113549.1.1.10";
+
+  /**
+   * Edwards-curve Digital Signature Algorithm (EdDSA) Ed448
+   */
+  public static final String EdDSA_448 = "1.3.101.113";
 
   /**
    * RSA Public Key cryptography

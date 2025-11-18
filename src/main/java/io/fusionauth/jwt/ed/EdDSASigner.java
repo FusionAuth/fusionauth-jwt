@@ -74,6 +74,44 @@ public class EdDSASigner implements Signer {
     this.privateKey = pem.getPrivateKey();
   }
 
+  /**
+   * Build a new EdDSA signer.
+   *
+   * @param privateKey The private key.
+   * @param kid        The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @return a new EdDSA signer.
+   */
+  public static EdDSASigner newSigner(PrivateKey privateKey, String kid) {
+    return new EdDSASigner(Algorithm.EdDSA, privateKey, kid);
+  }
+
+  /**
+   * Build a new EdDSA signer.
+   *
+   * @param privateKey The private key.
+   * @return a new EdDSA signer.
+   */
+  public static EdDSASigner newSigner(PrivateKey privateKey) {
+    return new EdDSASigner(Algorithm.EdDSA, privateKey, null);
+  }
+
+  /**
+   * Build a new EdDSA signer.
+   *
+   * @param privateKey The private key.
+   * @param kid        The key identifier. This will be used by the JWTEncoder to write the 'kid' header.
+   * @return a new EdDSA signer.
+   */
+  public static EdDSASigner newSigner(String privateKey, String kid) {
+    return new EdDSASigner(Algorithm.EdDSA, privateKey, kid);
+  }
+
+  /**
+   * Build a new EdDSA signer.
+   *
+   * @param privateKey The private key.
+   * @return a new EdDSA signer.
+   */
   public static EdDSASigner newSigner(String privateKey) {
     return new EdDSASigner(Algorithm.EdDSA, privateKey, null);
   }

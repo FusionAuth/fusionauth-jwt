@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -439,7 +439,6 @@ public class JWTTest extends BaseJWTTest {
   }
 
   @Test
-  @RequiresAlgorithm("RSASSA-PSS")
   public void test_PS256() throws IOException {
     JWT jwt = new JWT().setSubject("1234567890");
 
@@ -455,7 +454,6 @@ public class JWTTest extends BaseJWTTest {
   }
 
   @Test
-  @RequiresAlgorithm("RSASSA-PSS")
   public void test_PS384() throws IOException {
     JWT jwt = new JWT().setSubject("1234567890");
 
@@ -471,7 +469,6 @@ public class JWTTest extends BaseJWTTest {
   }
 
   @Test
-  @RequiresAlgorithm("RSASSA-PSS")
   public void test_PS512() throws IOException {
     JWT jwt = new JWT().setSubject("1234567890");
 

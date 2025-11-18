@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2020-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@ import java.security.Key;
 import java.security.interfaces.ECKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.EdECKey;
+import java.security.interfaces.EdECPrivateKey;
+import java.security.interfaces.EdECPublicKey;
 import java.security.interfaces.RSAKey;
 
 /**
@@ -57,6 +60,15 @@ public class KeyUtils {
       return ((bytes / 8) * 8) * 8;
     } else if (key instanceof RSAKey rsaKey) {
       return rsaKey.getModulus().bitLength();
+    } else if (key instanceof EdECKey edECKey) {
+      // Assuming Ed25519 or Ed448
+      if (key instanceof EdECPrivateKey) {
+        return edECKey.getParams().getName().equals("Ed25519")
+            ? 32 : 57;
+      } else if (key instanceof EdECPublicKey) {
+        return edECKey.getParams().getName().equals("Ed25519")
+            ? 32 : 57;
+      }
     }
 
     throw new IllegalArgumentException();

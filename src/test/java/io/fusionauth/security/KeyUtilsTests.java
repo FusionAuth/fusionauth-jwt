@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2020-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,5 +108,23 @@ public class KeyUtilsTests {
 
     assertEquals(KeyUtils.getKeyLength(keyPair.getPrivate()), privateKeySize);
     assertEquals(KeyUtils.getKeyLength(keyPair.getPublic()), publicKeySize);
+  }
+
+  @Test
+  public void eddsa_25519_keyLength() throws Exception {
+    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("Ed25519");
+    KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+    assertEquals(KeyUtils.getKeyLength(keyPair.getPrivate()), 32);
+    assertEquals(KeyUtils.getKeyLength(keyPair.getPublic()), 32);
+  }
+
+  @Test
+  public void eddsa_448_keyLength() throws Exception {
+    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("Ed448");
+    KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+    assertEquals(KeyUtils.getKeyLength(keyPair.getPrivate()), 57);
+    assertEquals(KeyUtils.getKeyLength(keyPair.getPublic()), 57);
   }
 }

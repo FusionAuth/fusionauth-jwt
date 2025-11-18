@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,10 @@ public class OpenIdConnectTest {
     assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
     assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
 
+    // Note that we are not able to differentiate between ed25519 and ed448
+    // - https://bitbucket.org/openid/connect/issues/1125/_hash-algorithm-for-eddsa-id-tokens
+    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.EdDSA), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
+
     // Controls
     assertEquals(at_hash("1940a308-d492-3660-a9f8-46723cc582e9", Algorithm.RS256), "JrZY9MtYVEIIJUx-DDBmww");
     assertEquals(at_hash("jHkWEdUXMU1BwAsC4vtUsZwnNvTIxEl0z9K3vx5KF0Y", Algorithm.RS256), "77QmUPtjPfzWtF2AnpK9RQ");
@@ -60,6 +64,10 @@ public class OpenIdConnectTest {
     assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS256), "wfgvmE9VxjAudsl9lc6TqA");
     assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
     assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
+
+    // Note that we are not able to differentiate between ed25519 and ed448
+    // - https://bitbucket.org/openid/connect/issues/1125/_hash-algorithm-for-eddsa-id-tokens
+    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.EdDSA), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
 
     // Controls
     assertEquals(c_hash("16fd899f-5f0c-3114-875e-2547b629cd05", Algorithm.HS256), "S5UOXRNNyYsI6Z0G3xxdpw");

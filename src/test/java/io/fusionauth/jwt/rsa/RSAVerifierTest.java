@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2017-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,39 +40,45 @@ public class RSAVerifierTest extends BaseJWTTest {
   @Test
   public void test_public_pem_parsing() {
     Arrays.asList(
-        "rsa_certificate_2048.pem",
-        "rsa_public_key_2047.pem",
-        "rsa_public_key_2048.pem",
-        "rsa_public_key_2048_with_meta.pem",
-        "rsa_public_key_3072.pem",
-        "rsa_public_key_4096.pem")
-          .forEach(fileName -> {
-            // Take a String arg
-            assertRSAVerifier(RSAVerifier.newVerifier(getPath(fileName)));
-            // Take a Path arg
-            assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName)));
-            // Take a byte[] arg
-            assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
-            // Take a public key arg
-            assertRSAVerifier(RSAVerifier.newVerifier((RSAPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
-          });
+            "rsa_certificate_2048.pem",
+            "rsa_public_key_2047.pem",
+            "rsa_public_key_2048.pem",
+            "rsa_public_key_2048_with_meta.pem",
+            "rsa_public_key_3072.pem",
+            "rsa_public_key_4096.pem",
+            "rsa_pss_public_key_2048.pem",
+            "rsa_pss_public_key_3072.pem",
+            "rsa_pss_public_key_4096.pem")
+        .forEach(fileName -> {
+          // Take a String arg
+          assertRSAVerifier(RSAVerifier.newVerifier(getPath(fileName)));
+          // Take a Path arg
+          assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName)));
+          // Take a byte[] arg
+          assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
+          // Take a public key arg
+          assertRSAVerifier(RSAVerifier.newVerifier((RSAPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
+        });
 
     // Public key parsing also works with private keys since the public key is encoded in the private
     Arrays.asList(
-        "rsa_private_key_2048.pem",
-        "rsa_private_key_2048_with_meta.pem",
-        "rsa_private_key_3072.pem",
-        "rsa_private_key_4096.pem")
-          .forEach((fileName -> {
-            // Take a String arg
-            assertRSAVerifier(RSAVerifier.newVerifier(getPath(fileName)));
-            // Take a Path arg
-            assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName)));
-            // Take a byte[] arg
-            assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
-            // Take a public key arg
-            assertRSAVerifier(RSAVerifier.newVerifier((RSAPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
-          }));
+            "rsa_private_key_2048.pem",
+            "rsa_private_key_2048_with_meta.pem",
+            "rsa_private_key_3072.pem",
+            "rsa_private_key_4096.pem",
+            "rsa_pss_private_key_2048.pem",
+            "rsa_pss_private_key_3072.pem",
+            "rsa_pss_private_key_4096.pem")
+        .forEach((fileName -> {
+          // Take a String arg
+          assertRSAVerifier(RSAVerifier.newVerifier(getPath(fileName)));
+          // Take a Path arg
+          assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName)));
+          // Take a byte[] arg
+          assertRSAVerifier(RSAVerifier.newVerifier(readFile(fileName).getBytes(StandardCharsets.UTF_8)));
+          // Take a public key arg
+          assertRSAVerifier(RSAVerifier.newVerifier((RSAPublicKey) PEM.decode(readFile(fileName)).getPublicKey()));
+        }));
   }
 
   @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,29 +60,27 @@ public class OpenIDConnect {
 
     int leftMostBits;
     MessageDigest messageDigest;
-    switch (algorithm) {
-      case ES256:
-      case HS256:
-      case RS256:
+    leftMostBits = switch (algorithm) {
+      case ES256, HS256, RS256 -> {
         messageDigest = getDigest("SHA-256");
-        leftMostBits = 128;
-        break;
-      case ES384:
-      case HS384:
-      case RS384:
+        yield 128;
+      }
+      case ES384, HS384, RS384 -> {
         messageDigest = getDigest("SHA-384");
-        leftMostBits = 192;
-        break;
-      case ES512:
-      case HS512:
-      case RS512:
+        yield 192;
+      }
+      case EdDSA, ES512, HS512, RS512 -> {
+        // Note that EdDSA ed25519 uses SHA-512. But EdDSA ed448 uses SHAKE256. No standard has been published
+        // such that the consumer of the at_hash or c_hash would know which curve was being used with the EdDSA algorithm.
+        // - Defaulting to SHA-512, but this means the hash may be unpredictable if you choose to utilize ed448.
+        // - Discussion: https://bitbucket.org/openid/connect/issues/1125/_hash-algorithm-for-eddsa-id-tokens
         messageDigest = getDigest("SHA-512");
-        leftMostBits = 256;
-        break;
-      default:
-        throw new IllegalArgumentException("You specified an unsupported algorithm. The algorithm [" + algorithm + "]"
-            + " is not supported. You must use ES256, ES384, ES512,  HS256, HS384, HS512, RS256, RS384 or RS512.");
-    }
+        yield 256;
+      }
+      default ->
+          throw new IllegalArgumentException("You specified an unsupported algorithm. The algorithm [" + algorithm + "]"
+              + " is not supported. You must use EdDSA, ES256, ES384, ES512,  HS256, HS384, HS512, RS256, RS384 or RS512.");
+    };
 
     byte[] digest = string.getBytes(StandardCharsets.UTF_8);
     digest = messageDigest.digest(digest);

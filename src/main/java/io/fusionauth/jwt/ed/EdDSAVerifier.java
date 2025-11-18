@@ -66,6 +66,12 @@ public class EdDSAVerifier implements Verifier {
     this.publicKey = pem.getPublicKey();
   }
 
+  /**
+   * Return a new instance of the EdDSA Verifier with the provided public key.
+   *
+   * @param path The path to the public key PEM.
+   * @return a new instance of the EdDSA verifier.
+   */
   public static EdDSAVerifier newVerifier(Path path) {
     Objects.requireNonNull(path);
 
@@ -74,6 +80,27 @@ public class EdDSAVerifier implements Verifier {
     } catch (IOException e) {
       throw new JWTVerifierException("Unable to read the file from path [" + path.toAbsolutePath() + "]", e);
     }
+  }
+
+  /**
+   * Return a new instance of the EdDSA Verifier with the provided public key.
+   *
+   * @param bytes The bytes of the public key in PEM format.
+   * @return a new instance of the EdDSA verifier.
+   */
+  public static EdDSAVerifier newVerifier(byte[] bytes) {
+    Objects.requireNonNull(bytes);
+    return new EdDSAVerifier(new String(bytes));
+  }
+
+  /**
+   * Return a new instance of the EdDSA Verifier with the provided public key.
+   *
+   * @param publicKey The public key object.
+   * @return a new instance of the EdDSA verifier.
+   */
+  public static EdDSAVerifier newVerifier(PublicKey publicKey) {
+    return new EdDSAVerifier(publicKey);
   }
 
   @Override
@@ -95,7 +122,7 @@ public class EdDSAVerifier implements Verifier {
       if (!(verifier.verify(signature))) {
         throw new InvalidJWTSignatureException();
       }
-    } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | SecurityException e) {
+    } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
       throw new JWTVerifierException("An unexpected exception occurred when attempting to verify the JWT", e);
     }
   }

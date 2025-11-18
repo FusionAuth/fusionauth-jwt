@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,11 @@ public class PEMDecoderTest {
         "ec_private_secp384r1_p_384_openssl_pkcs8.pem",
         "ec_private_secp521r1_p_512_openssl_pkcs8.pem",
         "rsa_private_key_2048_pkcs_8_control.pem",
-        "rsa_private_key_3072.pem");
+        "rsa_private_key_3072.pem",
+        "rsa_pss_private_key_2048.pem",
+        "rsa_pss_private_key_3072.pem",
+        "rsa_pss_private_key_4096.pem"
+    );
 
     for (String f : filesIncludingPublicKey) {
       String message = "For file [" + f + "]";

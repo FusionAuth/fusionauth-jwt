@@ -321,8 +321,8 @@ public class PEMDecoder {
     //   parameters      ANY DEFINED BY algorithm OPTIONAL
     // }
 
-    // EC and RSA will be length 3, EdDSA will be 5
-    if ((sequence.length != 3 && sequence.length != 5) || !sequence[0].tag.is(Tag.Integer) || !sequence[1].tag.is(Tag.Sequence) || !sequence[2].tag.is(Tag.OctetString)) {
+    // EC and RSA will be length 3, EdDSA will be 4 or 5
+    if (sequence.length < 3 || !sequence[0].tag.is(Tag.Integer) || !sequence[1].tag.is(Tag.Sequence) || !sequence[2].tag.is(Tag.OctetString)) {
       // Expect the following format : [ Integer | Sequence | OctetString ]
       throw new InvalidKeyException("Could not decode the private key. Expecting values in the DER encoded sequence in the following format [ Integer | Sequence | OctetString ] or [ Integer | Sequence | OctetString | Attributes ]");
     }
@@ -352,9 +352,9 @@ public class PEMDecoder {
       PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
       return new PEM(privateKey, publicKey);
     } else if (privateKey instanceof EdECPrivateKey) {
-//      DerValue[] privateKeySequence = new DerInputStream(sequence[2]).getSequence();
-      if (sequence.length == 5) {
-        byte[] bitString = sequence[4].toByteArray();
+      if (sequence.length >= 4) {
+        int index = sequence.length - 1;
+        byte[] bitString = sequence[index].toByteArray();
         byte[] encodedPublicKey = getEncodedPublicKeyFromPrivate(bitString, privateKey.getEncoded());
         PublicKey publicKey = KeyFactory.getInstance(Algorithm.EdDSA.getName())
             .generatePublic(new X509EncodedKeySpec(encodedPublicKey));
@@ -363,7 +363,6 @@ public class PEMDecoder {
         // The private key did not contain the public key
         return new PEM(privateKey);
       }
-
     }
 
     return new PEM(privateKey);

@@ -37,17 +37,26 @@ import static org.testng.Assert.assertTrue;
 /**
  * @author Daniel DeGroff
  */
-public class EdVerifierTest extends BaseJWTTest {
+public class EdDSAVerifierTest extends BaseJWTTest {
   @Test
   public void canVerify() {
     Verifier verifier = EdDSAVerifier.newVerifier(getPath("ed_dsa_public_key.pem"));
     assertTrue(verifier.canVerify(Algorithm.EdDSA));
+    PEM pem = PEM.decode(getPath("ed_dsa_public_key.pem"));
+    EdDSAVerifier.newVerifier(pem.publicKey);
+
+    Verifier verifier25519 = EdDSAVerifier.newVerifier(getPath("ed_dsa_ed25519_public_key.pem"));
+    assertTrue(verifier25519.canVerify(Algorithm.EdDSA));
+
+    Verifier verifier448 = EdDSAVerifier.newVerifier(getPath("ed_dsa_ed448_public_key.pem"));
+    assertTrue(verifier448.canVerify(Algorithm.EdDSA));
   }
 
   @Test
   public void decodePrivateKey() throws Exception {
     List<String> privateKeys = Arrays.asList(
         "ed_dsa_ed25519_private_key.pem",
+        "ed_dsa_ed448_private_key.pem",
         "ed_dsa_private_key.pem");
 
     // These keys do not contain a public key
@@ -80,6 +89,7 @@ public class EdVerifierTest extends BaseJWTTest {
   public void decodePublicKey() throws Exception {
     List<String> publicKeys = Arrays.asList(
         "ed_dsa_ed25519_public_key.pem",
+        "ed_dsa_ed448_public_key.pem",
         "ed_dsa_public_key.pem");
 
     for (String f : publicKeys) {
