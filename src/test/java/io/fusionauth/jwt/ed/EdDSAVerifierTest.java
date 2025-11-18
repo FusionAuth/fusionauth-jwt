@@ -60,7 +60,7 @@ public class EdDSAVerifierTest extends BaseJWTTest {
 
     // These keys do not contain a public key. However, the public key can be produced from the private key for EdDSA.
     for (String f : privateKeys) {
-      String message = "For file [" + f + "]";
+      String message = "For file [" + f + "] Fips enabled [" + FipsEnabled + "]";
       String encodedPEM = new String(Files.readAllBytes(Paths.get("src/test/resources/" + f)));
       assertTrue(encodedPEM.contains(PEM.PKCS_8_PRIVATE_KEY_PREFIX), message);
 
@@ -69,7 +69,7 @@ public class EdDSAVerifierTest extends BaseJWTTest {
       assertEquals(pem.privateKey.getFormat(), "PKCS#8", message);
       assertNotNull(pem.publicKey, message);
       assertEquals(pem.publicKey.getFormat(), "X.509", message);
-      String expectedAlgorithm = fipsEnabled ? (f.contains("ed448") ? "Ed448" : "Ed25519") : "EdDSA";
+      String expectedAlgorithm = FipsEnabled ? (f.contains("ed448") ? "Ed448" : "Ed25519") : "EdDSA";
       assertEquals(pem.publicKey.getAlgorithm(), expectedAlgorithm, message);
     }
 
@@ -84,7 +84,7 @@ public class EdDSAVerifierTest extends BaseJWTTest {
       assertEquals(pem.privateKey.getFormat(), "PKCS#8", message);
       assertNotNull(pem.publicKey, message);
       assertEquals(pem.publicKey.getFormat(), "X.509", message);
-      String expectedAlgorithm = fipsEnabled ? "Ed25519" : "EdDSA";
+      String expectedAlgorithm = FipsEnabled ? "Ed25519" : "EdDSA";
       assertEquals(pem.publicKey.getAlgorithm(), expectedAlgorithm, message);
     }
   }

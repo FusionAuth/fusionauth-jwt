@@ -148,12 +148,12 @@ public class JWTUtilsTest extends BaseTest {
     EdECPrivateKey privateKey = PEM.decode(keyPair.privateKey).getPrivateKey();
     EdECPublicKey publicKey = PEM.decode(keyPair.publicKey).getPublicKey();
 
-    assertEquals(privateKey.getAlgorithm(), fipsEnabled ? "Ed25519" : "EdDSA");
+    assertEquals(privateKey.getAlgorithm(), FipsEnabled ? "Ed25519" : "EdDSA");
     assertEquals(privateKey.getFormat(), "PKCS#8");
     assertEquals(privateKey.getParams().getName(), "Ed25519");
     assertEquals(privateKey.getBytes().orElseThrow().length, 32);
 
-    assertEquals(publicKey.getAlgorithm(), fipsEnabled ? "Ed25519" : "EdDSA");
+    assertEquals(publicKey.getAlgorithm(), FipsEnabled ? "Ed25519" : "EdDSA");
     assertEquals(publicKey.getFormat(), "X.509");
   }
 
@@ -163,12 +163,12 @@ public class JWTUtilsTest extends BaseTest {
     EdECPrivateKey privateKey = PEM.decode(keyPair.privateKey).getPrivateKey();
     EdECPublicKey publicKey = PEM.decode(keyPair.publicKey).getPublicKey();
 
-    assertEquals(privateKey.getAlgorithm(), fipsEnabled ? "Ed448" : "EdDSA");
+    assertEquals(privateKey.getAlgorithm(), FipsEnabled ? "Ed448" : "EdDSA");
     assertEquals(privateKey.getFormat(), "PKCS#8");
     assertEquals(privateKey.getParams().getName(), "Ed448");
     assertEquals(privateKey.getBytes().orElseThrow().length, 57);
 
-    assertEquals(publicKey.getAlgorithm(), fipsEnabled ? "Ed448" : "EdDSA");
+    assertEquals(publicKey.getAlgorithm(), FipsEnabled ? "Ed448" : "EdDSA");
     assertEquals(publicKey.getFormat(), "X.509");
   }
 

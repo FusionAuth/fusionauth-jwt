@@ -32,11 +32,23 @@ import java.util.List;
  * @author Daniel DeGroff
  */
 public abstract class BaseTest {
+  public static boolean FipsEnabled;
+
   public List<BuilderHTTPHandler> httpHandlers = new ArrayList<>();
 
   public List<HttpServer> httpServers = new ArrayList<>();
 
-  public boolean fipsEnabled;
+  @BeforeSuite
+  public void beforeSuite() {
+    FipsEnabled = Boolean.getBoolean("test.fips");
+    if (FipsEnabled) {
+      System.out.println("Testing in FIPS mode");
+      System.setProperty("org.bouncycastle.fips.approved_only", "true");
+      Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);
+    } else {
+      System.out.println("Testing in default JCA mode");
+    }
+  }
 
   @AfterMethod
   public void afterMethod(ITestResult result) {
@@ -45,18 +57,6 @@ public abstract class BaseTest {
         httpServer.stop(0);
       } catch (Exception ignore) {
       }
-    }
-  }
-
-  @BeforeSuite
-  public void beforeSuite() {
-    fipsEnabled = Boolean.getBoolean("test.fips");
-    if (fipsEnabled) {
-      System.out.println("Testing in FIPS mode");
-      System.setProperty("org.bouncycastle.fips.approved_only", "true");
-      Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);
-    } else {
-      System.out.println("Testing in default JCA mode");
     }
   }
 
