@@ -42,12 +42,13 @@ public abstract class BaseTest {
   public void beforeSuite() {
     FipsEnabled = Boolean.getBoolean("test.fips");
     if (FipsEnabled) {
-      System.out.println("Testing in FIPS mode");
       System.setProperty("org.bouncycastle.fips.approved_only", "true");
       Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);
-    } else {
-      System.out.println("Testing in default JCA mode");
     }
+
+    System.out.printf("Testing in %s mode with security provider [%s]%n",
+        FipsEnabled ? "FIPS" : "the default JCA",
+        Security.getProviders()[0].getClass().getCanonicalName());
   }
 
   @AfterMethod
