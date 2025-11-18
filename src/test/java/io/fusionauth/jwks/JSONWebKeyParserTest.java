@@ -24,12 +24,9 @@ import io.fusionauth.jwt.domain.KeyPair;
 import io.fusionauth.jwt.domain.KeyType;
 import io.fusionauth.jwt.json.Mapper;
 import io.fusionauth.pem.domain.PEM;
-import org.bouncycastle.util.io.pem.PemObject;
-import org.bouncycastle.util.io.pem.PemReader;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.io.StringReader;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -217,7 +214,7 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
   }
 
   @Test(dataProvider = "EdDSA", invocationCount = 1_000)
-  public void parse_eddsa(String curve) throws Exception {
+  public void parse_eddsa(String curve) {
     KeyPair keyPair = curve.equals("Ed25519")
         ? JWTUtils.generate_ed25519_EdDSAKeyPair()
         : JWTUtils.generate_ed448_EdDSAKeyPair();
@@ -231,36 +228,6 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
 
     // Compare to the original expected key
     String encodedPEM = PEM.encode(publicKey);
-    PemReader bcPEMReader = new PemReader(new StringReader(encodedPEM));
-    PemObject bcPEMObject = bcPEMReader.readPemObject();
-    byte[] bcPublicKeyBytes = bcPEMObject.getContent();
-
-    // BC bytes
-    // [48, 42, 48, 5, 6, 3, 43, 101, 112, 3, 33, 0, -24, 70, 53, 73, 35, -31, 108, -115, 115, -115, -63, 123, -8, -116, 112, 74, -40, -55, 116, -35, 57, -96, 114, -53, 4, 99, -74, 61, 55, 91, 59, 68]
-    // publicKey.getEncoded()
-    // [48, 42, 48, 5, 6, 3, 43, 101, 112, 3, 33, 0, -24, 70, 53, 73, 35, -31, 108, -115, 115, -115, -63, 123, -8, -116, 112, 74, -40, -55, 116, -35, 57, -96, 114, -53, 4, 99, -74, 61, 55, 91, 59, 68]
-//    System.out.println("here");
-
-//    JSONWebKey newJSONWebKey = JSONWebKey.build(encodedPEM);
-//    if (!newJSONWebKey.x.equals(expected.x)) {
-//      String actualX = newJSONWebKey.x;
-//      byte[] actualXBytes = base64DecodeUint(actualX).toByteArray();
-//      byte[] expectedXBytes = base64DecodeUint(expected.x).toByteArray();
-//      System.out.println("yo!");
-//    }
-    // It is plausible the base64 encoding may vary based upon padding. Assert equality on the integer values instead.
-//    BigInteger actualXInteger = base64DecodeUint(newJSONWebKey.x);
-//    BigInteger expectedXInteger = base64DecodeUint(expected.x);
-//    assertEquals(actualXInteger, expectedXInteger);
-
-//    byte[] expectedXBytes = base64DecodeUint(expected.x).toByteArray();
-
-
-    if (!JSONWebKey.build(encodedPEM).x.equals(expected.x)) {
-      System.out.println(encodedPEM);
-      System.out.println("Actual:   " + JSONWebKey.build(encodedPEM).x);
-      System.out.println("Expected: " + expected.x);
-    }
     assertEquals(JSONWebKey.build(encodedPEM).x, expected.x);
     assertEquals(JSONWebKey.build(encodedPEM).y, expected.y);
 
