@@ -20,12 +20,17 @@ import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.BaseJWTTest;
 import io.fusionauth.jwt.JWTUtils;
 import io.fusionauth.jwt.Signer;
+import io.fusionauth.jwt.Verifier;
+import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.Header;
 import io.fusionauth.jwt.domain.JWT;
+import io.fusionauth.jwt.rsa.RSAPSSSigner;
+import io.fusionauth.jwt.rsa.RSAPSSVerifier;
 import io.fusionauth.jwt.rsa.RSASigner;
 import io.fusionauth.pem.domain.PEM;
 import org.testng.annotations.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.Certificate;
@@ -130,6 +135,41 @@ public class JSONWebKeyBuilderTest extends BaseJWTTest {
     // RSA private key
     RSAPrivateKey privateKey = PEM.decode(Paths.get("src/test/resources/rsa_private_key_jwk_control.pem")).getPrivateKey();
     assertJSONEquals(JSONWebKey.build(privateKey), "src/test/resources/jwk/rsa_private_key_jwk_control.json");
+  }
+
+  @Test
+  public void rsa_pss_private() throws Exception {
+    // RSA PSS private key
+    RSAPrivateKey privateKey = PEM.decode(Paths.get("src/test/resources/rsa_pss_private_key_2048.pem")).getPrivateKey();
+    // Note that the alg property in the JWK is optional, and with an RSA key we don't know the algorithm.
+    // - This key could be used with PS256, PS384 or PS512.
+    assertJSONEquals(JSONWebKey.build(privateKey), "src/test/resources/jwk/rsa_pss_private_key_2048.json");
+
+    // See!
+    Signer signer = RSAPSSSigner.newSHA256Signer(privateKey);
+    String message = "hello world!";
+    byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
+    byte[] signature = signer.sign(message);
+
+    RSAPublicKey publicKey = PEM.decode(Paths.get("src/test/resources/rsa_pss_public_key_2048.pem")).getPublicKey();
+    Verifier verifier = RSAPSSVerifier.newVerifier(publicKey);
+    verifier.canVerify(Algorithm.PS256);
+    verifier.canVerify(Algorithm.PS384);
+    verifier.canVerify(Algorithm.PS512);
+    verifier.verify(Algorithm.PS256, messageBytes, signature);
+  }
+
+  @Test
+  public void rsa_pss_public() throws Exception {
+    // RSA PSS public key
+    RSAPublicKey publicKey = PEM.decode(Paths.get("src/test/resources/rsa_pss_public_key_2048.pem")).getPublicKey();
+    // Note that the alg property in the JWK is optional, and with an RSA key we don't know the algorithm.
+    // - This key could be used with PS256, PS384 or PS512.
+    assertJSONEquals(JSONWebKey.build(publicKey), "src/test/resources/jwk/rsa_pss_public_key_2048.json");
+
+    // X.509 cert, the certificate will contain the algorithm 'SHA256withRSAandMGF1' so we will expect PS256 in the JWK
+    Certificate certificate = PEM.decode(Paths.get("src/test/resources/rsa_pss_public_key_2048_certificate.pem")).certificate;
+    assertJSONEquals(JSONWebKey.build(certificate), "src/test/resources/jwk/rsa_pss_public_key_2048_certificate.json");
   }
 
   @Test

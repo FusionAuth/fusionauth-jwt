@@ -234,7 +234,7 @@ public class JSONWebKeyBuilder {
 
   private KeyType getKeyType(Key key) {
     return switch (key.getAlgorithm()) {
-      case "RSA" -> KeyType.RSA;
+      case "RSA", "RSASSA-PSS" -> KeyType.RSA;
       case "EC" -> KeyType.EC;
       // JCE returns EdDSA, and BC returns Ed25519 or Ed448 respectively
       case "EdDSA", "Ed25519", "Ed448" -> KeyType.OKP;

@@ -189,7 +189,7 @@ public class JWTTest extends BaseJWTTest {
       BigDecimal average = durationInMillis.divide(BigDecimal.valueOf(iterationCount), RoundingMode.HALF_DOWN);
       long perSecond = iterationCount / (duration.toMillis() / 1000);
 
-      System.out.println("[" + signer.getAlgorithm().getName() + "] " + duration.toMillis() + " milliseconds total. [" + iterationCount + "] iterations. [" + average + "] milliseconds per iteration. Approx. [" + perSecond + "] per second.");
+      System.out.println("[" + signer.getAlgorithm().name() + "] " + duration.toMillis() + " milliseconds total. [" + iterationCount + "] iterations. [" + average + "] milliseconds per iteration. Approx. [" + perSecond + "] per second.");
 
     }
   }
