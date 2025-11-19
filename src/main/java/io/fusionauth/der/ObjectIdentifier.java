@@ -85,6 +85,21 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
   public static final String RSA_SHA512 = "1.2.840.113549.1.1.13";
 
   /**
+   * Secure Hash Algorithm that uses a 256-bit key (SHA256)
+   */
+  public static final String SHA256 = "2.16.840.1.101.3.4.2.1";
+
+  /**
+   * Secure Hash Algorithm that uses a 384-bit key (SHA384)
+   */
+  public static final String SHA384 = "2.16.840.1.101.3.4.2.2";
+
+  /**
+   * Secure Hash Algorithm that uses a 512-bit key (SHA512)
+   */
+  public static final String SHA512 = "2.16.840.1.101.3.4.2.3";
+
+  /**
    * The raw byte array of this Object Identifier.
    */
   public byte[] value;

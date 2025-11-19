@@ -18,6 +18,7 @@ package io.fusionauth.jwks;
 
 import io.fusionauth.der.DerDecodingException;
 import io.fusionauth.der.DerInputStream;
+import io.fusionauth.der.ObjectIdentifier;
 import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.JWTUtils;
 import io.fusionauth.jwt.domain.Algorithm;
@@ -25,6 +26,7 @@ import io.fusionauth.jwt.domain.KeyType;
 import io.fusionauth.pem.domain.PEM;
 import io.fusionauth.security.KeyUtils;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.Key;
 import java.security.PrivateKey;
@@ -211,9 +213,9 @@ public class JSONWebKeyBuilder {
   public JSONWebKey build(Certificate certificate) {
     Objects.requireNonNull(certificate);
     JSONWebKey key = build(certificate.getPublicKey());
-    if (certificate instanceof X509Certificate) {
+    if (certificate instanceof X509Certificate x509Certificate) {
       if (key.alg == null) {
-        key.alg = Algorithm.fromName(((X509Certificate) certificate).getSigAlgName());
+        key.alg = determineKeyAlgorithm(x509Certificate);
       }
 
       try {
@@ -230,6 +232,37 @@ public class JSONWebKeyBuilder {
 
   private int getCoordinateLength(ECKey key) {
     return (int) Math.ceil(key.getParams().getCurve().getField().getFieldSize() / 8d);
+  }
+
+  private Algorithm determineKeyAlgorithm(X509Certificate x509Certificate) {
+    String sigAlgName = x509Certificate.getSigAlgName();
+    Algorithm result = Algorithm.fromName(sigAlgName);
+    if (result != null) {
+      return result;
+    }
+
+    // The JCA reports RSASSA-PSS, while BC will report the actual algorithm such as SHA256withRSAandMGF1.
+    // - Java really makes you work for it. Dig out the digest OID to identify the algorithm.
+    if ("RSASSA-PSS".equals(sigAlgName)) {
+      byte[] encodedBytes = x509Certificate.getSigAlgParams();
+      try {
+        String oid = new DerInputStream(new DerInputStream(encodedBytes)
+            .getSequence()[1].toByteArray())
+            .getSequence()[1]
+            .getOID().toString();
+
+        result = switch (oid) {
+          case ObjectIdentifier.SHA256 -> Algorithm.PS256; // SHA256withRSAandMGF1
+          case ObjectIdentifier.SHA384 -> Algorithm.PS384; // SHA384withRSAandMGF1
+          case ObjectIdentifier.SHA512 -> Algorithm.PS512; // SHA512withRSAandMGF1
+          default -> null;
+        };
+      } catch (IOException e) {
+        throw new JSONWebKeyBuilderException("Failed to decode X.509 certificate signature algorithm parameters to determine the key type.", e);
+      }
+    }
+
+    return result;
   }
 
   private KeyType getKeyType(Key key) {
