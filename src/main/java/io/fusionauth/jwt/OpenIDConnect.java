@@ -82,7 +82,7 @@ public class OpenIDConnect {
       }
       default ->
           throw new IllegalArgumentException("You specified an unsupported algorithm. The algorithm [" + algorithm + "]"
-              + " is not supported. You must use EdDSA, ES256, ES384, ES512,  HS256, HS384, HS512, RS256, RS384 or RS512.");
+              + " is not supported. You must use Ed25519, Ed448, ES256, ES384, ES512,  HS256, HS384, HS512, RS256, RS384 or RS512.");
     };
 
     byte[] digest = string.getBytes(StandardCharsets.UTF_8);

@@ -16,6 +16,7 @@
 
 package io.fusionauth.security;
 
+import io.fusionauth.jwt.JWTUtils;
 import io.fusionauth.pem.domain.PEM;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -127,6 +128,11 @@ public class KeyUtilsTests {
 
     assertEquals(KeyUtils.getKeyLength(keyPair.getPrivate()), 32);
     assertEquals(KeyUtils.getKeyLength(keyPair.getPublic()), 32);
+
+    io.fusionauth.jwt.domain.KeyPair keyPair2 = JWTUtils.generate_ed25519_EdDSAKeyPair();
+    PEM pem = PEM.decode(keyPair2.privateKey);
+    assertEquals(KeyUtils.getKeyLength(pem.privateKey), 32);
+    assertEquals(KeyUtils.getKeyLength(pem.publicKey), 32);
   }
 
   @Test
@@ -136,5 +142,10 @@ public class KeyUtilsTests {
 
     assertEquals(KeyUtils.getKeyLength(keyPair.getPrivate()), 57);
     assertEquals(KeyUtils.getKeyLength(keyPair.getPublic()), 57);
+
+    io.fusionauth.jwt.domain.KeyPair keyPair2 = JWTUtils.generate_ed448_EdDSAKeyPair();
+    PEM pem = PEM.decode(keyPair2.privateKey);
+    assertEquals(KeyUtils.getKeyLength(pem.privateKey), 57);
+    assertEquals(KeyUtils.getKeyLength(pem.publicKey), 57);
   }
 }

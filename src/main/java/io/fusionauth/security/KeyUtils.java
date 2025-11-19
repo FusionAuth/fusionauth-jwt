@@ -138,13 +138,12 @@ public class KeyUtils {
     } else if (key instanceof RSAKey rsaKey) {
       return rsaKey.getModulus().bitLength();
     } else if (key instanceof EdECKey edECKey) {
-      // Assuming Ed25519 or Ed448
-      if (key instanceof EdECPrivateKey) {
-        return edECKey.getParams().getName().equals("Ed25519")
-            ? 32 : 57;
-      } else if (key instanceof EdECPublicKey) {
-        return edECKey.getParams().getName().equals("Ed25519")
-            ? 32 : 57;
+      // Only recognizing Ed25519 and Ed448.
+      String curve = edECKey.getParams().getName();
+      if ("Ed25519".equals(curve)) {
+        return 32;
+      } else if ("Ed448".equals(curve)) {
+        return 57;
       }
     }
 
