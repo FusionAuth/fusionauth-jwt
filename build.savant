@@ -96,7 +96,7 @@ target(name: "test", description: "Runs the project's tests", dependsOn: ["jar"]
   // Example:
   // javaTestNG.settings.jvmArguments += "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"
 
-  boolean[] fipsEnabled = [true, false]
+  boolean[] fipsEnabled = [false, true]
   if (switches.has("fips")) {
     fipsEnabled = [true]
   } else if (switches.has("jca")) {
