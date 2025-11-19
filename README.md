@@ -320,39 +320,6 @@ String json = jwk.toJSON();
 $ sb int
 ```
 
-## Testing
-
-### Maven
- 
- ```bash
- $ mvn test
- ```
-
-Run tests the BouncyCastle FIPS provider
- 
-```bash
- $ mvn test -Dtest.fips=true
-```
-
-### Savant
-
-```bash
-$ sb test
-```
-
-Run tests using only the BouncyCastle FIPS provider
- 
-```bash
- $ sb test --fips
-```
-
-Run tests using only the default JCA provider
- 
-```bash
- $ sb test --jca
-```
-
-## Savant Install
 **Note:** If you do not yet have Savant build tool installed, use the following instructions.
 
 ```bash
