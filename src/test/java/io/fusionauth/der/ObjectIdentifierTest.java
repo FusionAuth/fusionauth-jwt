@@ -37,7 +37,7 @@ public class ObjectIdentifierTest extends BaseJWTTest {
 
     // EdDSA Ed25519
     assertEquals(decode(0x2B, 0x65, 0x70), "1.3.101.112");
-    // EdDSA ed448
+    // EdDSA Ed448
     assertEquals(decode(0x2B, 0x65, 0x71), "1.3.101.113");
 
     // RSA
