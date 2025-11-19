@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2020-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.util.Objects;
+
+import static io.fusionauth.jwt.domain.Algorithm.PS256;
 
 /**
  * This class can sign a JWT using an RSA Private key.
@@ -95,7 +97,7 @@ public class RSAPSSSigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSAPSSSigner newSHA256Signer(String privateKey) {
-    return new RSAPSSSigner(Algorithm.PS256, privateKey, null);
+    return new RSAPSSSigner(PS256, privateKey, null);
   }
 
   /**
@@ -106,7 +108,7 @@ public class RSAPSSSigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSAPSSSigner newSHA256Signer(String privateKey, String kid) {
-    return new RSAPSSSigner(Algorithm.PS256, privateKey, kid);
+    return new RSAPSSSigner(PS256, privateKey, kid);
   }
 
   /**
@@ -116,7 +118,7 @@ public class RSAPSSSigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSAPSSSigner newSHA256Signer(PrivateKey privateKey) {
-    return new RSAPSSSigner(Algorithm.PS256, privateKey, null);
+    return new RSAPSSSigner(PS256, privateKey, null);
   }
 
   /**
@@ -127,7 +129,7 @@ public class RSAPSSSigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSAPSSSigner newSHA256Signer(PrivateKey privateKey, String kid) {
-    return new RSAPSSSigner(Algorithm.PS256, privateKey, kid);
+    return new RSAPSSSigner(PS256, privateKey, kid);
   }
 
   /**
@@ -229,7 +231,8 @@ public class RSAPSSSigner implements Signer {
 
     try {
       Signature signature = Signature.getInstance("RSASSA-PSS");
-      signature.setParameter(new PSSParameterSpec(algorithm.getName(), "MGF1", new MGF1ParameterSpec(algorithm.getName()), algorithm.getSaltLength(), 1));
+      String digestName = algorithm.getDigest();
+      signature.setParameter(new PSSParameterSpec(digestName, "MGF1", new MGF1ParameterSpec(digestName), algorithm.getSaltLength(), 1));
       signature.initSign(privateKey);
       signature.update(message.getBytes(StandardCharsets.UTF_8));
       return signature.sign();

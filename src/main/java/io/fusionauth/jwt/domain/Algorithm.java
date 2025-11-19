@@ -130,6 +130,16 @@ public enum Algorithm {
     return algorithm;
   }
 
+  public String getDigest() {
+    return switch (this) {
+      case PS256 -> "SHA-256";
+      case PS384 -> "SHA-384";
+      case PS512 -> "SHA-512";
+      default ->
+          throw new IllegalStateException("An incompatible algorithm was provided, this method is only used for RSASSA-PSS algorithms.");
+    };
+  }
+
   public int getSaltLength() {
     return switch (this) {
       case PS256 -> 32;

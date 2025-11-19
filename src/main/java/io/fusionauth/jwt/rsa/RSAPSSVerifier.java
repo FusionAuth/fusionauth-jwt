@@ -135,7 +135,8 @@ public class RSAPSSVerifier implements Verifier {
 
     try {
       Signature verifier = Signature.getInstance("RSASSA-PSS");
-      verifier.setParameter(new PSSParameterSpec(algorithm.getName(), "MGF1", new MGF1ParameterSpec(algorithm.getName()), algorithm.getSaltLength(), 1));
+      String digestName = algorithm.getDigest();
+      verifier.setParameter(new PSSParameterSpec(digestName, "MGF1", new MGF1ParameterSpec(digestName), algorithm.getSaltLength(), 1));
       verifier.initVerify(publicKey);
       verifier.update(message);
       if (!verifier.verify(signature)) {
