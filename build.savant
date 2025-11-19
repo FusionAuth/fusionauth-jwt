@@ -31,9 +31,6 @@ project(group: "io.fusionauth", name: "fusionauth-jwt", version: "6.0.0", licens
     publish {
       cache()
     }
-    semanticVersions {
-      mapping(id: "org.bouncycastle:bc-fips:1.0.2.6", version: "1.0.2+P6")
-    }
   }
 
   publishWorkflow {
