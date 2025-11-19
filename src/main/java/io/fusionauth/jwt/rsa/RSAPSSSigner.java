@@ -36,8 +36,6 @@ import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.util.Objects;
 
-import static io.fusionauth.jwt.domain.Algorithm.PS256;
-
 /**
  * This class can sign a JWT using an RSA Private key.
  *
@@ -97,7 +95,7 @@ public class RSAPSSSigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSAPSSSigner newSHA256Signer(String privateKey) {
-    return new RSAPSSSigner(PS256, privateKey, null);
+    return new RSAPSSSigner(Algorithm.PS256, privateKey, null);
   }
 
   /**
@@ -108,7 +106,7 @@ public class RSAPSSSigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSAPSSSigner newSHA256Signer(String privateKey, String kid) {
-    return new RSAPSSSigner(PS256, privateKey, kid);
+    return new RSAPSSSigner(Algorithm.PS256, privateKey, kid);
   }
 
   /**
@@ -118,7 +116,7 @@ public class RSAPSSSigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSAPSSSigner newSHA256Signer(PrivateKey privateKey) {
-    return new RSAPSSSigner(PS256, privateKey, null);
+    return new RSAPSSSigner(Algorithm.PS256, privateKey, null);
   }
 
   /**
@@ -129,7 +127,7 @@ public class RSAPSSSigner implements Signer {
    * @return a new RSA signer.
    */
   public static RSAPSSSigner newSHA256Signer(PrivateKey privateKey, String kid) {
-    return new RSAPSSSigner(PS256, privateKey, kid);
+    return new RSAPSSSigner(Algorithm.PS256, privateKey, kid);
   }
 
   /**

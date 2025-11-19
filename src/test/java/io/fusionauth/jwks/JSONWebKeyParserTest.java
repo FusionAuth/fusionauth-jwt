@@ -35,7 +35,6 @@ import java.security.interfaces.RSAPublicKey;
 
 import static io.fusionauth.jwks.JWKUtils.base64DecodeUint;
 import static io.fusionauth.jwks.JWKUtils.base64EncodeUint;
-import static io.fusionauth.jwt.domain.Algorithm.RS256;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
@@ -253,7 +252,7 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
 
     // Build a JSON Web Key from our own RSA key pair
     JSONWebKey expected = JSONWebKey.build(keyPair.publicKey);
-    expected.alg = RS256;
+    expected.alg = Algorithm.RS256;
 
     PublicKey publicKey = JSONWebKey.parse(expected);
     assertNotNull(publicKey);
