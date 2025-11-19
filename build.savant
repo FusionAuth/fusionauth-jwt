@@ -99,16 +99,15 @@ target(name: "test", description: "Runs the project's tests", dependsOn: ["jar"]
   // Example:
   // javaTestNG.settings.jvmArguments += "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"
 
+  boolean[] fipsEnabled = [true, false]
   if (switches.has("fips")) {
-    javaTestNG.settings.jvmArguments = "-Dtest.fips=true"
-    javaTestNG.test()
+    fipsEnabled = [true]
   } else if (switches.has("jca")) {
-    javaTestNG.settings.jvmArguments = "-Dtest.fips=false"
-    javaTestNG.test()
-  } else {
-    javaTestNG.settings.jvmArguments = "-Dtest.fips=false"
-    javaTestNG.test()
-    javaTestNG.settings.jvmArguments = "-Dtest.fips=true"
+    fipsEnabled = [false]
+  }
+
+  fipsEnabled.each { enabled ->
+    javaTestNG.settings.jvmArguments = "-Dtest.fips=${enabled}"
     javaTestNG.test()
   }
 }

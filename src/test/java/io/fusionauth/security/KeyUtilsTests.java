@@ -28,6 +28,16 @@ import java.util.Base64;
 import static org.testng.Assert.assertEquals;
 
 /**
+ * Note that the higher invocationCount parameters are helpful to indentify incorrect assumptions in key parsing.
+ * <p>
+ * Key lengths can differ, and when encoding larger integers in DER encode sequences, or parsing them in and out of
+ * JWK formats, we want to be certain we are not making incorrect assumptions. During development, you may wish to
+ * run some of these with 5-10k invocation counts to ensure these types of anomalies are un-covered and addressed.
+ * <p>
+ * It may be reasonable to reduce the invocation counts if tests take too long to run - once we know that the tests
+ * will pass with a high number of invocations. However, the time is not yet that significant, and there is value to
+ * ensuring that the same result can be expected regardless of the number of times we run the same test.
+ *
  * @author Daniel DeGroff
  */
 public class KeyUtilsTests {
@@ -60,7 +70,7 @@ public class KeyUtilsTests {
 
   // Running 500 times to ensure we get consistency. EC keys can vary in length, but the "reported" size returned
   // from the .getKeyLength() should be consistent. Out of 500 tests (if we had an error in the logic) we may get 1-5
-  // failures where the key is not an exact size and we have to figure out which key size it should be reported as.
+  // failures where the key is not an exact size, and we have to figure out which key size it should be reported as.
   // - For testing locally, you can ramp up this invocation count to 100k or something like that to prove that we have
   //   consistency over time.
   @Test(dataProvider = "ecKeyLengths", invocationCount = 500)
