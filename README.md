@@ -28,7 +28,7 @@ We are very interested in compensating anyone that can identify a security relat
    - Generate RSA Key Pairs in `2048`, `3072` or `4096` bit sizes
    - Generate RSA PSS Key Pairs in `2048`, `3072` or `4096` bit sizes
    - Generate EC Key Pairs in `256`, `384` and `521` bit sizes
-   - Generate EdDSA Key Pairs for `ed2559` and `ed448` curves
+   - Generate EdDSA Key Pairs for `Ed2559` and `Ed448` curves
    - Generate `x5t` and `x5t#256` values from X.509 Certificates
    - Generate JWK thumbprint using `SHA-1` or `SHA-256` 
    - Generate ideal HMAC secret lengths for `SHA-256`, `SHA-384` and `SHA-512`
@@ -309,18 +309,50 @@ String json = jwk.toJSON();
 
 ## Building
  
-## Building with Maven
+### Maven
  ```bash
  $ mvn install
  ```
 
-
-## Building with Savant
+### Savant
 
 ```bash
 $ sb int
 ```
 
+## Testing
+
+### Maven
+ 
+ ```bash
+ $ mvn test
+ ```
+
+Run tests the BouncyCastle FIPS provider
+ 
+```bash
+ $ mvn test -Dtest.fips=true
+```
+
+### Savant
+
+```bash
+$ sb test
+```
+
+Run tests using only the BouncyCastle FIPS provider
+ 
+```bash
+ $ sb test --fips
+```
+
+Run tests using only the default JCA provider
+ 
+```bash
+ $ sb test --jca
+```
+
+## Savant Install
 **Note:** If you do not yet have Savant build tool installed, use the following instructions.
 
 ```bash
