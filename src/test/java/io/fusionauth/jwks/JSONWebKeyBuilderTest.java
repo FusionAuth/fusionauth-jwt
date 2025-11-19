@@ -184,8 +184,16 @@ public class JSONWebKeyBuilderTest extends BaseJWTTest {
     EdECPublicKey key25519 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_public_key.pem")).getPublicKey();
     assertJSONEquals(JSONWebKey.build(key25519), "src/test/resources/jwk/ed_dsa_ed25519_public_key.json");
 
+    // X.509 PEM encoded
+    Certificate cert25519 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_certificate.pem")).certificate;
+    assertJSONEquals(JSONWebKey.build(cert25519), "src/test/resources/jwk/ed_dsa_ed25519_certificate.json");
+
     // ed448
     EdECPublicKey key448 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed448_public_key.pem")).getPublicKey();
     assertJSONEquals(JSONWebKey.build(key448), "src/test/resources/jwk/ed_dsa_ed448_public_key.json");
+
+    // X.509 PEM encoded
+    Certificate cert448 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed448_certificate.pem")).certificate;
+    assertJSONEquals(JSONWebKey.build(cert448), "src/test/resources/jwk/ed_dsa_ed448_certificate.json");
   }
 }

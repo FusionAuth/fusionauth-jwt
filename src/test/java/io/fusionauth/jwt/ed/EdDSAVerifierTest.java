@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
@@ -38,15 +39,17 @@ public class EdDSAVerifierTest extends BaseJWTTest {
   @Test
   public void canVerify() {
     Verifier verifier = EdDSAVerifier.newVerifier(getPath("ed_dsa_public_key.pem"));
-    assertTrue(verifier.canVerify(Algorithm.EdDSA));
+    assertTrue(verifier.canVerify(Algorithm.Ed25519));
     PEM pem = PEM.decode(getPath("ed_dsa_public_key.pem"));
     EdDSAVerifier.newVerifier(pem.publicKey);
 
     Verifier verifier25519 = EdDSAVerifier.newVerifier(getPath("ed_dsa_ed25519_public_key.pem"));
-    assertTrue(verifier25519.canVerify(Algorithm.EdDSA));
+    assertTrue(verifier25519.canVerify(Algorithm.Ed25519));
+    assertFalse(verifier25519.canVerify(Algorithm.Ed448));
 
     Verifier verifier448 = EdDSAVerifier.newVerifier(getPath("ed_dsa_ed448_public_key.pem"));
-    assertTrue(verifier448.canVerify(Algorithm.EdDSA));
+    assertFalse(verifier448.canVerify(Algorithm.Ed25519));
+    assertTrue(verifier448.canVerify(Algorithm.Ed448));
   }
 
   @Test

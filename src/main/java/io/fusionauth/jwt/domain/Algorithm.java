@@ -25,10 +25,16 @@ import java.util.Locale;
  */
 public enum Algorithm {
   /**
-   * EdDSA (ed25519, ed448)
-   * OID: 1.3.101.112, and 1.3.101.112
+   * Edwards-curve Digital Signature Algorithm (EdDSA) Ed25519
+   * OID: 1.3.101.112
    */
-  EdDSA("EdDSA"),
+  Ed25519("Ed25519"),
+
+  /**
+   * Edwards-curve Digital Signature Algorithm (EdDSA) Ed448
+   * OID: 1.3.101.113
+   */
+  Ed448("Ed448"),
 
   /**
    * ECDSA using P-256 and SHA-256

@@ -99,9 +99,16 @@ target(name: "test", description: "Runs the project's tests", dependsOn: ["jar"]
   // Example:
   // javaTestNG.settings.jvmArguments += "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"
 
-  // Run the test suite twice, one with BC fips enabled, and once w/out.
-  [false, true].each { enabled ->
-    javaTestNG.settings.jvmArguments = "-Dtest.fips=${enabled}"
+  if (switches.has("fips")) {
+    javaTestNG.settings.jvmArguments = "-Dtest.fips=true"
+    javaTestNG.test()
+  } else if (switches.has("jca")) {
+    javaTestNG.settings.jvmArguments = "-Dtest.fips=false"
+    javaTestNG.test()
+  } else {
+    javaTestNG.settings.jvmArguments = "-Dtest.fips=false"
+    javaTestNG.test()
+    javaTestNG.settings.jvmArguments = "-Dtest.fips=true"
     javaTestNG.test()
   }
 }

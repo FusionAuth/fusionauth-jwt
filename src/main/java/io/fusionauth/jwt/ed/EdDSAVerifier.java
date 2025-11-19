@@ -39,6 +39,8 @@ import java.util.Objects;
  * @author Daniel DeGroff
  */
 public class EdDSAVerifier implements Verifier {
+  private final Algorithm algorithm;
+
   private final EdECPublicKey publicKey;
 
   private EdDSAVerifier(PublicKey publicKey) {
@@ -49,6 +51,10 @@ public class EdDSAVerifier implements Verifier {
     }
 
     this.publicKey = (EdECPublicKey) publicKey;
+    this.algorithm = Algorithm.fromName(this.publicKey.getParams().getName());
+    if (this.algorithm == null) {
+      throw new InvalidKeyTypeException("Unsupported algorithm reported by the public key. [" + this.publicKey.getParams().getName() + "].");
+    }
   }
 
   private EdDSAVerifier(String publicKey) {
@@ -64,6 +70,10 @@ public class EdDSAVerifier implements Verifier {
     }
 
     this.publicKey = pem.getPublicKey();
+    this.algorithm = Algorithm.fromName(this.publicKey.getParams().getName());
+    if (this.algorithm == null) {
+      throw new InvalidKeyTypeException("Unsupported algorithm reported by the public key. [" + this.publicKey.getParams().getName() + "].");
+    }
   }
 
   /**
@@ -105,7 +115,7 @@ public class EdDSAVerifier implements Verifier {
 
   @Override
   public boolean canVerify(Algorithm algorithm) {
-    return algorithm.equals(Algorithm.EdDSA);
+    return this.algorithm == algorithm;
   }
 
   @Override

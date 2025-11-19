@@ -221,7 +221,7 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
 
     // Build a JSON Web Key from our own EdDSA key pair
     JSONWebKey expected = JSONWebKey.build(keyPair.publicKey);
-    expected.alg = Algorithm.EdDSA;
+    expected.alg = Algorithm.Ed25519;
 
     PublicKey publicKey = JSONWebKey.parse(expected);
     assertNotNull(publicKey);

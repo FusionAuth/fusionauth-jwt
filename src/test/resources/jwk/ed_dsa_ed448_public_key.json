@@ -1,5 +1,5 @@
 {
-  "alg": "EdDSA",
+  "alg": "Ed448",
   "crv": "Ed448",
   "kty": "OKP",
   "use": "sig",

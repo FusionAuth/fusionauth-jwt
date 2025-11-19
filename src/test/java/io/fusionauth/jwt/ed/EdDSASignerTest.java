@@ -17,6 +17,7 @@
 package io.fusionauth.jwt.ed;
 
 import io.fusionauth.jwt.BaseJWTTest;
+import io.fusionauth.jwt.MissingVerifierException;
 import io.fusionauth.jwt.Signer;
 import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.JWT;
@@ -28,6 +29,8 @@ import java.nio.file.Paths;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 /**
  * @author Daniel DeGroff
@@ -46,7 +49,17 @@ public class EdDSASignerTest extends BaseJWTTest {
     JWT actual = JWT.getDecoder().decode(encodedJWT, verifier);
 
     assertEquals(actual.subject, jwt.subject);
-    assertEquals(actual.header.algorithm.name(), "EdDSA");
+    assertEquals(actual.header.algorithm.name(), "Ed25519");
+
+    Verifier verifier448 = EdDSAVerifier.newVerifier(getPath("ed_dsa_ed448_public_key.pem"));
+    try {
+      // You can't double stamp a triple stamp, or verify a JWT signed using Ed25519 with an Ed448 verifier.
+      JWT.getDecoder().decode(encodedJWT, verifier448);
+      fail("Expected an exception to be thrown.");
+    } catch (Exception e) {
+      assertTrue(e instanceof MissingVerifierException);
+      assertEquals(e.getMessage(), "No Verifier has been provided for verify a signature signed using [Ed25519]");
+    }
   }
 
   @Test

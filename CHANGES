@@ -4,6 +4,10 @@ Changes in 6.0.0
  * Move to Java 17 LTS as the minimum requirement.
  * Remove CryptoProvider and just use JCE to use a third party provider such as BouncyCastle.
    * Tested against Bouncy Castle FIPS provider, but any provider could be used.
+ * Added support for EdDSA curves Ed25519 and Ed448.
+   * It is is not advised to use the EdDSA alg header as it has bee deprecated in favor of Ed25519 and Ed448.
+   * In order to use the OpenIDConnect c_hash or at_hash methods with the Ed448 algorithm, you will need to register a crypto provider that can provide the SHAKE256 digest, such as BouncyCastle.
+     * Using these methods with the default Java JCA will throw an exception because the SHAKE256 message digest will not be found.
 
 Changes in 5.3.3
 

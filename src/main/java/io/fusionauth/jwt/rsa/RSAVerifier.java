@@ -119,14 +119,10 @@ public class RSAVerifier implements Verifier {
   @Override
   @SuppressWarnings("Duplicates")
   public boolean canVerify(Algorithm algorithm) {
-    switch (algorithm) {
-      case RS256:
-      case RS384:
-      case RS512:
-        return true;
-      default:
-        return false;
-    }
+    return switch (algorithm) {
+      case RS256, RS384, RS512 -> true;
+      default -> false;
+    };
   }
 
   public void verify(Algorithm algorithm, byte[] message, byte[] signature) {

@@ -42,26 +42,24 @@ public class EdDSASigner implements Signer {
 
   private final EdECPrivateKey privateKey;
 
-  private EdDSASigner(Algorithm algorithm, PrivateKey privateKey, String kid) {
-    Objects.requireNonNull(algorithm);
+  private EdDSASigner(PrivateKey privateKey, String kid) {
     Objects.requireNonNull(privateKey);
-
-    this.algorithm = algorithm;
-    this.kid = kid;
 
     if (!(privateKey instanceof EdECPrivateKey)) {
       throw new InvalidKeyTypeException("Expecting a private key of type [EdECPrivateKey], but found [" + privateKey.getClass().getSimpleName() + "].");
     }
 
+    this.kid = kid;
     this.privateKey = (EdECPrivateKey) privateKey;
+    this.algorithm = Algorithm.fromName(this.privateKey.getParams().getName());
+    if (this.algorithm == null) {
+      throw new InvalidKeyTypeException("Unsupported algorithm reported by the private key. [" + this.privateKey.getParams().getName() + "].");
+    }
   }
 
-  private EdDSASigner(Algorithm algorithm, String privateKey, String kid) {
-    Objects.requireNonNull(algorithm);
+  private EdDSASigner(String privateKey, String kid) {
     Objects.requireNonNull(privateKey);
 
-    this.algorithm = algorithm;
-    this.kid = kid;
     PEM pem = PEM.decode(privateKey);
     if (pem.privateKey == null) {
       throw new MissingPrivateKeyException("The provided PEM encoded string did not contain a private key.");
@@ -71,7 +69,12 @@ public class EdDSASigner implements Signer {
       throw new InvalidKeyTypeException("Expecting a private key of type [EdECPrivateKey], but found [" + pem.privateKey.getClass().getSimpleName() + "].");
     }
 
+    this.kid = kid;
     this.privateKey = pem.getPrivateKey();
+    this.algorithm = Algorithm.fromName(this.privateKey.getParams().getName());
+    if (this.algorithm == null) {
+      throw new InvalidKeyTypeException("Unsupported algorithm reported by the private key. [" + this.privateKey.getParams().getName() + "].");
+    }
   }
 
   /**
@@ -82,7 +85,7 @@ public class EdDSASigner implements Signer {
    * @return a new EdDSA signer.
    */
   public static EdDSASigner newSigner(PrivateKey privateKey, String kid) {
-    return new EdDSASigner(Algorithm.EdDSA, privateKey, kid);
+    return new EdDSASigner(privateKey, kid);
   }
 
   /**
@@ -92,7 +95,7 @@ public class EdDSASigner implements Signer {
    * @return a new EdDSA signer.
    */
   public static EdDSASigner newSigner(PrivateKey privateKey) {
-    return new EdDSASigner(Algorithm.EdDSA, privateKey, null);
+    return new EdDSASigner(privateKey, null);
   }
 
   /**
@@ -103,7 +106,7 @@ public class EdDSASigner implements Signer {
    * @return a new EdDSA signer.
    */
   public static EdDSASigner newSigner(String privateKey, String kid) {
-    return new EdDSASigner(Algorithm.EdDSA, privateKey, kid);
+    return new EdDSASigner(privateKey, kid);
   }
 
   /**
@@ -113,12 +116,12 @@ public class EdDSASigner implements Signer {
    * @return a new EdDSA signer.
    */
   public static EdDSASigner newSigner(String privateKey) {
-    return new EdDSASigner(Algorithm.EdDSA, privateKey, null);
+    return new EdDSASigner(privateKey, null);
   }
 
   @Override
   public Algorithm getAlgorithm() {
-    return Algorithm.EdDSA;
+    return this.algorithm;
   }
 
   @Override

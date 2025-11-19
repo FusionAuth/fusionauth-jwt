@@ -20,7 +20,7 @@ We are very interested in compensating anyone that can identify a security relat
    - `PS256` 
    - `PS384`
    - `PS512`
-   - `EdDSA` (`ed25519` and `ed448`)
+   - `EdDSA` (`Ed25519` and `Ed448`)
  - Support for Bouncy Castle JCE or other third party providers.   
  - PEM decoding / encoding
    - Decode PEM files to PrivateKey or PublicKey

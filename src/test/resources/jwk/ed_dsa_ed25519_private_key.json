@@ -1,5 +1,5 @@
 {
-  "alg": "EdDSA",
+  "alg": "Ed25519",
   "crv": "Ed25519",
   "d": "GTDyWShKV_tcBWleClj9I9qxuSCqoxPrGvV5-RZSeJU",
   "kty": "OKP",

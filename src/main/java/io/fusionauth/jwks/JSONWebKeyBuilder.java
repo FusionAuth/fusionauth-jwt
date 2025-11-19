@@ -126,7 +126,7 @@ public class JSONWebKeyBuilder {
       key.y = base64EncodeUint(ecPrivateKey.getParams().getGenerator().getAffineY(), byteLength);
     } else if (privateKey instanceof EdECPrivateKey edPrivateKey) {
       key.crv = getCurveOID(edPrivateKey);
-      key.alg = Algorithm.EdDSA;
+      key.alg = Algorithm.fromName(key.crv);
 
       var privateKeyBytes = edPrivateKey.getBytes().orElseThrow(() -> new JSONWebKeyBuilderException("Unable to obtain the private key bytes."));
       key.d = Base64.getUrlEncoder().withoutPadding().encodeToString(privateKeyBytes);
@@ -181,8 +181,8 @@ public class JSONWebKeyBuilder {
       key.x = base64EncodeUint(ecPublicKey.getW().getAffineX(), byteLength);
       key.y = base64EncodeUint(ecPublicKey.getW().getAffineY(), byteLength);
     } else if (key.kty == KeyType.OKP) {
-      key.alg = Algorithm.EdDSA;
       key.crv = getCurveOID(publicKey);
+      key.alg = Algorithm.fromName(key.crv);
       int keyLength = KeyUtils.getKeyLength(publicKey);
       if (publicKey instanceof EdECPublicKey edECPublicKey) {
         key.y = base64EncodeUint(edECPublicKey.getPoint().getY(), keyLength);

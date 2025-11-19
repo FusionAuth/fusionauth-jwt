@@ -63,19 +63,22 @@ public class OpenIDConnect {
     leftMostBits = switch (algorithm) {
       case ES256, HS256, RS256 -> {
         messageDigest = getDigest("SHA-256");
-        yield 128;
+        yield 128; // 32 * 8 / 2 = 256
       }
       case ES384, HS384, RS384 -> {
         messageDigest = getDigest("SHA-384");
-        yield 192;
+        yield 192; // 48 * 8 / 2 = 192
       }
-      case EdDSA, ES512, HS512, RS512 -> {
-        // Note that EdDSA ed25519 uses SHA-512. But EdDSA ed448 uses SHAKE256. No standard has been published
-        // such that the consumer of the at_hash or c_hash would know which curve was being used with the EdDSA algorithm.
-        // - Defaulting to SHA-512, but this means the hash may be unpredictable if you choose to utilize ed448.
-        // - Discussion: https://bitbucket.org/openid/connect/issues/1125/_hash-algorithm-for-eddsa-id-tokens
+      case Ed25519, ES512, HS512, RS512 -> {
         messageDigest = getDigest("SHA-512");
-        yield 256;
+        yield 256; // 64 * 8 / 2 = 256
+      }
+      case Ed448 -> {
+        // Ed448 uses a 114 byte SHAKE256 hash. The recommended hash length here is the same, see discussion thread:
+        // - https://bitbucket.org/openid/connect/issues/1125
+        // The JCA does not ship with SHAKE256, expect this to exception if you have not registered a provider with support for this algorithm (such as BC)
+        messageDigest = getDigest("SHAKE256");
+        yield 456; // 114 * 8 / 2 = 456
       }
       default ->
           throw new IllegalArgumentException("You specified an unsupported algorithm. The algorithm [" + algorithm + "]"
