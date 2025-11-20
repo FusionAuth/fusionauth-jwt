@@ -38,7 +38,6 @@ import java.security.interfaces.ECKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.EdECPrivateKey;
-import java.security.interfaces.EdECPublicKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -185,11 +184,11 @@ public class JSONWebKeyBuilder {
     } else if (key.kty == KeyType.OKP) {
       key.crv = getCurveOID(publicKey);
       key.alg = Algorithm.fromName(key.crv);
-      int keyLength = KeyUtils.getKeyLength(publicKey);
-      if (publicKey instanceof EdECPublicKey edECPublicKey) {
-        key.y = base64EncodeUint(edECPublicKey.getPoint().getY(), keyLength);
-      }
 
+      // Intentionally not returning the y coordinate for an Ed25519 or Ed448 key.
+      // - The x coordinate contains the complete public key. This contains the y coordinate
+      //   and a single bit indicating the sign of the x coordinate.
+      int keyLength = KeyUtils.getKeyLength(publicKey);
       byte[] publicKeyBytes;
       try {
         var sequence = new DerInputStream(publicKey.getEncoded()).getSequence();

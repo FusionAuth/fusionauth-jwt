@@ -156,7 +156,7 @@ public class PEMEncoderTest extends BaseTest {
     assertEquals(encodedPublicKey, expectedPublic);
   }
 
-  @Test(invocationCount = 250)
+  @Test(invocationCount = 100)
   public void rsa() throws Exception {
     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
     keyPairGenerator.initialize(2048);

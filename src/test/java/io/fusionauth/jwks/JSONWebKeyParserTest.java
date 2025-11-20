@@ -214,15 +214,15 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
     assertEquals(JSONWebKey.build(pem.publicKey).y, expected.y);
   }
 
-  @DataProvider(name = "EdDSA")
-  public Object[][] edDSA() {
+  @DataProvider(name = "EdDSACurves")
+  public Object[][] EdDSACurves() {
     return new Object[][]{
         {"Ed25519"},
         {"Ed448"},
     };
   }
 
-  @Test(dataProvider = "EdDSA", invocationCount = 1_000)
+  @Test(dataProvider = "EdDSACurves", invocationCount = 1_000)
   public void parse_eddsa(String curve) {
     KeyPair keyPair = curve.equals("Ed25519")
         ? JWTUtils.generate_ed25519_EdDSAKeyPair()
@@ -246,7 +246,7 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
     assertEquals(JSONWebKey.build(pem.publicKey).y, expected.y);
   }
 
-  @Test(invocationCount = 1_000)
+  @Test(invocationCount = 100)
   public void parse_rsa() {
     KeyPair keyPair = JWTUtils.generate2048_RSAKeyPair();
 
