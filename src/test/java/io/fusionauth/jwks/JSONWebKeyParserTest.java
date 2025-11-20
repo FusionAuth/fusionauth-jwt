@@ -37,6 +37,7 @@ import static io.fusionauth.jwks.JWKUtils.base64DecodeUint;
 import static io.fusionauth.jwks.JWKUtils.base64EncodeUint;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.fail;
 
 /**
@@ -229,21 +230,36 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
         : JWTUtils.generate_ed448_EdDSAKeyPair();
 
     // Build a JSON Web Key from our own EdDSA key pair
-    JSONWebKey expected = JSONWebKey.build(keyPair.publicKey);
-    expected.alg = Algorithm.Ed25519;
+    JSONWebKey expectedPublicJWK = JSONWebKey.build(keyPair.publicKey);
+    expectedPublicJWK.alg = Algorithm.Ed25519;
+    expectedPublicJWK.kty = KeyType.OKP;
+    assertNotNull(expectedPublicJWK.x);
+    assertNull(expectedPublicJWK.y);
 
-    PublicKey publicKey = JSONWebKey.parse(expected);
+    PublicKey publicKey = JSONWebKey.parse(expectedPublicJWK);
     assertNotNull(publicKey);
 
     // Compare to the original expected key
-    String encodedPEM = PEM.encode(publicKey);
-    assertEquals(JSONWebKey.build(encodedPEM).x, expected.x);
-    assertEquals(JSONWebKey.build(encodedPEM).y, expected.y);
+    String encodedPublicPEM = PEM.encode(publicKey);
+    assertEquals(JSONWebKey.build(encodedPublicPEM).x, expectedPublicJWK.x);
 
     // Get the public key from the PEM, and assert against the expected values
-    PEM pem = PEM.decode(encodedPEM);
-    assertEquals(JSONWebKey.build(pem.publicKey).x, expected.x);
-    assertEquals(JSONWebKey.build(pem.publicKey).y, expected.y);
+    PEM pem = PEM.decode(encodedPublicPEM);
+    assertEquals(JSONWebKey.build(pem.publicKey).x, expectedPublicJWK.x);
+
+    // Build a JWK of the private key
+    JSONWebKey expectedPrivateJWK = JSONWebKey.build(keyPair.privateKey);
+    expectedPrivateJWK.alg = Algorithm.Ed25519;
+    expectedPrivateJWK.kty = KeyType.OKP;
+    assertNotNull(expectedPrivateJWK.d);
+    assertNotNull(expectedPrivateJWK.x);
+    assertNull(expectedPrivateJWK.e);
+    assertNull(expectedPrivateJWK.p);
+    assertNull(expectedPrivateJWK.q);
+    assertNull(expectedPrivateJWK.y);
+
+    // x should match between public and private
+    assertEquals(expectedPrivateJWK.x, expectedPublicJWK.x);
   }
 
   @Test(invocationCount = 100)
