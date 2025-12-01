@@ -58,9 +58,8 @@ public class OpenIDConnect {
     Objects.requireNonNull(string);
     Objects.requireNonNull(algorithm);
 
-    int leftMostBits;
     MessageDigest messageDigest;
-    leftMostBits = switch (algorithm) {
+    int leftMostBits = switch (algorithm) {
       case ES256, HS256, RS256 -> {
         messageDigest = getDigest("SHA-256");
         yield 128; // 32 * 8 / 2 = 256

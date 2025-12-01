@@ -88,13 +88,8 @@ public class OpenIdConnectTest extends BaseTest {
 
     // The JCA does not ship with SHAKE256 which will be used to calculate the hash for Ed448.
     // - Expect this to fail unless FIPS has been enabled.
-    try {
-      assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.Ed448), "ACuRpk9jl5IEa3yqpBCNNOCpBEI7qjud6mc80cs6vWX2fcqpsk8RozYBKTUuSS6SqJhw302xFZeM");
-    } catch (Exception e) {
-      if (FipsEnabled) {
-        throw e;
-      }
-    }
+    requiresShake256(() ->
+        assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.Ed448), "ACuRpk9jl5IEa3yqpBCNNOCpBEI7qjud6mc80cs6vWX2fcqpsk8RozYBKTUuSS6SqJhw302xFZeM"));
 
     // Controls
     assertEquals(c_hash("16fd899f-5f0c-3114-875e-2547b629cd05", Algorithm.HS256), "S5UOXRNNyYsI6Z0G3xxdpw");

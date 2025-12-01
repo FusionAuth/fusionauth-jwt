@@ -98,8 +98,29 @@ public class KeyUtils {
    */
   public static byte[] deriveEdDSAPublicKeyFromPrivate(byte[] privateKey, String curve) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(curve);
+
+    // Ensure the curve is expected, and we can identify the expected key length.
+    String algorithm = keyPairGenerator.getAlgorithm();
+    int expectedByteLength = switch (algorithm) {
+      case "Ed25519" -> 32;
+      case "Ed448" -> 57;
+      default ->
+          throw new IllegalArgumentException("You specified an unsupported algorithm. The algorithm [" + algorithm + "]"
+              + " is not supported. You must use Ed25519 or Ed448.");
+    };
+
+    // Ensure the caller provided a key of the correct length.
+    if (privateKey.length != expectedByteLength) {
+      throw new IllegalArgumentException("The provided privateKey length is unexpected. Expected [" + expectedByteLength + "] but found [" + privateKey.length + "]");
+    }
+
     keyPairGenerator.initialize(new NamedParameterSpec(curve), new SecureRandom() {
       public void nextBytes(byte[] bytes) {
+        // Note that because we pass the curve to the NamedParameterSpec constructor, it would be unexpected that the provided
+        // byte array would not fit the expected key length. As a fail save, ensure it fits.
+        if (bytes.length != privateKey.length) {
+          throw new IllegalStateException("Provided bytes array is not large enough for the key. Expected [" + privateKey.length + "] but found [" + bytes.length + "]");
+        }
         System.arraycopy(privateKey, 0, bytes, 0, privateKey.length);
       }
     });

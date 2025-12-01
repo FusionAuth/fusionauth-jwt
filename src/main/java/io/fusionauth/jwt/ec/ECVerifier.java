@@ -157,7 +157,7 @@ public class ECVerifier implements Verifier {
       verifier.update(message);
 
       byte[] derEncoded = new ECDSASignature(signature).derEncode();
-      if (!(verifier.verify(derEncoded))) {
+      if (!verifier.verify(derEncoded)) {
         throw new InvalidJWTSignatureException();
       }
     } catch (InvalidKeyException | IOException | NoSuchAlgorithmException | SignatureException | SecurityException e) {

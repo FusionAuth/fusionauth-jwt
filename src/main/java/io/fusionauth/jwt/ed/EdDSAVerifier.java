@@ -129,7 +129,7 @@ public class EdDSAVerifier implements Verifier {
       verifier.initVerify(publicKey);
       verifier.update(message);
 
-      if (!(verifier.verify(signature))) {
+      if (!verifier.verify(signature)) {
         throw new InvalidJWTSignatureException();
       }
     } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {

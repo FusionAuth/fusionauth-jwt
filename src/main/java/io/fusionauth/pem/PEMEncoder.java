@@ -98,8 +98,7 @@ public class PEMEncoder {
       throw new PEMEncoderException(new InvalidParameterException("At least one key must be provided, they may not both be null"));
     }
 
-    Key key;
-    key = Objects.requireNonNullElse(privateKey, publicKey);
+    Key key = Objects.requireNonNullElse(privateKey, publicKey);
     StringBuilder sb = new StringBuilder();
     addOpeningTag(key, sb);
     try {
