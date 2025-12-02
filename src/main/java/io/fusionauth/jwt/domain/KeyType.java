@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ package io.fusionauth.jwt.domain;
 import java.util.Objects;
 
 import static io.fusionauth.der.ObjectIdentifier.EC_ENCRYPTION;
+import static io.fusionauth.der.ObjectIdentifier.EdDSA_25519;
+import static io.fusionauth.der.ObjectIdentifier.EdDSA_448;
+import static io.fusionauth.der.ObjectIdentifier.RSASSA_PSS_ENCRYPTION;
 import static io.fusionauth.der.ObjectIdentifier.RSA_ENCRYPTION;
 
 /**
@@ -34,19 +37,30 @@ import static io.fusionauth.der.ObjectIdentifier.RSA_ENCRYPTION;
  * @author Daniel DeGroff
  */
 public enum KeyType {
-  RSA,
-  EC;
+  RSA("RSA"),
+  RSASSA_PSS("RSASSA-PSS"),
+  EC("EC"),
+  OKP("EdDSA");
+
+  private final String algorithm;
+
+  KeyType(String algorithm) {
+    this.algorithm = algorithm;
+  }
 
   public static KeyType getKeyTypeFromOid(String oid) {
     Objects.requireNonNull(oid);
 
-    switch (oid) {
-      case EC_ENCRYPTION:
-        return EC;
-      case RSA_ENCRYPTION:
-        return RSA;
-      default:
-        return null;
-    }
+    return switch (oid) {
+      case EC_ENCRYPTION -> EC;
+      case EdDSA_448, EdDSA_25519 -> OKP;
+      case RSA_ENCRYPTION -> RSA;
+      case RSASSA_PSS_ENCRYPTION -> RSASSA_PSS;
+      default -> null;
+    };
+  }
+
+  public String getAlgorithm() {
+    return algorithm;
   }
 }

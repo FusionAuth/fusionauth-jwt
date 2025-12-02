@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2020-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package io.fusionauth.security;
 
+import io.fusionauth.jwt.JWTUtils;
 import io.fusionauth.pem.domain.PEM;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -28,6 +29,16 @@ import java.util.Base64;
 import static org.testng.Assert.assertEquals;
 
 /**
+ * Note that the higher invocationCount parameters are helpful to indentify incorrect assumptions in key parsing.
+ * <p>
+ * Key lengths can differ, and when encoding larger integers in DER encode sequences, or parsing them in and out of
+ * JWK formats, we want to be certain we are not making incorrect assumptions. During development, you may wish to
+ * run some of these with 5-10k invocation counts to ensure these types of anomalies are un-covered and addressed.
+ * <p>
+ * It may be reasonable to reduce the invocation counts if tests take too long to run - once we know that the tests
+ * will pass with a high number of invocations. However, the time is not yet that significant, and there is value to
+ * ensuring that the same result can be expected regardless of the number of times we run the same test.
+ *
  * @author Daniel DeGroff
  */
 public class KeyUtilsTests {
@@ -60,7 +71,7 @@ public class KeyUtilsTests {
 
   // Running 500 times to ensure we get consistency. EC keys can vary in length, but the "reported" size returned
   // from the .getKeyLength() should be consistent. Out of 500 tests (if we had an error in the logic) we may get 1-5
-  // failures where the key is not an exact size and we have to figure out which key size it should be reported as.
+  // failures where the key is not an exact size, and we have to figure out which key size it should be reported as.
   // - For testing locally, you can ramp up this invocation count to 100k or something like that to prove that we have
   //   consistency over time.
   @Test(dataProvider = "ecKeyLengths", invocationCount = 500)
@@ -108,5 +119,33 @@ public class KeyUtilsTests {
 
     assertEquals(KeyUtils.getKeyLength(keyPair.getPrivate()), privateKeySize);
     assertEquals(KeyUtils.getKeyLength(keyPair.getPublic()), publicKeySize);
+  }
+
+  @Test
+  public void eddsa_25519_keyLength() throws Exception {
+    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("Ed25519");
+    KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+    assertEquals(KeyUtils.getKeyLength(keyPair.getPrivate()), 32);
+    assertEquals(KeyUtils.getKeyLength(keyPair.getPublic()), 32);
+
+    io.fusionauth.jwt.domain.KeyPair keyPair2 = JWTUtils.generate_ed25519_EdDSAKeyPair();
+    PEM pem = PEM.decode(keyPair2.privateKey);
+    assertEquals(KeyUtils.getKeyLength(pem.privateKey), 32);
+    assertEquals(KeyUtils.getKeyLength(pem.publicKey), 32);
+  }
+
+  @Test
+  public void eddsa_448_keyLength() throws Exception {
+    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("Ed448");
+    KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+    assertEquals(KeyUtils.getKeyLength(keyPair.getPrivate()), 57);
+    assertEquals(KeyUtils.getKeyLength(keyPair.getPublic()), 57);
+
+    io.fusionauth.jwt.domain.KeyPair keyPair2 = JWTUtils.generate_ed448_EdDSAKeyPair();
+    PEM pem = PEM.decode(keyPair2.privateKey);
+    assertEquals(KeyUtils.getKeyLength(pem.privateKey), 57);
+    assertEquals(KeyUtils.getKeyLength(pem.publicKey), 57);
   }
 }

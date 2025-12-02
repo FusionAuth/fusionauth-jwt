@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -150,34 +150,23 @@ public class Tag {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof Tag)) return false;
-    Tag tag = (Tag) o;
+    if (!(o instanceof Tag tag)) return false;
     return rawByte == tag.rawByte;
   }
 
   public String getName() {
-    switch (rawByte) {
-      case Integer:
-        return "Integer";
-      case BitString:
-        return "Bit String";
-      case Null:
-        return "Null";
-      case ObjectIdentifier:
-        return "Object Identifier";
-      case OctetString:
-        return "Octet String";
-      case PrintableString:
-        return "PrintableString";
-      case Sequence:
-        return "Sequence";
-      case Set:
-        return "Set";
-      case UTCTime:
-        return "UTCTime";
-      default:
-        return "Other";
-    }
+    return switch (rawByte) {
+      case Integer -> "Integer";
+      case BitString -> "Bit String";
+      case Null -> "Null";
+      case ObjectIdentifier -> "Object Identifier";
+      case OctetString -> "Octet String";
+      case PrintableString -> "PrintableString";
+      case Sequence -> "Sequence";
+      case Set -> "Set";
+      case UTCTime -> "UTCTime";
+      default -> "Other";
+    };
   }
 
   @Override

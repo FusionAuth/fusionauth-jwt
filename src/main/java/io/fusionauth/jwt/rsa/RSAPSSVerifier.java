@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2020-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,14 +122,10 @@ public class RSAPSSVerifier implements Verifier {
   @Override
   @SuppressWarnings("Duplicates")
   public boolean canVerify(Algorithm algorithm) {
-    switch (algorithm) {
-      case PS256:
-      case PS384:
-      case PS512:
-        return true;
-      default:
-        return false;
-    }
+    return switch (algorithm) {
+      case PS256, PS384, PS512 -> true;
+      default -> false;
+    };
   }
 
   public void verify(Algorithm algorithm, byte[] message, byte[] signature) {
@@ -139,7 +135,8 @@ public class RSAPSSVerifier implements Verifier {
 
     try {
       Signature verifier = Signature.getInstance("RSASSA-PSS");
-      verifier.setParameter(new PSSParameterSpec(algorithm.getName(), "MGF1", new MGF1ParameterSpec(algorithm.getName()), algorithm.getSaltLength(), 1));
+      String digestName = algorithm.getDigest();
+      verifier.setParameter(new PSSParameterSpec(digestName, "MGF1", new MGF1ParameterSpec(digestName), algorithm.getSaltLength(), 1));
       verifier.initVerify(publicKey);
       verifier.update(message);
       if (!verifier.verify(signature)) {

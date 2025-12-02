@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2024, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,20 +71,13 @@ public class ECDSASignature {
     byte[] s = sequence[1].getPositiveBigInteger().toByteArray();
 
     // The length of the result is fixed and discrete per algorithm.
-    byte[] result;
-    switch (algorithm) {
-      case ES256:
-        result = new byte[64];
-        break;
-      case ES384:
-        result = new byte[96];
-        break;
-      case ES512:
-        result = new byte[132];
-        break;
-      default:
-        throw new IllegalArgumentException("Unable to decode the signature for algorithm [" + algorithm.name() + "]");
-    }
+    byte[] result = switch (algorithm) {
+      case ES256 -> new byte[64];
+      case ES384 -> new byte[96];
+      case ES512 -> new byte[132];
+      default ->
+          throw new IllegalArgumentException("Unable to decode the signature for algorithm [" + algorithm.name() + "]");
+    };
 
     // Because the response is not encoded, the r and s component must take up an equal amount of the resulting array.
     // This allows the consumer of this value to always safely split the value in half based upon an index value since

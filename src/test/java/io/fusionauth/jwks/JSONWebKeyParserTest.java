@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,12 +35,22 @@ import java.security.interfaces.RSAPublicKey;
 
 import static io.fusionauth.jwks.JWKUtils.base64DecodeUint;
 import static io.fusionauth.jwks.JWKUtils.base64EncodeUint;
-import static io.fusionauth.jwt.domain.Algorithm.RS256;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.fail;
 
 /**
+ * Note that the higher invocationCount parameters are helpful to indentify incorrect assumptions in key parsing.
+ * <p>
+ * Key lengths can differ, and when encoding larger integers in DER encode sequences, or parsing them in and out of
+ * JWK formats, we want to be certain we are not making incorrect assumptions. During development, you may wish to
+ * run some of these with 5-10k invocation counts to ensure these types of anomalies are un-covered and addressed.
+ * <p>
+ * It may be reasonable to reduce the invocation counts if tests take too long to run - once we know that the tests
+ * will pass with a high number of invocations. However, the time is not yet that significant, and there is value to
+ * ensuring that the same result can be expected regardless of the number of times we run the same test.
+ *
  * @author Daniel DeGroff
  */
 public class JSONWebKeyParserTest extends BaseJWTTest {
@@ -136,7 +146,6 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
     assertEquals(JSONWebKey.build(pem.publicKey).y, expected.y);
   }
 
-
   @Test(dataProvider = "rsaPublicKeys")
   public void parse_well_known(String exponent, String modulus) {
     JSONWebKey expected = new JSONWebKey();
@@ -184,7 +193,7 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
     assertEquals(key.e, encodedE);
   }
 
-  @Test
+  @Test(invocationCount = 1_000)
   public void parse_ec() {
     KeyPair keyPair = JWTUtils.generate256_ECKeyPair();
 
@@ -206,13 +215,60 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
     assertEquals(JSONWebKey.build(pem.publicKey).y, expected.y);
   }
 
-  @Test
+  @DataProvider(name = "EdDSACurves")
+  public Object[][] EdDSACurves() {
+    return new Object[][]{
+        {"Ed25519"},
+        {"Ed448"},
+    };
+  }
+
+  @Test(dataProvider = "EdDSACurves", invocationCount = 1_000)
+  public void parse_eddsa(String curve) {
+    KeyPair keyPair = curve.equals("Ed25519")
+        ? JWTUtils.generate_ed25519_EdDSAKeyPair()
+        : JWTUtils.generate_ed448_EdDSAKeyPair();
+
+    // Build a JSON Web Key from our own EdDSA key pair
+    JSONWebKey expectedPublicJWK = JSONWebKey.build(keyPair.publicKey);
+    expectedPublicJWK.alg = Algorithm.Ed25519;
+    expectedPublicJWK.kty = KeyType.OKP;
+    assertNotNull(expectedPublicJWK.x);
+    assertNull(expectedPublicJWK.y);
+
+    PublicKey publicKey = JSONWebKey.parse(expectedPublicJWK);
+    assertNotNull(publicKey);
+
+    // Compare to the original expected key
+    String encodedPublicPEM = PEM.encode(publicKey);
+    assertEquals(JSONWebKey.build(encodedPublicPEM).x, expectedPublicJWK.x);
+
+    // Get the public key from the PEM, and assert against the expected values
+    PEM pem = PEM.decode(encodedPublicPEM);
+    assertEquals(JSONWebKey.build(pem.publicKey).x, expectedPublicJWK.x);
+
+    // Build a JWK of the private key
+    JSONWebKey expectedPrivateJWK = JSONWebKey.build(keyPair.privateKey);
+    expectedPrivateJWK.alg = Algorithm.Ed25519;
+    expectedPrivateJWK.kty = KeyType.OKP;
+    assertNotNull(expectedPrivateJWK.d);
+    assertNotNull(expectedPrivateJWK.x);
+    assertNull(expectedPrivateJWK.e);
+    assertNull(expectedPrivateJWK.p);
+    assertNull(expectedPrivateJWK.q);
+    assertNull(expectedPrivateJWK.y);
+
+    // x should match between public and private
+    assertEquals(expectedPrivateJWK.x, expectedPublicJWK.x);
+  }
+
+  @Test(invocationCount = 100)
   public void parse_rsa() {
     KeyPair keyPair = JWTUtils.generate2048_RSAKeyPair();
 
     // Build a JSON Web Key from our own RSA key pair
     JSONWebKey expected = JSONWebKey.build(keyPair.publicKey);
-    expected.alg = RS256;
+    expected.alg = Algorithm.RS256;
 
     PublicKey publicKey = JSONWebKey.parse(expected);
     assertNotNull(publicKey);

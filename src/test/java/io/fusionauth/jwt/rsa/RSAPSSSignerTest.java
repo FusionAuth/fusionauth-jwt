@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, FusionAuth, All Rights Reserved
+ * Copyright (c) 2017-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,11 @@ public class RSAPSSSignerTest extends BaseJWTTest {
     assertNotNull(RSAPSSSigner.newSHA512Signer(readFile("rsa_private_key_2048_with_meta.pem")));
     assertNotNull(RSAPSSSigner.newSHA512Signer(readFile("rsa_private_key_3072.pem")));
     assertNotNull(RSAPSSSigner.newSHA512Signer(readFile("rsa_private_key_4096.pem")));
+
+    // RSA PSS keys
+    assertNotNull(RSAPSSSigner.newSHA256Signer(readFile("rsa_pss_private_key_2048.pem")));
+    assertNotNull(RSAPSSSigner.newSHA384Signer(readFile("rsa_pss_private_key_3072.pem")));
+    assertNotNull(RSAPSSSigner.newSHA512Signer(readFile("rsa_pss_private_key_4096.pem")));
 
     // With kid
     assertEquals(RSAPSSSigner.newSHA256Signer(readFile("rsa_private_key_2048.pem"), "abc").getKid(), "abc");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import java.security.interfaces.ECPrivateKey;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 
 import static io.fusionauth.pem.domain.PEM.X509_CERTIFICATE_PREFIX;
 import static io.fusionauth.pem.domain.PEM.X509_CERTIFICATE_SUFFIX;
@@ -86,7 +87,7 @@ public class PEMEncoder {
    * If <code>null</code> is passed for one of the two parameters, a PEM will be returned that only includes the non-null
    * value.
    * <p>
-   * Both values may no be null.
+   * Both values may not be null.
    *
    * @param privateKey the private key
    * @param publicKey  the public key
@@ -97,13 +98,7 @@ public class PEMEncoder {
       throw new PEMEncoderException(new InvalidParameterException("At least one key must be provided, they may not both be null"));
     }
 
-    Key key;
-    if (privateKey == null) {
-      key = publicKey;
-    } else {
-      key = privateKey;
-    }
-
+    Key key = Objects.requireNonNullElse(privateKey, publicKey);
     StringBuilder sb = new StringBuilder();
     addOpeningTag(key, sb);
     try {

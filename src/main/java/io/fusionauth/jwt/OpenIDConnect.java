@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,31 +58,31 @@ public class OpenIDConnect {
     Objects.requireNonNull(string);
     Objects.requireNonNull(algorithm);
 
-    int leftMostBits;
     MessageDigest messageDigest;
-    switch (algorithm) {
-      case ES256:
-      case HS256:
-      case RS256:
+    int leftMostBits = switch (algorithm) {
+      case ES256, HS256, RS256 -> {
         messageDigest = getDigest("SHA-256");
-        leftMostBits = 128;
-        break;
-      case ES384:
-      case HS384:
-      case RS384:
+        yield 128; // 32 * 8 / 2 = 256
+      }
+      case ES384, HS384, RS384 -> {
         messageDigest = getDigest("SHA-384");
-        leftMostBits = 192;
-        break;
-      case ES512:
-      case HS512:
-      case RS512:
+        yield 192; // 48 * 8 / 2 = 192
+      }
+      case Ed25519, ES512, HS512, RS512 -> {
         messageDigest = getDigest("SHA-512");
-        leftMostBits = 256;
-        break;
-      default:
-        throw new IllegalArgumentException("You specified an unsupported algorithm. The algorithm [" + algorithm + "]"
-            + " is not supported. You must use ES256, ES384, ES512,  HS256, HS384, HS512, RS256, RS384 or RS512.");
-    }
+        yield 256; // 64 * 8 / 2 = 256
+      }
+      case Ed448 -> {
+        // Ed448 uses a 114 byte SHAKE256 hash. The recommended hash length here is the same, see discussion thread:
+        // - https://bitbucket.org/openid/connect/issues/1125
+        // The JCA does not ship with SHAKE256, expect this to exception if you have not registered a provider with support for this algorithm (such as BC)
+        messageDigest = getDigest("SHAKE256");
+        yield 456; // 114 * 8 / 2 = 456
+      }
+      default ->
+          throw new IllegalArgumentException("You specified an unsupported algorithm. The algorithm [" + algorithm + "]"
+              + " is not supported. You must use Ed25519, Ed448, ES256, ES384, ES512,  HS256, HS384, HS512, RS256, RS384 or RS512.");
+    };
 
     byte[] digest = string.getBytes(StandardCharsets.UTF_8);
     digest = messageDigest.digest(digest);

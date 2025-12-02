@@ -31,7 +31,12 @@ import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.ECPublicKeySpec;
+import java.security.spec.EdECPoint;
+import java.security.spec.EdECPublicKeySpec;
+import java.security.spec.KeySpec;
+import java.security.spec.NamedParameterSpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Base64;
 import java.util.Objects;
 
 import static io.fusionauth.jwks.JWKUtils.base64DecodeUint;
@@ -40,9 +45,8 @@ import static io.fusionauth.jwks.JWKUtils.base64DecodeUint;
  * @author Daniel DeGroff
  */
 public class JSONWebKeyParser {
-
   /**
-   * Parse a JSON Web Key and extract the the public key.
+   * Parse a JSON Web Key and extract the public key.
    *
    * @param key the JSON web key
    * @return the public key
@@ -57,7 +61,7 @@ public class JSONWebKeyParser {
         BigInteger publicExponent = base64DecodeUint(key.e);
         PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
 
-        // If an x5c is found in the key, verify the public key
+        // If the x5c is non-null, verify the public key
         if (key.x5c != null && key.x5c.size() > 0) {
           verifyX5cRSA(key, modulus, publicExponent);
         }
@@ -86,12 +90,27 @@ public class JSONWebKeyParser {
         ECPoint ecPoint = new ECPoint(xCoordinate, yCoordinate);
         PublicKey publicKey = KeyFactory.getInstance("EC").generatePublic(new ECPublicKeySpec(ecPoint, ecParameterSpec));
 
-        // If an x5c is found in the key, verify the public key
+        // If the x5x is non-null, verify the public key
         if (key.x5c != null && key.x5c.size() > 0) {
           verifyX5cEC(key, xCoordinate, yCoordinate);
         }
 
         return publicKey;
+      } else if (key.kty == KeyType.OKP) {
+        if (!"Ed25519".equals(key.crv) && !"Ed448".equals(key.crv)) {
+          throw new UnsupportedOperationException("Only a Ed25519 or Ed448 OKP JSON Web key may be parsed.");
+        }
+
+        byte[] bytes = Base64.getUrlDecoder().decode(key.x);
+        reverseArray(bytes);
+
+        int lastBit = bytes[0] & 0xFF;
+        boolean xOdd = (lastBit & 0b1000_0000) == 0b1000_0000;
+        bytes[0] = (byte) (lastBit & Byte.MAX_VALUE);
+        BigInteger y = new BigInteger(1, bytes);
+
+        KeySpec keySpec = new EdECPublicKeySpec(new NamedParameterSpec(key.crv), new EdECPoint(xOdd, y));
+        return KeyFactory.getInstance(key.crv).generatePublic(keySpec);
       }
     } catch (JSONWebKeyParserException e) {
       throw e;
@@ -99,7 +118,7 @@ public class JSONWebKeyParser {
       throw new JSONWebKeyParserException("Failed to parse the provided JSON Web Key", e);
     }
 
-    throw new UnsupportedOperationException("Only RSA or EC JSON Web Keys may be parsed.");
+    throw new UnsupportedOperationException("Only RSA, EC or OKP JSON Web Keys may be parsed.");
   }
 
   private void verifyX5cEC(JSONWebKey key, BigInteger expectedXCoordinate, BigInteger expectedYCoordinate) {
@@ -108,11 +127,10 @@ public class JSONWebKeyParser {
     String encodedCertificate = key.x5c.get(0);
     String pem = new PEMEncoder().parseEncodedCertificate(encodedCertificate);
     PublicKey actual = PEM.decode(pem).publicKey;
-    if (!(actual instanceof ECPublicKey)) {
+    if (!(actual instanceof ECPublicKey ecPublicKey)) {
       throw new JSONWebKeyParserException("The public key found in the [x5c] property does not match the expected key type specified by the [kty] property.");
     }
 
-    ECPublicKey ecPublicKey = (ECPublicKey) actual;
     ECPoint point = ecPublicKey.getW();
 
     if (!point.getAffineX().equals(expectedXCoordinate)) {
@@ -125,6 +143,18 @@ public class JSONWebKeyParser {
     }
   }
 
+  private void reverseArray(byte[] arr) {
+    int i = 0;
+    int j = arr.length - 1;
+
+    while (i < j) {
+      byte tmp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = tmp;
+      i++;
+      j--;
+    }
+  }
 
   private void verifyX5cRSA(JSONWebKey key, BigInteger expectedModulus, BigInteger expectedPublicExponent) {
     // The first key in this array MUST contain the public key.
@@ -133,11 +163,10 @@ public class JSONWebKeyParser {
     String pem = new PEMEncoder().parseEncodedCertificate(encodedCertificate);
     PublicKey actual = PEM.decode(pem).publicKey;
 
-    if (!(actual instanceof RSAPublicKey)) {
+    if (!(actual instanceof RSAPublicKey rsaPublicKey)) {
       throw new JSONWebKeyParserException("The public key found in the [x5c] property does not match the expected key type specified by the [kty] property.");
     }
 
-    RSAPublicKey rsaPublicKey = (RSAPublicKey) actual;
     if (!rsaPublicKey.getModulus().equals(expectedModulus)) {
       throw new JSONWebKeyParserException("Expected a modulus value of [" + expectedModulus + "] but found [" + rsaPublicKey.getModulus() + "].  The certificate found in [x5c] does not match the [n] property.");
     }

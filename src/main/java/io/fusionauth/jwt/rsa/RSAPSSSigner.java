@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2020-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -229,7 +229,8 @@ public class RSAPSSSigner implements Signer {
 
     try {
       Signature signature = Signature.getInstance("RSASSA-PSS");
-      signature.setParameter(new PSSParameterSpec(algorithm.getName(), "MGF1", new MGF1ParameterSpec(algorithm.getName()), algorithm.getSaltLength(), 1));
+      String digestName = algorithm.getDigest();
+      signature.setParameter(new PSSParameterSpec(digestName, "MGF1", new MGF1ParameterSpec(digestName), algorithm.getSaltLength(), 1));
       signature.initSign(privateKey);
       signature.update(message.getBytes(StandardCharsets.UTF_8));
       return signature.sign();

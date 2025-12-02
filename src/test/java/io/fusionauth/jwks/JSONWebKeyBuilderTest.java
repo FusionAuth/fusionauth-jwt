@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,24 @@ import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.BaseJWTTest;
 import io.fusionauth.jwt.JWTUtils;
 import io.fusionauth.jwt.Signer;
+import io.fusionauth.jwt.Verifier;
+import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.Header;
 import io.fusionauth.jwt.domain.JWT;
+import io.fusionauth.jwt.rsa.RSAPSSSigner;
+import io.fusionauth.jwt.rsa.RSAPSSVerifier;
 import io.fusionauth.jwt.rsa.RSASigner;
 import io.fusionauth.pem.domain.PEM;
 import org.testng.annotations.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.EdECPrivateKey;
+import java.security.interfaces.EdECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
@@ -39,6 +46,16 @@ import java.util.Map;
 import static org.testng.Assert.assertEquals;
 
 /**
+ * Note that the higher invocationCount parameters are helpful to indentify incorrect assumptions in key parsing.
+ * <p>
+ * Key lengths can differ, and when encoding larger integers in DER encode sequences, or parsing them in and out of
+ * JWK formats, we want to be certain we are not making incorrect assumptions. During development, you may wish to
+ * run some of these with 5-10k invocation counts to ensure these types of anomalies are un-covered and addressed.
+ * <p>
+ * It may be reasonable to reduce the invocation counts if tests take too long to run - once we know that the tests
+ * will pass with a high number of invocations. However, the time is not yet that significant, and there is value to
+ * ensuring that the same result can be expected regardless of the number of times we run the same test.
+ *
  * @author Daniel DeGroff
  */
 public class JSONWebKeyBuilderTest extends BaseJWTTest {
@@ -121,6 +138,41 @@ public class JSONWebKeyBuilderTest extends BaseJWTTest {
   }
 
   @Test
+  public void rsa_pss_private() throws Exception {
+    // RSA PSS private key
+    RSAPrivateKey privateKey = PEM.decode(Paths.get("src/test/resources/rsa_pss_private_key_2048.pem")).getPrivateKey();
+    // Note that the alg property in the JWK is optional, and with an RSA key we don't know the algorithm.
+    // - This key could be used with PS256, PS384 or PS512.
+    assertJSONEquals(JSONWebKey.build(privateKey), "src/test/resources/jwk/rsa_pss_private_key_2048.json");
+
+    // See!
+    Signer signer = RSAPSSSigner.newSHA256Signer(privateKey);
+    String message = "hello world!";
+    byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
+    byte[] signature = signer.sign(message);
+
+    RSAPublicKey publicKey = PEM.decode(Paths.get("src/test/resources/rsa_pss_public_key_2048.pem")).getPublicKey();
+    Verifier verifier = RSAPSSVerifier.newVerifier(publicKey);
+    verifier.canVerify(Algorithm.PS256);
+    verifier.canVerify(Algorithm.PS384);
+    verifier.canVerify(Algorithm.PS512);
+    verifier.verify(Algorithm.PS256, messageBytes, signature);
+  }
+
+  @Test
+  public void rsa_pss_public() throws Exception {
+    // RSA PSS public key
+    RSAPublicKey publicKey = PEM.decode(Paths.get("src/test/resources/rsa_pss_public_key_2048.pem")).getPublicKey();
+    // Note that the alg property in the JWK is optional, and with an RSA key we don't know the algorithm.
+    // - This key could be used with PS256, PS384 or PS512.
+    assertJSONEquals(JSONWebKey.build(publicKey), "src/test/resources/jwk/rsa_pss_public_key_2048.json");
+
+    // X.509 cert, the certificate will contain the algorithm 'SHA256withRSAandMGF1' so we will expect PS256 in the JWK
+    Certificate certificate = PEM.decode(Paths.get("src/test/resources/rsa_pss_public_key_2048_certificate.pem")).certificate;
+    assertJSONEquals(JSONWebKey.build(certificate), "src/test/resources/jwk/rsa_pss_public_key_2048_certificate.json");
+  }
+
+  @Test
   public void embedded_jwk() {
     JWT jwt = new JWT();
     jwt.addClaim("foo", "bar");
@@ -163,5 +215,35 @@ public class JSONWebKeyBuilderTest extends BaseJWTTest {
     // X509 certificate with a chain, not yet calculating the x5c chain
     Certificate cert2 = PEM.decode(Paths.get("src/test/resources/rsa_certificate_gd_bundle_g2.pem")).certificate;
     assertJSONEquals(JSONWebKey.build(cert2), "src/test/resources/jwk/rsa_certificate_gd_bundle_g2.json");
+  }
+
+  @Test(invocationCount = 100)
+  public void eddsa_private() throws Exception {
+    // ed25519
+    EdECPrivateKey key25519 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_private_key.pem")).getPrivateKey();
+    assertJSONEquals(JSONWebKey.build(key25519), "src/test/resources/jwk/ed_dsa_ed25519_private_key.json");
+
+    // ed448
+    EdECPrivateKey key448 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed448_private_key.pem")).getPrivateKey();
+    assertJSONEquals(JSONWebKey.build(key448), "src/test/resources/jwk/ed_dsa_ed448_private_key.json");
+  }
+
+  @Test(invocationCount = 100)
+  public void eddsa_public() throws Exception {
+    // ed25519
+    EdECPublicKey key25519 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_public_key.pem")).getPublicKey();
+    assertJSONEquals(JSONWebKey.build(key25519), "src/test/resources/jwk/ed_dsa_ed25519_public_key.json");
+
+    // X.509 PEM encoded
+    Certificate cert25519 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed25519_certificate.pem")).certificate;
+    assertJSONEquals(JSONWebKey.build(cert25519), "src/test/resources/jwk/ed_dsa_ed25519_certificate.json");
+
+    // ed448
+    EdECPublicKey key448 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed448_public_key.pem")).getPublicKey();
+    assertJSONEquals(JSONWebKey.build(key448), "src/test/resources/jwk/ed_dsa_ed448_public_key.json");
+
+    // X.509 PEM encoded
+    Certificate cert448 = PEM.decode(Paths.get("src/test/resources/ed_dsa_ed448_certificate.pem")).certificate;
+    assertJSONEquals(JSONWebKey.build(cert448), "src/test/resources/jwk/ed_dsa_ed448_certificate.json");
   }
 }

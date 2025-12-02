@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.Objects;
 /**
  * @author Daniel DeGroff
  */
+@SuppressWarnings("unused")
 public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
   /**
    * Elliptic curve / 256 bit / secp256r1 / prime256v1
@@ -49,9 +50,24 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
   public static final String EC_ENCRYPTION = "1.2.840.10045.2.1";
 
   /**
+   * Edwards-curve Digital Signature Algorithm (EdDSA) Ed25519
+   */
+  public static final String EdDSA_25519 = "1.3.101.112";
+
+  /**
+   * Edwards-curve Digital Signature Algorithm (EdDSA) Ed448
+   */
+  public static final String EdDSA_448 = "1.3.101.113";
+
+  /**
    * RSA Public Key cryptography
    */
   public static final String RSA_ENCRYPTION = "1.2.840.113549.1.1.1";
+
+  /**
+   * RSA Public Key cryptography Signature Scheme with Appendix - Probabilistic Signature Scheme
+   */
+  public static final String RSASSA_PSS_ENCRYPTION = "1.2.840.113549.1.1.10";
 
   /**
    * RSA Encryption / SHA-256 / SHA256withRSA
@@ -67,6 +83,21 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
    * RSA Encryption / SHA-512 / SHA512withRSA
    */
   public static final String RSA_SHA512 = "1.2.840.113549.1.1.13";
+
+  /**
+   * Secure Hash Algorithm that uses a 256-bit key (SHA256)
+   */
+  public static final String SHA256 = "2.16.840.1.101.3.4.2.1";
+
+  /**
+   * Secure Hash Algorithm that uses a 384-bit key (SHA384)
+   */
+  public static final String SHA384 = "2.16.840.1.101.3.4.2.2";
+
+  /**
+   * Secure Hash Algorithm that uses a 512-bit key (SHA512)
+   */
+  public static final String SHA512 = "2.16.840.1.101.3.4.2.3";
 
   /**
    * The raw byte array of this Object Identifier.
@@ -99,8 +130,7 @@ public class ObjectIdentifier implements Buildable<ObjectIdentifier> {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof ObjectIdentifier)) return false;
-    ObjectIdentifier that = (ObjectIdentifier) o;
+    if (!(o instanceof ObjectIdentifier that)) return false;
     return Arrays.equals(value, that.value) &&
         Objects.equals(decoded, that.decoded);
   }

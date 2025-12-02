@@ -1,0 +1,7 @@
+{
+  "alg": "Ed25519",
+  "crv": "Ed25519",
+  "kty": "OKP",
+  "use": "sig",
+  "x": "m3hg6spkvQ31omhXHH__ux5BwleSlufOXEfOlUWOl30"
+}

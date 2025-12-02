@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2017-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package io.fusionauth.jwt.rsa;
 
 import io.fusionauth.jwt.BaseJWTTest;
 import io.fusionauth.jwt.InvalidKeyLengthException;
-import io.fusionauth.jwt.RequiresAlgorithm;
 import io.fusionauth.jwt.Verifier;
 import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.JWT;
@@ -44,11 +43,14 @@ public class RSAPSSVerifierTest extends BaseJWTTest {
   @Test
   public void test_public_pem_parsing() {
     Arrays.asList(
-        "rsa_certificate_2048.pem",
-        "rsa_public_key_2048.pem",
-        "rsa_public_key_2048_with_meta.pem",
-        "rsa_public_key_3072.pem",
-        "rsa_public_key_4096.pem")
+            "rsa_certificate_2048.pem",
+            "rsa_public_key_2048.pem",
+            "rsa_public_key_2048_with_meta.pem",
+            "rsa_public_key_3072.pem",
+            "rsa_public_key_4096.pem",
+            "rsa_pss_public_key_2048.pem",
+            "rsa_pss_public_key_3072.pem",
+            "rsa_pss_public_key_4096.pem")
         .forEach(fileName -> {
           // Take a String arg
           assertRSAPSAVerifier(RSAPSSVerifier.newVerifier(getPath(fileName)));
@@ -62,10 +64,13 @@ public class RSAPSSVerifierTest extends BaseJWTTest {
 
     // Public key parsing also works with private keys since the public key is encoded in the private
     Arrays.asList(
-        "rsa_private_key_2048.pem",
-        "rsa_private_key_2048_with_meta.pem",
-        "rsa_private_key_3072.pem",
-        "rsa_private_key_4096.pem")
+            "rsa_private_key_2048.pem",
+            "rsa_private_key_2048_with_meta.pem",
+            "rsa_private_key_3072.pem",
+            "rsa_private_key_4096.pem",
+            "rsa_pss_private_key_2048.pem",
+            "rsa_pss_private_key_3072.pem",
+            "rsa_pss_private_key_4096.pem")
         .forEach((fileName -> {
           // Take a String arg
           assertRSAPSAVerifier(RSAPSSVerifier.newVerifier(getPath(fileName)));
@@ -90,7 +95,6 @@ public class RSAPSSVerifierTest extends BaseJWTTest {
   }
 
   @Test
-  @RequiresAlgorithm("RSASSA-PSS")
   public void control() {
     String encodedJWT = "eyJhbGciOiJQUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.hZnl5amPk_I3tb4O-Otci_5XZdVWhPlFyVRvcqSwnDo_srcysDvhhKOD01DigPK1lJvTSTolyUgKGtpLqMfRDXQlekRsF4XhAjYZTmcynf-C-6wO5EI4wYewLNKFGGJzHAknMgotJFjDi_NCVSjHsW3a10nTao1lB82FRS305T226Q0VqNVJVWhE4G0JQvi2TssRtCxYTqzXVt22iDKkXeZJARZ1paXHGV5Kd1CljcZtkNZYIGcwnj65gvuCwohbkIxAnhZMJXCLaVvHqv9l-AAUV7esZvkQR1IpwBAiDQJh4qxPjFGylyXrHMqh5NlT_pWL2ZoULWTg_TJjMO9TuQ";
     String publicKeyPEM = "-----BEGIN PUBLIC KEY-----\n" +

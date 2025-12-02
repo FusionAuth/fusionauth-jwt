@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.domain.Header;
 import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.domain.KeyPair;
-import io.fusionauth.jwt.domain.KeyType;
 import io.fusionauth.jwt.json.Mapper;
 import io.fusionauth.pem.domain.PEM;
 
@@ -47,7 +46,7 @@ public class JWTUtils {
    * or <code>x5t#256</code> thumbprint respectively.
    *
    * @param fingerprint the SHA-1 or SHA-256 fingerprint
-   * @return an x5t hash.
+   * @return a x5t hash.
    */
   public static String convertFingerprintToThumbprint(String fingerprint) {
     byte[] bytes = HexUtils.toBytes(fingerprint);
@@ -110,13 +109,43 @@ public class JWTUtils {
   }
 
   /**
-   * Generate a new public / private key pair using a 2048 bit RSA key. This is the minimum key length for use with an
+   * Generate a new public / private key pair using a 2048-bit RSA key. This is the minimum key length for use with an
    * RSA signing scheme for JWT.
    *
    * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
    */
   public static KeyPair generate2048_RSAKeyPair() {
-    return generateKeyPair(2048, KeyType.RSA);
+    return generateKeyPair("RSA", 2048);
+  }
+
+  /**
+   * Generate a new public / private key pair using a 2048-bit RSA PSS key. This is the minimum key length for use with an
+   * RSA PSS signing scheme for JWT.
+   *
+   * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
+   */
+  public static KeyPair generate2048_RSAPSSKeyPair() {
+    return generateKeyPair("RSASSA-PSS", 2048);
+  }
+
+  /**
+   * Generate a new public / private key pair using a 3072-bit RSA PSS key. This is the minimum key length for use with an
+   * RSA PSS signing scheme for JWT.
+   *
+   * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
+   */
+  public static KeyPair generate3072_RSAPSSKeyPair() {
+    return generateKeyPair("RSASSA-PSS", 3072);
+  }
+
+  /**
+   * Generate a new public / private key pair using a 4096-bit RSA PSS key. This is the minimum key length for use with an
+   * RSA PSS signing scheme for JWT.
+   *
+   * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
+   */
+  public static KeyPair generate4096_RSAPSSKeyPair() {
+    return generateKeyPair("RSASSA-PSS", 4096);
   }
 
   /**
@@ -125,34 +154,34 @@ public class JWTUtils {
    * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
    */
   public static KeyPair generate256_ECKeyPair() {
-    return generateKeyPair(256, EC);
+    return generateKeyPair("EC", 256);
   }
 
   /**
-   * Generate a new public / private key pair using a 3072 bit RSA key.
+   * Generate a new public / private key pair using a 3072-bit RSA key.
    *
    * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
    */
   public static KeyPair generate3072_RSAKeyPair() {
-    return generateKeyPair(3072, KeyType.RSA);
+    return generateKeyPair("RSA", 3072);
   }
 
   /**
-   * Generate a new public / private key pair using a 384 bit EC key. A 384 bit EC key is roughly equivalent to a 7680 bit RSA key.
+   * Generate a new public / private key pair using a 384-bit EC key. A 384 bit EC key is roughly equivalent to a 7680 bit RSA key.
    *
    * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
    */
   public static KeyPair generate384_ECKeyPair() {
-    return generateKeyPair(384, EC);
+    return generateKeyPair("EC", 384);
   }
 
   /**
-   * Generate a new public / private key pair using a 4096 bit RSA key.
+   * Generate a new public / private key pair using a 4096-bit RSA key.
    *
    * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
    */
   public static KeyPair generate4096_RSAKeyPair() {
-    return generateKeyPair(4096, KeyType.RSA);
+    return generateKeyPair("RSA", 4096);
   }
 
   /**
@@ -161,7 +190,25 @@ public class JWTUtils {
    * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
    */
   public static KeyPair generate521_ECKeyPair() {
-    return generateKeyPair(521, EC);
+    return generateKeyPair("EC", 521);
+  }
+
+  /**
+   * Generate a new public / private key pair using the Ed25529 curve.
+   *
+   * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
+   */
+  public static KeyPair generate_ed25519_EdDSAKeyPair() {
+    return generateKeyPair("ed25519", null);
+  }
+
+  /**
+   * Generate a new public / private key pair using the Ed448 curve.
+   *
+   * @return a public and private key PEM in their respective X.509 and PKCS#8 key formats.
+   */
+  public static KeyPair generate_ed448_EdDSAKeyPair() {
+    return generateKeyPair("ed448", null);
   }
 
   /**
@@ -305,13 +352,16 @@ public class JWTUtils {
   /**
    * Generate a new Public / Private key pair with a key size of the provided length.
    *
-   * @param keySize the length of the key in bits
+   * @param algorithm the algorithm to use to generate the key pair
+   * @param keySize   the optional key size when applicable
    * @return a public and private key in PEM format.
    */
-  private static KeyPair generateKeyPair(int keySize, KeyType keyType) {
+  private static KeyPair generateKeyPair(String algorithm, Integer keySize) {
     try {
-      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(keyType.name());
-      keyPairGenerator.initialize(keySize);
+      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
+      if (keySize != null) {
+        keyPairGenerator.initialize(keySize);
+      }
       java.security.KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
       String privateKey = PEM.encode(keyPair.getPrivate(), keyPair.getPublic());

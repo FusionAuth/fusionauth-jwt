@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package io.fusionauth.jwt;
 
+import io.fusionauth.BaseTest;
 import io.fusionauth.jwt.domain.Algorithm;
 import org.testng.annotations.Test;
 
@@ -27,7 +28,7 @@ import static org.testng.AssertJUnit.fail;
 /**
  * @author Daniel DeGroff
  */
-public class OpenIdConnectTest {
+public class OpenIdConnectTest extends BaseTest {
   @Test
   public void test_at_hash() {
     assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.HS256), "wfgvmE9VxjAudsl9lc6TqA");
@@ -42,9 +43,31 @@ public class OpenIdConnectTest {
     assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
     assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
 
+    assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.Ed25519), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
+    requiresShake256(() ->
+        assertEquals(at_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.Ed448), "ACuRpk9jl5IEa3yqpBCNNOCpBEI7qjud6mc80cs6vWX2fcqpsk8RozYBKTUuSS6SqJhw302xFZeM"));
+
     // Controls
     assertEquals(at_hash("1940a308-d492-3660-a9f8-46723cc582e9", Algorithm.RS256), "JrZY9MtYVEIIJUx-DDBmww");
     assertEquals(at_hash("jHkWEdUXMU1BwAsC4vtUsZwnNvTIxEl0z9K3vx5KF0Y", Algorithm.RS256), "77QmUPtjPfzWtF2AnpK9RQ");
+    // https://bitbucket.org/openid/connect/issues/1125
+    requiresShake256(() ->
+        assertEquals(at_hash("YmJiZTAwYmYtMzgyOC00NzhkLTkyOTItNjJjNDM3MGYzOWIy9sFhvH8K_x8UIHj1osisS57f5DduL", Algorithm.Ed448), "sB_U72jyb0WgtX8TsVoqJnm6CD295W9gfSDRxkilB3LAL7REi9JYutRW_s1yE4lD8cOfMZf83gi4"));
+  }
+
+  private void requiresShake256(Runnable runnable) {
+    // The JCA does not ship with SHAKE256 which will be used to calculate the hash for Ed448.
+    // - Expect failure unless FIPS has been enabled.
+    try {
+      runnable.run();
+      if (!FipsEnabled) {
+        fail("Expected this to fail unless FIPS was enabled.");
+      }
+    } catch (Exception e) {
+      if (FipsEnabled) {
+        throw e;
+      }
+    }
   }
 
   @Test
@@ -60,6 +83,13 @@ public class OpenIdConnectTest {
     assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS256), "wfgvmE9VxjAudsl9lc6TqA");
     assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS384), "phZaPQJosyg-qi-OIYyQ3xJB9wsHYEEz");
     assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.RS512), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
+
+    assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.Ed25519), "8xltSlOGYrWy8W9yNvRlEth1i_bXW-JROWPLvCv5zog");
+
+    // The JCA does not ship with SHAKE256 which will be used to calculate the hash for Ed448.
+    // - Expect this to fail unless FIPS has been enabled.
+    requiresShake256(() ->
+        assertEquals(c_hash("dNZX1hEZ9wBCzNL40Upu646bdzQA", Algorithm.Ed448), "ACuRpk9jl5IEa3yqpBCNNOCpBEI7qjud6mc80cs6vWX2fcqpsk8RozYBKTUuSS6SqJhw302xFZeM"));
 
     // Controls
     assertEquals(c_hash("16fd899f-5f0c-3114-875e-2547b629cd05", Algorithm.HS256), "S5UOXRNNyYsI6Z0G3xxdpw");

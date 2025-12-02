@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2020-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,24 @@ import java.util.List;
  * @author Daniel DeGroff
  */
 public abstract class BaseTest {
+  public static boolean FipsEnabled;
+
   public List<BuilderHTTPHandler> httpHandlers = new ArrayList<>();
 
   public List<HttpServer> httpServers = new ArrayList<>();
 
-  public boolean testFips;
+  @BeforeSuite
+  public void beforeSuite() {
+    FipsEnabled = Boolean.getBoolean("test.fips");
+    if (FipsEnabled) {
+      System.setProperty("org.bouncycastle.fips.approved_only", "true");
+      Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);
+    }
+
+    System.out.printf("Testing in %s mode with security provider [%s]%n",
+        FipsEnabled ? "FIPS" : "the default JCA",
+        Security.getProviders()[0].getClass().getCanonicalName());
+  }
 
   @AfterMethod
   public void afterMethod(ITestResult result) {
@@ -45,18 +58,6 @@ public abstract class BaseTest {
         httpServer.stop(0);
       } catch (Exception ignore) {
       }
-    }
-  }
-
-  @BeforeSuite
-  public void beforeSuite() {
-    testFips = Boolean.getBoolean("test.fips");
-    if (testFips) {
-      System.out.println("Testing in FIPS mode");
-      System.setProperty("org.bouncycastle.fips.approved_only", "true");
-      Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);
-    } else {
-      System.out.println("Testing in default JCA mode");
     }
   }
 

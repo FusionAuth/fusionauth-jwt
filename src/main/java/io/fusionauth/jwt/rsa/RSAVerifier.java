@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,14 +119,10 @@ public class RSAVerifier implements Verifier {
   @Override
   @SuppressWarnings("Duplicates")
   public boolean canVerify(Algorithm algorithm) {
-    switch (algorithm) {
-      case RS256:
-      case RS384:
-      case RS512:
-        return true;
-      default:
-        return false;
-    }
+    return switch (algorithm) {
+      case RS256, RS384, RS512 -> true;
+      default -> false;
+    };
   }
 
   public void verify(Algorithm algorithm, byte[] message, byte[] signature) {

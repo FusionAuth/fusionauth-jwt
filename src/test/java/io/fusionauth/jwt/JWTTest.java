@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,16 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 /**
+ * Note that the higher invocationCount parameters are helpful to indentify incorrect assumptions in key parsing.
+ * <p>
+ * Key lengths can differ, and when encoding larger integers in DER encode sequences, or parsing them in and out of
+ * JWK formats, we want to be certain we are not making incorrect assumptions. During development, you may wish to
+ * run some of these with 5-10k invocation counts to ensure these types of anomalies are un-covered and addressed.
+ * <p>
+ * It may be reasonable to reduce the invocation counts if tests take too long to run - once we know that the tests
+ * will pass with a high number of invocations. However, the time is not yet that significant, and there is value to
+ * ensuring that the same result can be expected regardless of the number of times we run the same test.
+ *
  * @author Daniel DeGroff
  */
 public class JWTTest extends BaseJWTTest {
@@ -179,7 +189,7 @@ public class JWTTest extends BaseJWTTest {
       BigDecimal average = durationInMillis.divide(BigDecimal.valueOf(iterationCount), RoundingMode.HALF_DOWN);
       long perSecond = iterationCount / (duration.toMillis() / 1000);
 
-      System.out.println("[" + signer.getAlgorithm().getName() + "] " + duration.toMillis() + " milliseconds total. [" + iterationCount + "] iterations. [" + average + "] milliseconds per iteration. Approx. [" + perSecond + "] per second.");
+      System.out.println("[" + signer.getAlgorithm().name() + "] " + duration.toMillis() + " milliseconds total. [" + iterationCount + "] iterations. [" + average + "] milliseconds per iteration. Approx. [" + perSecond + "] per second.");
 
     }
   }
@@ -439,7 +449,6 @@ public class JWTTest extends BaseJWTTest {
   }
 
   @Test
-  @RequiresAlgorithm("RSASSA-PSS")
   public void test_PS256() throws IOException {
     JWT jwt = new JWT().setSubject("1234567890");
 
@@ -455,7 +464,6 @@ public class JWTTest extends BaseJWTTest {
   }
 
   @Test
-  @RequiresAlgorithm("RSASSA-PSS")
   public void test_PS384() throws IOException {
     JWT jwt = new JWT().setSubject("1234567890");
 
@@ -471,7 +479,6 @@ public class JWTTest extends BaseJWTTest {
   }
 
   @Test
-  @RequiresAlgorithm("RSASSA-PSS")
   public void test_PS512() throws IOException {
     JWT jwt = new JWT().setSubject("1234567890");
 

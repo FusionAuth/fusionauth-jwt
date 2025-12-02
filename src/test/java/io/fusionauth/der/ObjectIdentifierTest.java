@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,11 @@ public class ObjectIdentifierTest extends BaseJWTTest {
     assertEquals(decode(0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07), "1.2.840.10045.3.1.7");
     assertEquals(decode(0x2B, 0x81, 0x04, 0x00, 0x22), "1.3.132.0.34");
     assertEquals(decode(0x2B, 0x81, 0x04, 0x00, 0x23), "1.3.132.0.35");
+
+    // EdDSA Ed25519
+    assertEquals(decode(0x2B, 0x65, 0x70), "1.3.101.112");
+    // EdDSA Ed448
+    assertEquals(decode(0x2B, 0x65, 0x71), "1.3.101.113");
 
     // RSA
     assertEquals(decode(0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01), "1.2.840.113549.1.1.1");

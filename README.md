@@ -7,11 +7,11 @@ If you find a vulnerability or other security related bug, [please report the vu
 We are very interested in compensating anyone that can identify a security related bug or vulnerability and properly disclose it to us.
 
 ## Features
- - JWT signing using HMAC, RSA and Elliptic Curve support
-   - `HS256`, `HS384`, `HS512`, `RS256`, `RS384`, `RS512`, `ES256`, `ES384`, `ES512`
- - JWT signing using RSA-PSS signatures
-   - `PS256`, `PS384`, `PS512`
-   - Available in versions >= 3.5.0
+ - JWT signing using the following algorithms
+   - `HS256`, `HS384`, `HS512`, `RS256`, `RS384`, `RS512`, `ES256`, `ES384`, `ES512`, `PS256`, `PS384`, `PS512`, `Ed25519`, `Ed448`
+     - In order to use the OpenID Connect hashing functions for `at_hash` or `c_hash` with this algorithm, you must register a provider to add support for the `SHAKE256` message digest, such as BouncyCastle as this algorithm is not provided in the default JCA.
+     - When using `Ed25519` or `Ed448`, the `alg` JWT header and the JWK `alg` property will be equal to the algorithm name. The legacy `EdDSA` value has been deprecated in JOSE in favor of the fully-specified algorithm names `Ed25519` and `Ed448`. In practice this means that this library will be unable to accept a JWT using the `EdDSA` value for the `alg` in the JWT header.
+       - https://www.iana.org/assignments/jose/jose.xhtml#web-signature-encryption-algorithms
  - Support for Bouncy Castle JCE or other third party providers.   
  - PEM decoding / encoding
    - Decode PEM files to PrivateKey or PublicKey
@@ -26,7 +26,9 @@ We are very interested in compensating anyone that can identify a security relat
    - Retrieve JWK from JWKS endpoints
  - Helpers
    - Generate RSA Key Pairs in `2048`, `3072` or `4096` bit sizes
+   - Generate RSA PSS Key Pairs in `2048`, `3072` or `4096` bit sizes
    - Generate EC Key Pairs in `256`, `384` and `521` bit sizes
+   - Generate EdDSA Key Pairs for `Ed2559` and `Ed448` curves
    - Generate `x5t` and `x5t#256` values from X.509 Certificates
    - Generate JWK thumbprint using `SHA-1` or `SHA-256` 
    - Generate ideal HMAC secret lengths for `SHA-256`, `SHA-384` and `SHA-512`
@@ -307,13 +309,12 @@ String json = jwk.toJSON();
 
 ## Building
  
-## Building with Maven
+### Maven
  ```bash
  $ mvn install
  ```
 
-
-## Building with Savant
+### Savant
 
 ```bash
 $ sb int

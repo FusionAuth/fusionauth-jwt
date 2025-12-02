@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 package io.fusionauth.jwks;
 
+import io.fusionauth.der.DerDecodingException;
 import io.fusionauth.der.DerInputStream;
-import io.fusionauth.der.DerValue;
+import io.fusionauth.der.ObjectIdentifier;
 import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.JWTUtils;
 import io.fusionauth.jwt.domain.Algorithm;
@@ -36,6 +37,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.ECKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.EdECPrivateKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -43,9 +45,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Objects;
 
-import static io.fusionauth.der.ObjectIdentifier.ECDSA_P256;
-import static io.fusionauth.der.ObjectIdentifier.ECDSA_P384;
-import static io.fusionauth.der.ObjectIdentifier.ECDSA_P521;
 import static io.fusionauth.jwks.JWKUtils.base64EncodeUint;
 
 /**
@@ -126,9 +125,29 @@ public class JSONWebKeyBuilder {
       key.d = base64EncodeUint(ecPrivateKey.getS(), byteLength);
       key.x = base64EncodeUint(ecPrivateKey.getParams().getGenerator().getAffineX(), byteLength);
       key.y = base64EncodeUint(ecPrivateKey.getParams().getGenerator().getAffineY(), byteLength);
+    } else if (privateKey instanceof EdECPrivateKey edPrivateKey) {
+      key.crv = getCurveOID(edPrivateKey);
+      key.alg = Algorithm.fromName(key.crv);
+
+      var privateKeyBytes = edPrivateKey.getBytes().orElseThrow(() -> new JSONWebKeyBuilderException("Unable to obtain the private key bytes."));
+      key.d = Base64.getUrlEncoder().withoutPadding().encodeToString(privateKeyBytes);
+      try {
+        byte[] publicKeyBytes = KeyUtils.deriveEdDSAPublicKeyFromPrivate(privateKeyBytes, key.crv);
+        key.x = Base64.getUrlEncoder().withoutPadding().encodeToString(publicKeyBytes);
+      } catch (Exception e) {
+        throw new JSONWebKeyBuilderException("Unable to build the public key for the EdDSA private key using curve [" + key.crv + "]", e);
+      }
     }
 
     return key;
+  }
+
+  private String getCurveOID(Key key) {
+    try {
+      return KeyUtils.getCurveName(key);
+    } catch (Exception e) {
+      throw new JSONWebKeyBuilderException("Unable to read the Object Identifier of the public key.", e);
+    }
   }
 
   /**
@@ -162,6 +181,23 @@ public class JSONWebKeyBuilder {
       int byteLength = getCoordinateLength(ecPublicKey);
       key.x = base64EncodeUint(ecPublicKey.getW().getAffineX(), byteLength);
       key.y = base64EncodeUint(ecPublicKey.getW().getAffineY(), byteLength);
+    } else if (key.kty == KeyType.OKP) {
+      key.crv = getCurveOID(publicKey);
+      key.alg = Algorithm.fromName(key.crv);
+
+      // Intentionally not returning the y coordinate for an Ed25519 or Ed448 key.
+      // - The x coordinate contains the complete public key. This contains the y coordinate
+      //   and a single bit indicating the sign of the x coordinate.
+      int keyLength = KeyUtils.getKeyLength(publicKey);
+      byte[] publicKeyBytes;
+      try {
+        var sequence = new DerInputStream(publicKey.getEncoded()).getSequence();
+        publicKeyBytes = sequence[1].toByteArray();
+      } catch (DerDecodingException e) {
+        throw new JSONWebKeyBuilderException("Unable to read the public key from the DER encoded key.", e);
+      }
+
+      key.x = base64EncodeUint(new BigInteger(publicKeyBytes), keyLength);
     }
 
     return key;
@@ -176,9 +212,9 @@ public class JSONWebKeyBuilder {
   public JSONWebKey build(Certificate certificate) {
     Objects.requireNonNull(certificate);
     JSONWebKey key = build(certificate.getPublicKey());
-    if (certificate instanceof X509Certificate) {
+    if (certificate instanceof X509Certificate x509Certificate) {
       if (key.alg == null) {
-        key.alg = Algorithm.fromName(((X509Certificate) certificate).getSigAlgName());
+        key.alg = determineKeyAlgorithm(x509Certificate);
       }
 
       try {
@@ -187,7 +223,7 @@ public class JSONWebKeyBuilder {
         key.x5t = JWTUtils.generateJWS_x5t(encodedCertificate);
         key.x5t_256 = JWTUtils.generateJWS_x5t("SHA-256", encodedCertificate);
       } catch (CertificateEncodingException e) {
-        throw new JSONWebKeyBuilderException("Failed to decode X.509 certificate", e);
+        throw new JSONWebKeyBuilderException("Failed to decode X.509 certificate.", e);
       }
     }
     return key;
@@ -197,40 +233,43 @@ public class JSONWebKeyBuilder {
     return (int) Math.ceil(key.getParams().getCurve().getField().getFieldSize() / 8d);
   }
 
-  private KeyType getKeyType(Key key) {
-    if (key.getAlgorithm().equals("RSA")) {
-      return KeyType.RSA;
-    } else if (key.getAlgorithm().equals("EC")) {
-      return KeyType.EC;
+  private Algorithm determineKeyAlgorithm(X509Certificate x509Certificate) {
+    String sigAlgName = x509Certificate.getSigAlgName();
+    Algorithm result = Algorithm.fromName(sigAlgName);
+    if (result != null) {
+      return result;
     }
 
-    return null;
-  }
+    // The JCA reports RSASSA-PSS, while BC will report the actual algorithm such as SHA256withRSAandMGF1.
+    // - Java really makes you work for it. Dig out the digest OID to identify the algorithm.
+    if ("RSASSA-PSS".equals(sigAlgName)) {
+      byte[] encodedBytes = x509Certificate.getSigAlgParams();
+      try {
+        String oid = new DerInputStream(new DerInputStream(encodedBytes)
+            .getSequence()[1].toByteArray())
+            .getSequence()[1]
+            .getOID().toString();
 
-  private String readCurveObjectIdentifier(Key key) {
-    try {
-      DerValue[] sequence = new DerInputStream(key.getEncoded()).getSequence();
-      if (key instanceof PrivateKey) {
-        // Read the first value in the sequence, it is the algorithm OID, the second will be the curve
-        sequence[1].getOID();
-        return sequence[1].getOID().decode();
-      } else {
-        // Read the first value in the sequence, it is the algorithm OID, the second will be the curve
-        sequence[0].getOID();
-        return sequence[0].getOID().decode();
+        result = switch (oid) {
+          case ObjectIdentifier.SHA256 -> Algorithm.PS256; // SHA256withRSAandMGF1
+          case ObjectIdentifier.SHA384 -> Algorithm.PS384; // SHA384withRSAandMGF1
+          case ObjectIdentifier.SHA512 -> Algorithm.PS512; // SHA512withRSAandMGF1
+          default -> null;
+        };
+      } catch (IOException e) {
+        throw new JSONWebKeyBuilderException("Failed to decode X.509 certificate signature algorithm parameters to determine the key type.", e);
       }
-    } catch (IOException e) {
-      throw new JSONWebKeyBuilderException("Unable to read the Object Identifier of the public key.", e);
     }
+
+    return result;
   }
 
-  String getCurveOID(Key key) {
-    // Match up the Curve Object Identifier to a string value
-    String oid = readCurveObjectIdentifier(key);
-    return switch (oid) {
-      case ECDSA_P256 -> "P-256";
-      case ECDSA_P384 -> "P-384";
-      case ECDSA_P521 -> "P-521";
+  private KeyType getKeyType(Key key) {
+    return switch (key.getAlgorithm()) {
+      case "RSA", "RSASSA-PSS" -> KeyType.RSA;
+      case "EC" -> KeyType.EC;
+      // JCE returns EdDSA, and BC returns Ed25519 or Ed448 respectively
+      case "EdDSA", "Ed25519", "Ed448" -> KeyType.OKP;
       default -> null;
     };
   }

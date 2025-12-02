@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,14 @@ import io.fusionauth.der.ObjectIdentifier;
 import io.fusionauth.der.Tag;
 import io.fusionauth.jwt.domain.KeyType;
 import io.fusionauth.pem.domain.PEM;
+import io.fusionauth.security.KeyUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.KeyFactory;
@@ -38,6 +40,7 @@ import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.EdECPrivateKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -79,7 +82,7 @@ public class PEMDecoder {
     try {
       return decode(Files.readAllBytes(path));
     } catch (IOException e) {
-      throw new PEMDecoderException("Unable to read the file from path [" + path.toAbsolutePath().toString() + "]", e);
+      throw new PEMDecoderException("Unable to read the file from path [" + path.toAbsolutePath() + "]", e);
     }
   }
 
@@ -122,7 +125,8 @@ public class PEMDecoder {
       } else {
         throw new PEMDecoderException(new InvalidParameterException("Unexpected PEM Format"));
       }
-    } catch (CertificateException | InvalidKeyException | InvalidKeySpecException | IOException | NoSuchAlgorithmException e) {
+    } catch (CertificateException | InvalidAlgorithmParameterException | InvalidKeyException | InvalidKeySpecException |
+             IOException | NoSuchAlgorithmException e) {
       throw new PEMDecoderException(e);
     }
   }
@@ -254,7 +258,7 @@ public class PEMDecoder {
     return new PEM(KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent)));
   }
 
-  private PEM decode_PKCS_8(String encodedKey) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, InvalidKeyException {
+  private PEM decode_PKCS_8(String encodedKey) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, InvalidKeyException, InvalidAlgorithmParameterException {
     byte[] bytes = getKeyBytes(encodedKey, PKCS_8_PRIVATE_KEY_PREFIX, PKCS_8_PRIVATE_KEY_SUFFIX);
     DerValue[] sequence = new DerInputStream(bytes).getSequence();
 
@@ -271,18 +275,19 @@ public class PEMDecoder {
     //   parameters      ANY DEFINED BY algorithm OPTIONAL
     // }
 
-    if (sequence.length != 3 || !sequence[0].tag.is(Tag.Integer) || !sequence[1].tag.is(Tag.Sequence) || !sequence[2].tag.is(Tag.OctetString)) {
+    // EC and RSA will be length 3, EdDSA will be 4 or 5
+    if (sequence.length < 3 || !sequence[0].tag.is(Tag.Integer) || !sequence[1].tag.is(Tag.Sequence) || !sequence[2].tag.is(Tag.OctetString)) {
       // Expect the following format : [ Integer | Sequence | OctetString ]
-      throw new InvalidKeyException("Could not decode the private key. Expecting values in the DER encoded sequence in the following format [ Integer | Sequence | OctetString ]");
+      throw new InvalidKeyException("Could not decode the private key. Expecting values in the DER encoded sequence in the following format [ Integer | Sequence | OctetString ] or [ Integer | Sequence | OctetString | Attributes ]");
     }
 
     ObjectIdentifier algorithmOID = new DerInputStream(sequence[1].toByteArray()).getOID();
     KeyType type = KeyType.getKeyTypeFromOid(algorithmOID.decode());
     if (type == null) {
-      throw new InvalidKeyException("Could not decode the private key. Expected an EC or RSA key type but found OID [" + algorithmOID.decode() + "] and was unable to match that to a supported algorithm.");
+      throw new InvalidKeyException("Could not decode the private key. Expected an EC, ED or RSA key type but found OID [" + algorithmOID.decode() + "] and was unable to match that to a supported algorithm.");
     }
 
-    PrivateKey privateKey = KeyFactory.getInstance(type.name()).generatePrivate(new PKCS8EncodedKeySpec(bytes));
+    PrivateKey privateKey = KeyFactory.getInstance(type.getAlgorithm()).generatePrivate(new PKCS8EncodedKeySpec(bytes));
 
     // Attempt to extract the public key if available
     if (privateKey instanceof ECPrivateKey) {
@@ -299,6 +304,33 @@ public class PEMDecoder {
       BigInteger modulus = ((RSAPrivateCrtKey) privateKey).getModulus();
       BigInteger publicExponent = ((RSAPrivateCrtKey) privateKey).getPublicExponent();
       PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, publicExponent));
+      return new PEM(privateKey, publicKey);
+    } else if (privateKey instanceof EdECPrivateKey edECPrivateKey) {
+
+      byte[] algorithmIdentifier = sequence[1].toByteArray();
+      byte[] publicKeyBytes;
+      byte[] derEncodedPublicKey;
+      if (sequence.length >= 4) {
+        int index = sequence.length - 1;
+        publicKeyBytes = sequence[index].toByteArray();
+        derEncodedPublicKey = derEncodePublicKey(algorithmIdentifier, publicKeyBytes);
+      } else {
+        // The private key did not contain the public key. The public key can be derived from the privat key.
+        String curve = KeyUtils.getCurveName(privateKey);
+        publicKeyBytes = KeyUtils.deriveEdDSAPublicKeyFromPrivate(edECPrivateKey.getBytes().orElseThrow(), curve);
+
+        byte[] bitStringKeyBytes = new byte[publicKeyBytes.length + 1];
+        bitStringKeyBytes[0] = 0x0;
+        System.arraycopy(publicKeyBytes, 0, bitStringKeyBytes, 1, publicKeyBytes.length);
+        derEncodedPublicKey = new DerOutputStream()
+            .writeValue(new DerValue(Tag.Sequence, new DerOutputStream()
+                .writeValue(new DerValue(Tag.Sequence, algorithmIdentifier))
+                .writeValue(new DerValue(Tag.BitString, bitStringKeyBytes))))
+            .toByteArray();
+      }
+
+      PublicKey publicKey = KeyFactory.getInstance(edECPrivateKey.getAlgorithm())
+          .generatePublic(new X509EncodedKeySpec(derEncodedPublicKey, edECPrivateKey.getAlgorithm()));
       return new PEM(privateKey, publicKey);
     }
 
@@ -334,7 +366,7 @@ public class PEMDecoder {
       throw new InvalidKeyException("Could not decode the X.509 public key. Expected at 2 values in the DER encoded sequence but found [" + sequence.length + "]");
     }
 
-    return new PEM(KeyFactory.getInstance(type.name()).generatePublic(new X509EncodedKeySpec(bytes)));
+    return new PEM(KeyFactory.getInstance(type.getAlgorithm()).generatePublic(new X509EncodedKeySpec(bytes)));
   }
 
   private byte[] getKeyBytes(String key, String keyPrefix, String keySuffix) {
@@ -345,6 +377,25 @@ public class PEMDecoder {
     return Base64.getDecoder().decode(base64);
   }
 
+  private byte[] getEncodedPublicKeyFromPrivate(byte[] bitString, byte[] encodedKey) throws IOException {
+    DerValue[] sequence = new DerInputStream(encodedKey).getSequence();
+    return derEncodePublicKey(sequence[1].toByteArray(), bitString);
+  }
+
+  private byte[] derEncodePublicKey(byte[] algorithmIdentifier, byte[] publicKeyBytes) throws IOException {
+    // Build an X.509 DER encoded byte array from the provided byte[]
+    //
+    // SubjectPublicKeyInfo ::= SEQUENCE {
+    //   algorithm         AlgorithmIdentifier,
+    //   subjectPublicKey  BIT STRING
+    // }
+    return new DerOutputStream()
+        .writeValue(new DerValue(Tag.Sequence, new DerOutputStream()
+            .writeValue(new DerValue(Tag.Sequence, algorithmIdentifier))
+            .writeValue(new DerValue(Tag.BitString, publicKeyBytes))))
+        .toByteArray();
+  }
+
   private PublicKey getPublicKeyFromPrivateEC(DerValue bitString, ECPrivateKey privateKey) throws InvalidKeySpecException, IOException, NoSuchAlgorithmException {
     // Build an X.509 DER encoded byte array from the provided bitString
     //
@@ -352,13 +403,7 @@ public class PEMDecoder {
     //   algorithm         AlgorithmIdentifier,
     //   subjectPublicKey  BIT STRING
     // }
-    DerValue[] sequence = new DerInputStream(privateKey.getEncoded()).getSequence();
-    byte[] encodedPublicKey = new DerOutputStream()
-        .writeValue(new DerValue(Tag.Sequence, new DerOutputStream()
-            .writeValue(new DerValue(Tag.Sequence, sequence[1].toByteArray()))
-            .writeValue(new DerValue(Tag.BitString, bitString.toByteArray()))))
-        .toByteArray();
-
+    byte[] encodedPublicKey = getEncodedPublicKeyFromPrivate(bitString.toByteArray(), privateKey.getEncoded());
     return KeyFactory.getInstance("EC").generatePublic(new X509EncodedKeySpec(encodedPublicKey));
   }
 }

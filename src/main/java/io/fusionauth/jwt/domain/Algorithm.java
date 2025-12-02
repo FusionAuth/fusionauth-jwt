@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2016-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,18 @@ import java.util.Locale;
  * @author Daniel DeGroff
  */
 public enum Algorithm {
+  /**
+   * Edwards-curve Digital Signature Algorithm (EdDSA) Ed25519
+   * OID: 1.3.101.112
+   */
+  Ed25519("Ed25519"),
+
+  /**
+   * Edwards-curve Digital Signature Algorithm (EdDSA) Ed448
+   * OID: 1.3.101.113
+   */
+  Ed448("Ed448"),
+
   /**
    * ECDSA using P-256 and SHA-256
    * OID: 1.2.840.10045.3.1.7
@@ -64,19 +76,19 @@ public enum Algorithm {
    * RSASSA-PSS using SHA-256 and MGF1 with SHA-256
    * - SHA256withRSAandMGF1
    */
-  PS256("SHA-256"),
+  PS256("SHA256withRSAandMGF1"),
 
   /**
    * RSASSA-PSS using SHA-384 and MGF1 with SHA-384
    * - SHA384withRSAandMGF1
    */
-  PS384("SHA-384"),
+  PS384("SHA384withRSAandMGF1"),
 
   /**
    * RSASSA-PSS using SHA-512 and MGF1 with SHA-512
    * - SHA512withRSAandMGF1
    */
-  PS512("SHA-512"),
+  PS512("SHA512withRSAandMGF1"),
 
   /**
    * RSASSA-PKCS1-v1_5 using SHA-256
@@ -118,16 +130,23 @@ public enum Algorithm {
     return algorithm;
   }
 
+  public String getDigest() {
+    return switch (this) {
+      case PS256 -> "SHA-256";
+      case PS384 -> "SHA-384";
+      case PS512 -> "SHA-512";
+      default ->
+          throw new IllegalStateException("An incompatible algorithm was provided, this method is only used for RSASSA-PSS algorithms.");
+    };
+  }
+
   public int getSaltLength() {
-    switch (this) {
-      case PS256:
-        return 32;
-      case PS384:
-        return 48;
-      case PS512:
-        return 64;
-      default:
-        throw new IllegalStateException("An incompatible algorithm was provided, this method is only used for RSASSA-PSS algorithms.");
-    }
+    return switch (this) {
+      case PS256 -> 32;
+      case PS384 -> 48;
+      case PS512 -> 64;
+      default ->
+          throw new IllegalStateException("An incompatible algorithm was provided, this method is only used for RSASSA-PSS algorithms.");
+    };
   }
 }

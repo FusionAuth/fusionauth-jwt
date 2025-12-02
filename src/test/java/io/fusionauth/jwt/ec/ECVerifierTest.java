@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, FusionAuth, All Rights Reserved
+ * Copyright (c) 2018-2025, FusionAuth, All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,9 +40,9 @@ public class ECVerifierTest extends BaseJWTTest {
   @Test
   public void test_public_pem_parsing() {
     Arrays.asList(
-        "ec_public_key_p_256.pem",
-        "ec_public_key_p_384.pem",
-        "ec_public_key_p_521.pem")
+            "ec_public_key_p_256.pem",
+            "ec_public_key_p_384.pem",
+            "ec_public_key_p_521.pem")
         .forEach(fileName -> {
           // Take a Path arg
           assertECVerifier(ECVerifier.newVerifier(getPath(fileName)));
@@ -56,19 +56,19 @@ public class ECVerifierTest extends BaseJWTTest {
 
     // Public key parsing fails with private keys w/out an encoded public key
     Arrays.asList(
-        "ec_private_key_p_256.pem",
-        "ec_private_key_p_384.pem",
-        "ec_private_key_p_521.pem")
+            "ec_private_key_p_256.pem",
+            "ec_private_key_p_384.pem",
+            "ec_private_key_p_521.pem")
         .forEach(this::assertFailed);
 
     // Public key parsing works with private keys when the private key contains a public key
     Arrays.asList(
-        "ec_private_prime256v1_p_256_openssl.pem",
-        "ec_private_prime256v1_p_256_openssl_pkcs8.pem",
-        "ec_private_secp384r1_p_384_openssl.pem",
-        "ec_private_secp384r1_p_384_openssl_pkcs8.pem",
-        "ec_private_secp521r1_p_512_openssl.pem",
-        "ec_private_secp521r1_p_512_openssl_pkcs8.pem")
+            "ec_private_prime256v1_p_256_openssl.pem",
+            "ec_private_prime256v1_p_256_openssl_pkcs8.pem",
+            "ec_private_secp384r1_p_384_openssl.pem",
+            "ec_private_secp384r1_p_384_openssl_pkcs8.pem",
+            "ec_private_secp521r1_p_512_openssl.pem",
+            "ec_private_secp521r1_p_512_openssl_pkcs8.pem")
         .forEach(fileName -> {
           // Take a Path arg
           assertECVerifier(ECVerifier.newVerifier(getPath(fileName)));
