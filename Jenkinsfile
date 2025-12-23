@@ -134,7 +134,7 @@ pipeline {
                                 --volume "${PWD}:${PWD}"                               \
                                 --volume /var/run/docker.sock:/var/run/docker.sock     \
                                 --workdir "${PWD}"                                     \
-                                "${DOCKER_MAVEN}"                                      \
+                                "${DOCKER_MAVEN_3_8_5}"                                      \
                                     sh -c 'mvn                                         \
                                         clean validate install                         \
                                             --activate-profiles no-plugin-copy         \
