@@ -175,13 +175,23 @@ public class JSONWebKey implements Buildable<JSONWebKey> {
   }
 
   /**
-   * Build a public key from a JSON Web Key containing a public RSA or EC key.
+   * Build a public key from a JSON Web Key containing a public EC, OKP, or RSA key.
    *
    * @param key a JSON web key containing a public key
    * @return a public key
    */
   public static PublicKey parse(JSONWebKey key) {
     return new JSONWebKeyParser().parse(key);
+  }
+
+  /**
+   * Build a private key from a JSON Web Key containing a private EC, OKP, or RSA key.
+   *
+   * @param key a JSON web key containing a private key
+   * @return a public key
+   */
+  public static PrivateKey parsePrivate(JSONWebKey key) {
+    return new JSONWebKeyParser().parsePrivate(key);
   }
 
   /**
