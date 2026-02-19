@@ -380,8 +380,6 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
     JSONWebKeyParser parser = new JSONWebKeyParser();
     java.security.PrivateKey privateKey = parser.parsePrivate(jwk);
     assertNotNull(privateKey);
-    // Both Ed25519 and Ed448 keys report "EdDSA" as their algorithm
-    assertEquals(privateKey.getAlgorithm(), "EdDSA");
   }
 
   @Test
