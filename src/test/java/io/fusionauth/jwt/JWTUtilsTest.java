@@ -384,6 +384,24 @@ public class JWTUtilsTest extends BaseTest {
   }
 
   @Test
+  public void jws_kid_pssControl() {
+    // Same elements as rsa control, but we have a different key type,
+    // so we'll get different sha values.
+    JSONWebKey pssKey = new JSONWebKey();
+    pssKey.kty = KeyType.RSASSA_PSS;
+    pssKey.n = "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw";
+    pssKey.e = "AQAB";
+
+    // SHA-1
+    assertEquals(JWTUtils.generateJWS_kid(pssKey), "cQP8OQaKDsN3IcB7kS48XMywclQ");
+    assertEquals(JWTUtils.generateJWS_kid("SHA-1", pssKey), "cQP8OQaKDsN3IcB7kS48XMywclQ");
+
+    // SHA-256
+    assertEquals(JWTUtils.generateJWS_kid_S256(pssKey), "BAQAQh9ReyFN-FTuSC_vWqCvGb7Bdn3apRpnnT-BtRw");
+    assertEquals(JWTUtils.generateJWS_kid("SHA-256", pssKey), "BAQAQh9ReyFN-FTuSC_vWqCvGb7Bdn3apRpnnT-BtRw");
+  }
+
+  @Test
   public void jws_kid_ec() {
     JSONWebKey ecKey = new JSONWebKey();
     ecKey.kty = KeyType.EC;
@@ -398,6 +416,24 @@ public class JWTUtilsTest extends BaseTest {
     // SHA-256
     assertEquals(JWTUtils.generateJWS_kid_S256(ecKey), "cn-I_WNMClehiVp51i_0VpOENW1upEerA8sEam5hn-s");
     assertEquals(JWTUtils.generateJWS_kid("SHA-256", ecKey), "cn-I_WNMClehiVp51i_0VpOENW1upEerA8sEam5hn-s");
+  }
+
+  @Test
+  public void jws_kid_eddsa() {
+    // Control example from RFC 8037 (the SHA-256 thumbprint)
+    // https://www.rfc-editor.org/rfc/rfc8037.html#appendix-A.3
+    JSONWebKey eddsaKey = new JSONWebKey();
+    eddsaKey.kty = KeyType.OKP;
+    eddsaKey.crv = "Ed25519";
+    eddsaKey.x = "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo";
+
+    // SHA-1
+    assertEquals(JWTUtils.generateJWS_kid(eddsaKey), "VmxEWEmFxGLRPOX30HXyts0yJOE");
+    assertEquals(JWTUtils.generateJWS_kid("SHA-1", eddsaKey), "VmxEWEmFxGLRPOX30HXyts0yJOE");
+
+    // SHA-256
+    assertEquals(JWTUtils.generateJWS_kid_S256(eddsaKey), "kPrK_qmxVWaYVA9wwBF6Iuo3vVzz7TxHCTwXBygrS4k");
+    assertEquals(JWTUtils.generateJWS_kid("SHA-256", eddsaKey), "kPrK_qmxVWaYVA9wwBF6Iuo3vVzz7TxHCTwXBygrS4k");
   }
 
   private void assertPrefix(String key, String prefix) {
