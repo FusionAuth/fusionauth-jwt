@@ -189,7 +189,7 @@ public class JSONWebKeyParser {
       } else if (key.kty == KeyType.OKP) {
         // EdDSA Private key
         if (!"Ed25519".equals(key.crv) && !"Ed448".equals(key.crv)) {
-          throw new UnsupportedOperationException("Only a Ed25519 or Ed448 OKP JSON Web key may be parsed.");
+          throw new UnsupportedOperationException("Only an Ed25519 or Ed448 OKP JSON Web key may be parsed.");
         }
 
         if (key.d == null) {
