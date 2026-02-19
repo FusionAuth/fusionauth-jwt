@@ -369,7 +369,7 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
 
     // Build a JSON Web Key from our own EdDSA key pair (including private key)
     JSONWebKey jwk = JSONWebKey.build(keyPair.privateKey);
-    jwk.alg = Algorithm.Ed25519;
+    jwk.alg = curve.equals("Ed25519") ? Algorithm.Ed25519 : Algorithm.Ed448;
     jwk.kty = KeyType.OKP;
 
     // Verify we have private key parameter

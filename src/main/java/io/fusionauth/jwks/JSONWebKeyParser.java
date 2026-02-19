@@ -179,7 +179,7 @@ public class JSONWebKeyParser {
             parameters.init(new ECGenParameterSpec("secp521r1"));
             break;
           default:
-            throw new UnsupportedOperationException("Unsupported EC algorithm. Support algorithms include P-256, P-384 and P-521.");
+            throw new UnsupportedOperationException("Unsupported EC algorithm. Supported algorithms include P-256, P-384 and P-521.");
         }
 
         ECParameterSpec ecParameterSpec = parameters.getParameterSpec(ECParameterSpec.class);
