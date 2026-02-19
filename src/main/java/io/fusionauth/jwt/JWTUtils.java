@@ -20,6 +20,7 @@ import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.domain.Header;
 import io.fusionauth.jwt.domain.JWT;
 import io.fusionauth.jwt.domain.KeyPair;
+import io.fusionauth.jwt.domain.KeyType;
 import io.fusionauth.jwt.json.Mapper;
 import io.fusionauth.pem.domain.PEM;
 
@@ -32,8 +33,6 @@ import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import static io.fusionauth.jwt.domain.KeyType.EC;
 
 /**
  * Helper to generate new HMAC secrets, EC and RSA public / private key pairs and other fun things.
@@ -213,6 +212,7 @@ public class JWTUtils {
 
   /**
    * Generate the JWK Thumbprint as per RFC 7638.
+   * EdDSA thumbprint per RFC 8037
    *
    * @param algorithm the algorithm used to calculate the hash of the thumbprint, generally SHA-1 or SHA-256.
    * @param key       the {@link JSONWebKey} to determine the thumbprint for
@@ -221,15 +221,26 @@ public class JWTUtils {
   public static String generateJWS_kid(String algorithm, JSONWebKey key) {
     Map<String, Object> thumbPrint = new LinkedHashMap<>(4);
 
-    if (key.kty == EC) {
-      thumbPrint.put("crv", key.crv);
-      thumbPrint.put("kty", key.kty);
-      thumbPrint.put("x", key.x);
-      thumbPrint.put("y", key.y);
-    } else {
-      thumbPrint.put("e", key.e);
-      thumbPrint.put("kty", key.kty);
-      thumbPrint.put("n", key.n);
+    switch (key.kty) {
+      case EC:
+        thumbPrint.put("crv", key.crv);
+        thumbPrint.put("kty", key.kty);
+        thumbPrint.put("x", key.x);
+        thumbPrint.put("y", key.y);
+        break;
+      case RSA:
+      case RSASSA_PSS:
+        thumbPrint.put("e", key.e);
+        thumbPrint.put("kty", key.kty);
+        thumbPrint.put("n", key.n);
+        break;
+      case OKP:
+        thumbPrint.put("crv", key.crv);
+        thumbPrint.put("kty", key.kty);
+        thumbPrint.put("x", key.x);
+        break;
+      default:
+        throw new IllegalArgumentException("Unsupported key type [" + key.kty + "]");
     }
 
     return digest(algorithm, Mapper.serialize(thumbPrint));
