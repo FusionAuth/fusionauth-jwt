@@ -175,7 +175,7 @@ public class JSONWebKey implements Buildable<JSONWebKey> {
   }
 
   /**
-   * Build a public key from a JSON Web Key containing a public RSA or EC key.
+   * Build a public key from a JSON Web Key containing a public EC, OKP, or RSA key.
    *
    * @param key a JSON web key containing a public key
    * @return a public key

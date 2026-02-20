@@ -36,8 +36,10 @@ import java.security.interfaces.RSAPublicKey;
 import static io.fusionauth.jwks.JWKUtils.base64DecodeUint;
 import static io.fusionauth.jwks.JWKUtils.base64EncodeUint;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 /**
@@ -282,5 +284,67 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
     PEM pem = PEM.decode(encodedPEM);
     assertEquals(JSONWebKey.build(pem.publicKey).n, expected.n);
     assertEquals(JSONWebKey.build(pem.publicKey).e, expected.e);
+  }
+
+  @Test
+  public void containsPrivateKeyParams_rsa() {
+    // Build an RSA key pair. Ensure containsPrivateKeyParams()
+    // returns true for the private key and false for the public key
+    KeyPair keyPair = JWTUtils.generate2048_RSAKeyPair();
+
+    // Build JSON Web Keys from the RSA key pair
+    JSONWebKey privateJwk = JSONWebKey.build(keyPair.privateKey);
+    JSONWebKey publicJwk = JSONWebKey.build(keyPair.publicKey);
+
+    JSONWebKeyParser parser = new JSONWebKeyParser();
+    assertTrue(parser.containsPrivateKeyParams(privateJwk));
+    assertFalse(parser.containsPrivateKeyParams(publicJwk));
+  }
+
+  @Test
+  public void containsPrivateKeyParams_rsapss() {
+    // Build an RSAPSS key pair. Ensure containsPrivateKeyParams()
+    // returns true for the private key and false for the public key
+    KeyPair keyPair = JWTUtils.generate2048_RSAPSSKeyPair();
+
+    // Build JSON Web Keys from the RSA key pair
+    JSONWebKey privateJwk = JSONWebKey.build(keyPair.privateKey);
+    JSONWebKey publicJwk = JSONWebKey.build(keyPair.publicKey);
+
+    JSONWebKeyParser parser = new JSONWebKeyParser();
+    assertTrue(parser.containsPrivateKeyParams(privateJwk));
+    assertFalse(parser.containsPrivateKeyParams(publicJwk));
+  }
+
+  @Test
+  public void containsPrivateKeyParams_ec() {
+    // Build an EC key pair. Ensure containsPrivateKeyParams()
+    // returns true for the private key and false for the public key
+    KeyPair keyPair = JWTUtils.generate256_ECKeyPair();
+
+    // Build a JSON Web Key from our own EC key pair (including private key)
+    JSONWebKey privateJwk = JSONWebKey.build(keyPair.privateKey);
+    JSONWebKey publicJwk = JSONWebKey.build(keyPair.publicKey);
+
+    JSONWebKeyParser parser = new JSONWebKeyParser();
+    assertTrue(parser.containsPrivateKeyParams(privateJwk));
+    assertFalse(parser.containsPrivateKeyParams(publicJwk));
+  }
+
+  @Test(dataProvider = "EdDSACurves")
+  public void containsPrivateKeyParams_eddsa(String curve) {
+    // Build an EdDSA key pair. Ensure containsPrivateKeyParams()
+    // returns true for the private key and false for the public key
+    KeyPair keyPair = curve.equals("Ed25519")
+        ? JWTUtils.generate_ed25519_EdDSAKeyPair()
+        : JWTUtils.generate_ed448_EdDSAKeyPair();
+
+    // Build a JSON Web Key from our own EdDSA key pair (including private key)
+    JSONWebKey privateJwk = JSONWebKey.build(keyPair.privateKey);
+    JSONWebKey publicJwk = JSONWebKey.build(keyPair.publicKey);
+
+    JSONWebKeyParser parser = new JSONWebKeyParser();
+    assertTrue(parser.containsPrivateKeyParams(privateJwk));
+    assertFalse(parser.containsPrivateKeyParams(publicJwk));
   }
 }

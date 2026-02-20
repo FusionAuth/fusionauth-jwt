@@ -24,17 +24,21 @@ import io.fusionauth.pem.domain.PEM;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
+import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.ECPublicKeySpec;
 import java.security.spec.EdECPoint;
+import java.security.spec.EdECPrivateKeySpec;
 import java.security.spec.EdECPublicKeySpec;
 import java.security.spec.KeySpec;
 import java.security.spec.NamedParameterSpec;
+import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.Objects;
@@ -116,6 +120,49 @@ public class JSONWebKeyParser {
       throw e;
     } catch (Exception e) {
       throw new JSONWebKeyParserException("Failed to parse the provided JSON Web Key", e);
+    }
+
+    throw new UnsupportedOperationException("Only RSA, EC or OKP JSON Web Keys may be parsed.");
+  }
+
+  /**
+   * Examine JSON Web Key return true if it contains parameters used in private keys.
+   * Parameters used to construct public keys are not considered. Does not
+   * validate that a private key can be reconstructed from the parameters, so does less work
+   * than parsePrivate().
+   * <p>
+   * An example use case is DPoP proof validation that does not allow private keys to be used in
+   * JWT headers.
+   *
+   * @param key the JSON web key
+   * @return true if the key contains private key parameters given a key's kty
+   * Otherwise false.
+   * @throws JSONWebKeyParserException for unsupported key types
+   */
+  public boolean containsPrivateKeyParams(JSONWebKey key) throws JSONWebKeyParserException{
+    Objects.requireNonNull(key);
+
+    if (key.kty == KeyType.RSA) {
+      // RSA public key only has n, e
+      if (key.p != null || key.q != null || key.d != null || key.dp != null || key.dq != null || key.qi != null) {
+        return true;
+      } else {
+        return false;
+      }
+    } else if (key.kty == KeyType.EC) {
+      // EC Public key only has crv, x, y
+      if (key.d != null) {
+        return true;
+      } else {
+        return false;
+      }
+    } else if (key.kty == KeyType.OKP) {
+      // EdDSA Public keys have crv and x
+      if (key.d != null) {
+        return true;
+      } else {
+        return false;
+      }
     }
 
     throw new UnsupportedOperationException("Only RSA, EC or OKP JSON Web Keys may be parsed.");
