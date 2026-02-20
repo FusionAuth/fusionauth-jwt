@@ -126,84 +126,43 @@ public class JSONWebKeyParser {
   }
 
   /**
-   * Parse a JSON Web Key and extract the private key.
+   * Examine JSON Web Key return true if it contains parameters used in private keys.
+   * Parameters used to construct public keys are not considered. Does not
+   * validate that a private key can be reconstructed from the parameters, so does less work
+   * than parsePrivate().
+   * <p>
+   * An example use case is DPoP proof validation that does not allow private keys to be used in
+   * JWT headers.
    *
    * @param key the JSON web key
-   * @return the private key
+   * @return true if the key contains private key parameters given a key's kty
+   * Otherwise false.
+   * @throws JSONWebKeyParserException for unsupported key types
    */
-  public PrivateKey parsePrivate(JSONWebKey key) {
+  public boolean containsPrivateKeyParams(JSONWebKey key) throws JSONWebKeyParserException{
     Objects.requireNonNull(key);
 
-    try {
-      // RSA Private key
-      if (key.kty == KeyType.RSA) {
-        // RSA private keys can be reconstructed from the CRT parameters or from d, n, e
-        if (key.p != null && key.q != null && key.d != null && key.e != null) {
-          // Use CRT parameters if available (more efficient)
-          BigInteger modulus = base64DecodeUint(key.n);
-          BigInteger publicExponent = base64DecodeUint(key.e);
-          BigInteger privateExponent = base64DecodeUint(key.d);
-          BigInteger primeP = base64DecodeUint(key.p);
-          BigInteger primeQ = base64DecodeUint(key.q);
-          BigInteger primeExponentP = key.dp != null ? base64DecodeUint(key.dp) : privateExponent.mod(primeP.subtract(BigInteger.ONE));
-          BigInteger primeExponentQ = key.dq != null ? base64DecodeUint(key.dq) : privateExponent.mod(primeQ.subtract(BigInteger.ONE));
-          BigInteger crtCoefficient = key.qi != null ? base64DecodeUint(key.qi) : primeQ.modInverse(primeP);
-
-          RSAPrivateCrtKeySpec keySpec = new RSAPrivateCrtKeySpec(
-              modulus, publicExponent, privateExponent,
-              primeP, primeQ,
-              primeExponentP, primeExponentQ, crtCoefficient
-          );
-          return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
-        } else if (key.d != null && key.n != null) {
-          // Basic RSA private key without CRT parameters (less common)
-          throw new UnsupportedOperationException("RSA private key without CRT parameters (p, q) is not supported. Please provide p and q values.");
-        } else {
-          throw new JSONWebKeyParserException("Missing required RSA private key parameters. Expected: d, e, n, p, q.");
-        }
-      } else if (key.kty == KeyType.EC) {
-        // EC Private key
-        if (key.d == null) {
-          throw new JSONWebKeyParserException("Missing required EC private key parameter 'd'.");
-        }
-
-        AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
-        switch (key.crv) {
-          case "P-256":
-            parameters.init(new ECGenParameterSpec("secp256r1"));
-            break;
-          case "P-384":
-            parameters.init(new ECGenParameterSpec("secp384r1"));
-            break;
-          case "P-521":
-            parameters.init(new ECGenParameterSpec("secp521r1"));
-            break;
-          default:
-            throw new UnsupportedOperationException("Unsupported EC algorithm. Supported algorithms include P-256, P-384 and P-521.");
-        }
-
-        ECParameterSpec ecParameterSpec = parameters.getParameterSpec(ECParameterSpec.class);
-        BigInteger privateKey = base64DecodeUint(key.d);
-        ECPrivateKeySpec keySpec = new ECPrivateKeySpec(privateKey, ecParameterSpec);
-        return KeyFactory.getInstance("EC").generatePrivate(keySpec);
-      } else if (key.kty == KeyType.OKP) {
-        // EdDSA Private key
-        if (!"Ed25519".equals(key.crv) && !"Ed448".equals(key.crv)) {
-          throw new UnsupportedOperationException("Only an Ed25519 or Ed448 OKP JSON Web key may be parsed.");
-        }
-
-        if (key.d == null) {
-          throw new JSONWebKeyParserException("Missing required OKP private key parameter 'd'.");
-        }
-
-        byte[] privateKeyBytes = Base64.getUrlDecoder().decode(key.d);
-        KeySpec keySpec = new EdECPrivateKeySpec(new NamedParameterSpec(key.crv), privateKeyBytes);
-        return KeyFactory.getInstance(key.crv).generatePrivate(keySpec);
+    if (key.kty == KeyType.RSA) {
+      // RSA public key only has n, e
+      if (key.p != null || key.q != null || key.d != null || key.dp != null || key.dq != null || key.qi != null) {
+        return true;
+      } else {
+        return false;
       }
-    } catch (JSONWebKeyParserException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new JSONWebKeyParserException("Failed to parse the provided JSON Web Key as a private key", e);
+    } else if (key.kty == KeyType.EC) {
+      // EC Public key only has crv, x, y
+      if (key.d != null) {
+        return true;
+      } else {
+        return false;
+      }
+    } else if (key.kty == KeyType.OKP) {
+      // EdDSA Public keys have crv and x
+      if (key.d != null) {
+        return true;
+      } else {
+        return false;
+      }
     }
 
     throw new UnsupportedOperationException("Only RSA, EC or OKP JSON Web Keys may be parsed.");

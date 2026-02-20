@@ -36,8 +36,10 @@ import java.security.interfaces.RSAPublicKey;
 import static io.fusionauth.jwks.JWKUtils.base64DecodeUint;
 import static io.fusionauth.jwks.JWKUtils.base64EncodeUint;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 /**
@@ -284,189 +286,65 @@ public class JSONWebKeyParserTest extends BaseJWTTest {
     assertEquals(JSONWebKey.build(pem.publicKey).e, expected.e);
   }
 
-  @Test(invocationCount = 100)
-  public void parsePrivate_rsa() {
+  @Test
+  public void containsPrivateKeyParams_rsa() {
+    // Build an RSA key pair. Ensure containsPrivateKeyParams()
+    // returns true for the private key and false for the public key
     KeyPair keyPair = JWTUtils.generate2048_RSAKeyPair();
 
-    // Build a JSON Web Key from our own RSA key pair (including private key)
-    JSONWebKey jwk = JSONWebKey.build(keyPair.privateKey);
-    // Note that the alg property in the JWK is optional, and with an RSA key we don't know the algorithm.
+    // Build JSON Web Keys from the RSA key pair
+    JSONWebKey privateJwk = JSONWebKey.build(keyPair.privateKey);
+    JSONWebKey publicJwk = JSONWebKey.build(keyPair.publicKey);
 
-    // Verify we have private key parameters
-    assertEquals(jwk.kty, KeyType.RSA);
-    assertNotNull(jwk.d);
-    assertNotNull(jwk.p);
-    assertNotNull(jwk.q);
-
-    // Parse the private key from JWK
     JSONWebKeyParser parser = new JSONWebKeyParser();
-    java.security.PrivateKey privateKey = parser.parsePrivate(jwk);
-    assertNotNull(privateKey);
-    assertEquals(privateKey.getAlgorithm(), "RSA");
-  }
-
-  @Test(expectedExceptions = JSONWebKeyParserException.class)
-  public void parsePrivate_rsa_public() {
-    // Trying to parse a public key should throw an exception
-    KeyPair keyPair = JWTUtils.generate2048_RSAKeyPair();
-
-    JSONWebKey jwk = JSONWebKey.build(keyPair.publicKey);
-
-    // Verify we have public key parameters
-    assertEquals(jwk.kty, KeyType.RSA);
-    assertNotNull(jwk.n);
-    assertNotNull(jwk.e);
-
-    // Parse the private key from JWK should throw an exception
-    new JSONWebKeyParser().parsePrivate(jwk);
+    assertTrue(parser.containsPrivateKeyParams(privateJwk));
+    assertFalse(parser.containsPrivateKeyParams(publicJwk));
   }
 
   @Test
-  public void parsePrivate_rsa_from_file() throws Exception {
-    // Test with a known RSA private key from file
-    byte[] jwkBytes = Files.readAllBytes(Paths.get("src/test/resources/jwk/rsa_private_key_jwk_control.json"));
-    JSONWebKey jwk = Mapper.deserialize(jwkBytes, JSONWebKey.class);
+  public void containsPrivateKeyParams_rsapss() {
+    // Build an RSAPSS key pair. Ensure containsPrivateKeyParams()
+    // returns true for the private key and false for the public key
+    KeyPair keyPair = JWTUtils.generate2048_RSAPSSKeyPair();
+
+    // Build JSON Web Keys from the RSA key pair
+    JSONWebKey privateJwk = JSONWebKey.build(keyPair.privateKey);
+    JSONWebKey publicJwk = JSONWebKey.build(keyPair.publicKey);
 
     JSONWebKeyParser parser = new JSONWebKeyParser();
-    java.security.PrivateKey privateKey = parser.parsePrivate(jwk);
-    assertNotNull(privateKey);
-
-    // Verify the parsed key can be re-encoded
-    String encodedPEM = PEM.encode(privateKey);
-    JSONWebKey rebuiltJWK = JSONWebKey.build(encodedPEM);
-
-    assertEquals(rebuiltJWK.n, jwk.n);
-    assertEquals(rebuiltJWK.e, jwk.e);
+    assertTrue(parser.containsPrivateKeyParams(privateJwk));
+    assertFalse(parser.containsPrivateKeyParams(publicJwk));
   }
 
-  @Test(invocationCount = 100)
-  public void parsePrivate_ec() {
+  @Test
+  public void containsPrivateKeyParams_ec() {
+    // Build an EC key pair. Ensure containsPrivateKeyParams()
+    // returns true for the private key and false for the public key
     KeyPair keyPair = JWTUtils.generate256_ECKeyPair();
 
     // Build a JSON Web Key from our own EC key pair (including private key)
-    JSONWebKey jwk = JSONWebKey.build(keyPair.privateKey);
-
-    // Verify we have private key parameters
-    assertEquals(jwk.alg, Algorithm.ES256);
-    assertEquals(jwk.kty, KeyType.EC);
-    assertNotNull(jwk.d);
-    assertNotNull(jwk.x);
-    assertNotNull(jwk.y);
-
-    // Parse the private key from JWK
-    JSONWebKeyParser parser = new JSONWebKeyParser();
-    java.security.PrivateKey privateKey = parser.parsePrivate(jwk);
-    assertNotNull(privateKey);
-    assertEquals(privateKey.getAlgorithm(), "EC");
-  }
-
-  @Test(expectedExceptions = JSONWebKeyParserException.class)
-  public void parsePrivate_ec_public() {
-    // Trying to parse a public key should throw an exception
-    KeyPair keyPair = JWTUtils.generate256_ECKeyPair();
-
-    JSONWebKey jwk = JSONWebKey.build(keyPair.publicKey);
-
-    // Verify we have public key parameters
-    assertNotNull(jwk.alg);
-    assertNotNull(jwk.x);
-    assertNotNull(jwk.y);
-
-    new JSONWebKeyParser().parsePrivate(jwk);
-  }
-
-  @Test
-  public void parsePrivate_ec_from_file() throws Exception {
-    // Test with a known EC private key from a file
-    byte[] jwkBytes = Files.readAllBytes(Paths.get("src/test/resources/jwk/ec_private_prime256v1_p_256_openssl_pkcs8.json"));
-    JSONWebKey jwk = Mapper.deserialize(jwkBytes, JSONWebKey.class);
+    JSONWebKey privateJwk = JSONWebKey.build(keyPair.privateKey);
+    JSONWebKey publicJwk = JSONWebKey.build(keyPair.publicKey);
 
     JSONWebKeyParser parser = new JSONWebKeyParser();
-    java.security.PrivateKey privateKey = parser.parsePrivate(jwk);
-    assertNotNull(privateKey);
-
-    // Verify the parsed key can be re-encoded
-    String encodedPEM = PEM.encode(privateKey);
-    JSONWebKey rebuiltJWK = JSONWebKey.build(encodedPEM);
-
-    assertEquals(rebuiltJWK.d, jwk.d);
-    assertEquals(rebuiltJWK.x, jwk.x);
-    assertEquals(rebuiltJWK.y, jwk.y);
+    assertTrue(parser.containsPrivateKeyParams(privateJwk));
+    assertFalse(parser.containsPrivateKeyParams(publicJwk));
   }
 
-  @Test(dataProvider = "EdDSACurves", invocationCount = 100)
-  public void parsePrivate_eddsa(String curve) {
+  @Test(dataProvider = "EdDSACurves")
+  public void containsPrivateKeyParams_eddsa(String curve) {
+    // Build an EdDSA key pair. Ensure containsPrivateKeyParams()
+    // returns true for the private key and false for the public key
     KeyPair keyPair = curve.equals("Ed25519")
         ? JWTUtils.generate_ed25519_EdDSAKeyPair()
         : JWTUtils.generate_ed448_EdDSAKeyPair();
 
     // Build a JSON Web Key from our own EdDSA key pair (including private key)
-    JSONWebKey jwk = JSONWebKey.build(keyPair.privateKey);
-
-    // Verify we have private key parameters
-    assertEquals(jwk.alg, curve.equals("Ed25519") ? Algorithm.Ed25519 : Algorithm.Ed448);
-    assertEquals(jwk.kty, KeyType.OKP);
-    assertNotNull(jwk.d);
-    assertNotNull(jwk.x);
-
-    // Parse the private key from JWK
-    JSONWebKeyParser parser = new JSONWebKeyParser();
-    java.security.PrivateKey privateKey = parser.parsePrivate(jwk);
-    assertNotNull(privateKey);
-  }
-
-  @Test(dataProvider = "EdDSACurves", expectedExceptions = JSONWebKeyParserException.class)
-  public void parsePrivate_eddsa_public(String curve) {
-    // Trying to parse a public key should throw an exception
-    KeyPair keyPair = curve.equals("Ed25519")
-        ? JWTUtils.generate_ed25519_EdDSAKeyPair()
-        : JWTUtils.generate_ed448_EdDSAKeyPair();
-
-    JSONWebKey jwk = JSONWebKey.build(keyPair.publicKey);
-
-    // Verify we have public key parameters
-    assertEquals(jwk.alg, curve.equals("Ed25519") ? Algorithm.Ed25519 : Algorithm.Ed448);
-    assertEquals(jwk.kty, KeyType.OKP);
-    assertEquals(jwk.crv, curve);
-    assertNotNull(jwk.crv);
-    assertNotNull(jwk.x);
-
-    new JSONWebKeyParser().parsePrivate(jwk);
-  }
-
-  @Test
-  public void parsePrivate_ed25519_from_file() throws Exception {
-    // Test with a known Ed25519 private key from file
-    byte[] jwkBytes = Files.readAllBytes(Paths.get("src/test/resources/jwk/ed_dsa_ed25519_private_key.json"));
-    JSONWebKey jwk = Mapper.deserialize(jwkBytes, JSONWebKey.class);
+    JSONWebKey privateJwk = JSONWebKey.build(keyPair.privateKey);
+    JSONWebKey publicJwk = JSONWebKey.build(keyPair.publicKey);
 
     JSONWebKeyParser parser = new JSONWebKeyParser();
-    java.security.PrivateKey privateKey = parser.parsePrivate(jwk);
-    assertNotNull(privateKey);
-
-    // Verify the parsed key can be re-encoded
-    String encodedPEM = PEM.encode(privateKey);
-    JSONWebKey rebuiltJWK = JSONWebKey.build(encodedPEM);
-
-    assertEquals(rebuiltJWK.d, jwk.d);
-    assertEquals(rebuiltJWK.x, jwk.x);
-  }
-
-  @Test
-  public void parsePrivate_ed448_from_file() throws Exception {
-    // Test with a known Ed448 private key from a file
-    byte[] jwkBytes = Files.readAllBytes(Paths.get("src/test/resources/jwk/ed_dsa_ed448_private_key.json"));
-    JSONWebKey jwk = Mapper.deserialize(jwkBytes, JSONWebKey.class);
-
-    JSONWebKeyParser parser = new JSONWebKeyParser();
-    java.security.PrivateKey privateKey = parser.parsePrivate(jwk);
-    assertNotNull(privateKey);
-
-    // Verify the parsed key can be re-encoded
-    String encodedPEM = PEM.encode(privateKey);
-    JSONWebKey rebuiltJWK = JSONWebKey.build(encodedPEM);
-
-    assertEquals(rebuiltJWK.d, jwk.d);
-    assertEquals(rebuiltJWK.x, jwk.x);
+    assertTrue(parser.containsPrivateKeyParams(privateJwk));
+    assertFalse(parser.containsPrivateKeyParams(publicJwk));
   }
 }
