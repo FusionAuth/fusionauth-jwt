@@ -77,7 +77,7 @@ public class EdDSAVerifierTest extends BaseJWTTest {
 
       String publicKeyFile = f.replace("_private_", "_public_");
       String actualPublicPEM = new String(Files.readAllBytes(Paths.get("src/test/resources/" + publicKeyFile))).trim();
-      assertEquals(actualPublicPEM, PEM.encode(pem.publicKey), message);
+      assertEquals(actualPublicPEM.replace("\r\n", "\n"), PEM.encode(pem.publicKey).replace("\r\n", "\n"), message.replace("\r\n", "\n"));
     }
   }
 

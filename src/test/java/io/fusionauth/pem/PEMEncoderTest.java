@@ -56,11 +56,11 @@ public class PEMEncoderTest extends BaseTest {
 
     PEM pem = PEM.decode(privateKeyPEM);
     String extractedPublicKeyPEM = PEM.encode(pem.publicKey);
-    assertEquals(publicKeyPEM, extractedPublicKeyPEM);
+    assertEquals(publicKeyPEM.replace("\r\n", "\n"), extractedPublicKeyPEM.replace("\r\n", "\n"));
 
     // The key is already in the correct format, and we don't recombine them. So the result should be equal to the private key.
     String pkcs8PEM = PEM.encode(pem.getPrivateKey(), pem.getPublicKey());
-    assertEquals(privateKeyPEM, pkcs8PEM);
+    assertEquals(privateKeyPEM.replace("\r\n", "\n"), pkcs8PEM.replace("\r\n", "\n"));
 
     // Key generation and PEM Encoding
     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("Ed25519");
@@ -149,11 +149,11 @@ public class PEMEncoderTest extends BaseTest {
     //   NOTE: some JCE providers don't include the public key from calling privateKey.getEncoded(), which is why we are
     //   passing both in here. This is the only way to consistently ensure that the PEM encoding is the same as the original
     String encodedPrivateKey = PEM.encode(pem.getPrivateKey(), pem.getPublicKey());
-    assertEquals(encodedPrivateKey, expectedPrivate);
+    assertEquals(encodedPrivateKey.replace("\r\n", "\n"), expectedPrivate.replace("\r\n", "\n"));
 
     // Re-encode the public key to PEM X.509 format and ensure it equals the original
     String encodedPublicKey = PEM.encode((Key) pem.getPublicKey());
-    assertEquals(encodedPublicKey, expectedPublic);
+    assertEquals(encodedPublicKey.replace("\r\n", "\n"), expectedPublic.replace("\r\n", "\n"));
   }
 
   @Test(invocationCount = 100)
@@ -206,11 +206,11 @@ public class PEMEncoderTest extends BaseTest {
     assertTrue(encodedPrivateKey_pkcs_8.startsWith(PEM.PKCS_8_PRIVATE_KEY_PREFIX));
     // The PKCS#1 will not equal the PKCS#8 key
     assertNotEquals(encodedPrivateKey_pkcs_8, expectedPrivate_pkcs_1);
-    assertEquals(encodedPrivateKey_pkcs_8, expectedPrivate_pkcs_8);
+    assertEquals(encodedPrivateKey_pkcs_8.replace("\r\n", "\n"), expectedPrivate_pkcs_8.replace("\r\n", "\n"));
 
     // Re-encode the public key to PEM X.509 format and ensure it equals the original
     String encodedPublicKey = PEM.encode((Key) pem.getPublicKey());
-    assertEquals(encodedPublicKey, expectedPublic);
+    assertEquals(encodedPublicKey.replace("\r\n", "\n"), expectedPublic.replace("\r\n", "\n"));
   }
 
   @Test(invocationCount = 250)
@@ -235,10 +235,10 @@ public class PEMEncoderTest extends BaseTest {
     // Re-encode the private to PEM PKCS#8 format
     String encodedPrivateKey_pkcs_8 = PEM.encode((Key) pem.getPrivateKey());
     assertTrue(encodedPrivateKey_pkcs_8.startsWith(PEM.PKCS_8_PRIVATE_KEY_PREFIX));
-    assertEquals(encodedPrivateKey_pkcs_8, expectedPrivate);
+    assertEquals(encodedPrivateKey_pkcs_8.replace("\r\n", "\n"), expectedPrivate.replace("\r\n", "\n"));
 
     // Re-encode the public key to PEM X.509 format and ensure it equals the original
     String encodedPublicKey = PEM.encode((Key) pem.getPublicKey());
-    assertEquals(encodedPublicKey, expectedPublic);
+    assertEquals(encodedPublicKey.replace("\r\n", "\n"), expectedPublic.replace("\r\n", "\n"));
   }
 }
