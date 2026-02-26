@@ -16,7 +16,7 @@
 
 package io.fusionauth.jwt.json;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import  tools.jackson.databind.module.SimpleModule;
 
 import java.time.ZonedDateTime;
 

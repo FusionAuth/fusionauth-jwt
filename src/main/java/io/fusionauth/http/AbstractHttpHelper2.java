@@ -13,7 +13,7 @@ import java.util.function.Function;
 /**
  * @author Daniel DeGroff
  */
-public abstract class AbstractHttpHelper {
+public abstract class AbstractHttpHelper2 {
   protected static <T> T get(HttpURLConnection urlConnection, Function<InputStream, T> consumer, BiFunction<String, Throwable, ? extends RuntimeException> exception) {
     String endpoint = urlConnection.getURL().toString();
 

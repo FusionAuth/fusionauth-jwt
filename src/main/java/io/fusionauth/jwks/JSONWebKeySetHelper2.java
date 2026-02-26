@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 /**
  * @author Daniel DeGroff
  */
-public class JSONWebKeySetHelper extends AbstractHttpHelper {
+public class JSONWebKeySetHelper2 extends AbstractHttpHelper {
   /**
    * Retrieve a list of JSON Web Keys from the JWK endpoint using the OIDC issuer as a starting point.
    *

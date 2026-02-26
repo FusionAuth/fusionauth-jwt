@@ -3,7 +3,7 @@
 
     <groupId>io.fusionauth</groupId>
     <artifactId>fusionauth-jwt</artifactId>
-    <version>6.0.0</version>
+    <version>7.0.0</version>
     <packaging>jar</packaging>
 
     <name>FusionAuth JWT</name>
@@ -60,54 +60,60 @@
     </properties>
 
     <dependencies>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>2.15.4</version>
-      <type>jar</type>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.15.4</version>
-      <type>jar</type>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-      <version>2.15.4</version>
-      <type>jar</type>
-      <scope>compile</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bc-fips</artifactId>
-      <version>2.1.2</version>
-      <type>jar</type>
-      <scope>test</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.testng</groupId>
-      <artifactId>testng</artifactId>
-      <version>7.9.0</version>
-      <type>jar</type>
-      <scope>test</scope>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-nop</artifactId>
-      <version>1.7.36</version>
-      <type>jar</type>
-      <scope>test</scope>
-      <optional>false</optional>
-    </dependency>
+		<!-- Source: https://mvnrepository.com/artifact/tools.jackson.core/jackson-core -->
+		<dependency>
+		    <groupId>tools.jackson.core</groupId>
+		    <artifactId>jackson-core</artifactId>
+		    <version>3.1.0</version>
+		    <type>jar</type>
+	        <scope>compile</scope>
+      		<optional>false</optional>
+		</dependency>
+		<!-- Source: https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind -->
+		<dependency>
+		    <groupId>tools.jackson.core</groupId>
+		    <artifactId>jackson-databind</artifactId>
+		    <version>3.1.0</version>
+            <type>jar</type>
+      		<scope>compile</scope>
+      		<optional>false</optional>
+		</dependency>
+		<!-- Source: https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
+		<dependency>
+		    <groupId>com.fasterxml.jackson.core</groupId>
+		    <artifactId>jackson-annotations</artifactId>
+		    <version>2.21</version>
+		    <type>jar</type>
+		    <scope>compile</scope>
+      		<optional>false</optional>
+		</dependency>
+		<!-- Source: https://mvnrepository.com/artifact/org.bouncycastle/bc-fips -->
+		<dependency>
+		    <groupId>org.bouncycastle</groupId>
+		    <artifactId>bc-fips</artifactId>
+		    <version>2.1.2</version>
+          	<type>jar</type>
+      		<scope>test</scope>
+      		<optional>false</optional>
+		</dependency>
+		<!-- Source: https://mvnrepository.com/artifact/org.testng/testng -->
+		<dependency>
+		    <groupId>org.testng</groupId>
+		    <artifactId>testng</artifactId>
+		    <version>7.12.0</version>
+		    <scope>test</scope>
+		    <type>jar</type>
+      		<optional>false</optional>
+		</dependency>	
+		<!-- Source: https://mvnrepository.com/artifact/org.slf4j/slf4j-nop -->
+		<dependency>
+		    <groupId>org.slf4j</groupId>
+		    <artifactId>slf4j-nop</artifactId>
+		    <version>2.0.17</version>
+		    <type>jar</type>
+      		<scope>test</scope>
+      		<optional>false</optional>
+		</dependency>
   </dependencies>
 
     <build>

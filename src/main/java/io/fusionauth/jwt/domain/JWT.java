@@ -20,14 +20,15 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import io.fusionauth.jwt.JWTDecoder;
 import io.fusionauth.jwt.JWTEncoder;
 import io.fusionauth.jwt.TimeMachineJWTDecoder;
 import io.fusionauth.jwt.json.Mapper;
 import io.fusionauth.jwt.json.ZonedDateTimeDeserializer;
 import io.fusionauth.jwt.json.ZonedDateTimeSerializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
