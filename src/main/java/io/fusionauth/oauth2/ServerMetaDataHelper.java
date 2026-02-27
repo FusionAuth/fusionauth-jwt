@@ -46,7 +46,7 @@ public class ServerMetaDataHelper extends AbstractHttpHelper {
   /**
    * Retrieve OAuth2 Authorization Server Metadata. Use this method if you know the well-known meta data URL and you want to build your own HTTP URL Connection.
    *
-   * @param HttpRequest the HTTP request that will be used to connect to the Authorization Server Metadata well known discovery endpoint.
+   * @param request the HTTP request that will be used to connect to the Authorization Server Metadata well known discovery endpoint.
    * @return the authorization server metadata.
    */
   public static AuthorizationServerMetaData retrieveFromWellKnownConfiguration(HttpRequest request) {
