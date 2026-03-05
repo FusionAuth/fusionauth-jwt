@@ -9,7 +9,7 @@ We are very interested in compensating anyone that can identify a security relat
 ## Features
  - JWT signing using the following algorithms
    - `HS256`, `HS384`, `HS512`, `RS256`, `RS384`, `RS512`, `ES256`, `ES384`, `ES512`, `PS256`, `PS384`, `PS512`, `Ed25519`, `Ed448`
-     - In order to use the OpenID Connect hashing functions for `at_hash` or `c_hash` with this algorithm, you must register a provider to add support for the `SHAKE256` message digest, such as BouncyCastle as this algorithm is not provided in the default JCA.
+     - In order to use the OpenID Connect hashing functions for `at_hash` or `c_hash` with the `Ed448` algorithm, you must register a provider to add support for the `SHAKE256` message digest, such as BouncyCastle as this algorithm is not provided in the default JCA.
      - When using `Ed25519` or `Ed448`, the `alg` JWT header and the JWK `alg` property will be equal to the algorithm name. The legacy `EdDSA` value has been deprecated in JOSE in favor of the fully-specified algorithm names `Ed25519` and `Ed448`. In practice this means that this library will be unable to accept a JWT using the `EdDSA` value for the `alg` in the JWT header.
        - https://www.iana.org/assignments/jose/jose.xhtml#web-signature-encryption-algorithms
  - Support for Bouncy Castle JCE or other third party providers.   
