@@ -52,7 +52,7 @@ public abstract class AbstractHttpHelper {
 	    try {
 	        HttpRequest.Builder builder = HttpRequest.newBuilder()
 	            .uri(URI.create(endpoint))
-	            .timeout(Duration.ofMillis(10000))
+	            .timeout(Duration.ofMillis(10_000))
 	            .header("User-Agent", "fusionauth-jwt (https://github.com/FusionAuth/fusionauth-jwt)")
 	            .GET();
 

@@ -36,22 +36,22 @@ public class JSONWebKeySetHelperTest {
 
     // Provide the URL to the issuer
     List<JSONWebKey> keys1 = JSONWebKeySetHelper.retrieveKeysFromIssuer("https://accounts.google.com");
-    List<JSONWebKey> keys1_useConsumer = JSONWebKeySetHelper.retrieveKeysFromIssuer("https://accounts.google.com", builder -> builder.timeout(Duration.ofMillis(1000)));
+    List<JSONWebKey> keys1_useConsumer = JSONWebKeySetHelper.retrieveKeysFromIssuer("https://accounts.google.com", builder -> builder.timeout(Duration.ofMillis(1_000)));
 
     // Provide the URL to the issuer w/ a trailing slash.
     List<JSONWebKey> keys2 = JSONWebKeySetHelper.retrieveKeysFromIssuer("https://accounts.google.com/"); // Handle trailing slash
-    List<JSONWebKey> keys2_useConsumer = JSONWebKeySetHelper.retrieveKeysFromIssuer("https://accounts.google.com/", builder -> builder.timeout(Duration.ofMillis(1000)));
+    List<JSONWebKey> keys2_useConsumer = JSONWebKeySetHelper.retrieveKeysFromIssuer("https://accounts.google.com/", builder -> builder.timeout(Duration.ofMillis(1_000)));
 
     // Provide the direct URL to the well-known OIDC discovery document that will contain a URL to the JWKS endpoint
     List<JSONWebKey> keys3 = JSONWebKeySetHelper.retrieveKeysFromWellKnownConfiguration("https://accounts.google.com/.well-known/openid-configuration");
-    List<JSONWebKey> keys3_consumer = JSONWebKeySetHelper.retrieveKeysFromWellKnownConfiguration("https://accounts.google.com/.well-known/openid-configuration", builder -> builder.timeout(Duration.ofMillis(1000)));
+    List<JSONWebKey> keys3_consumer = JSONWebKeySetHelper.retrieveKeysFromWellKnownConfiguration("https://accounts.google.com/.well-known/openid-configuration", builder -> builder.timeout(Duration.ofMillis(1_000)));
 
     // Provide a URL connection to the well-known OIDC discovery document that will contain a URL to the JWKS endpoint
     List<JSONWebKey> keys4 = JSONWebKeySetHelper.retrieveKeysFromWellKnownConfiguration("https://accounts.google.com/.well-known/openid-configuration");
 
     // Provide the URL to the JWKS endpoint
     List<JSONWebKey> keys5 = JSONWebKeySetHelper.retrieveKeysFromJWKS("https://www.googleapis.com/oauth2/v3/certs");
-    List<JSONWebKey> keys5_consumer = JSONWebKeySetHelper.retrieveKeysFromJWKS("https://www.googleapis.com/oauth2/v3/certs", builder -> builder.timeout(Duration.ofMillis(1000)));
+    List<JSONWebKey> keys5_consumer = JSONWebKeySetHelper.retrieveKeysFromJWKS("https://www.googleapis.com/oauth2/v3/certs", builder -> builder.timeout(Duration.ofMillis(1_000)));
 
     // Provide a URL connection to the JWKS endpoint
     List<JSONWebKey> keys6 = JSONWebKeySetHelper.retrieveKeysFromJWKS("https://www.googleapis.com/oauth2/v3/certs");
