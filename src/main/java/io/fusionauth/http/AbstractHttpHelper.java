@@ -66,20 +66,20 @@ public abstract class AbstractHttpHelper {
 
 	protected static HttpRequest buildRequest(String endpoint, Consumer<HttpRequest.Builder> consumer) {
 	    try {
-	        HttpRequest.Builder builder = HttpRequest.newBuilder()
-	            .uri(URI.create(endpoint))
-	            .timeout(Duration.ofMillis(10_000))
-	            .header("User-Agent", "fusionauth-jwt (https://github.com/FusionAuth/fusionauth-jwt)")
-	            .GET();
+	    	HttpRequest.Builder builder = HttpRequest.newBuilder()
+	    		.uri(URI.create(endpoint))
+	    		.timeout(Duration.ofMillis(10_000))
+	    		.header("User-Agent", "fusionauth-jwt (https://github.com/FusionAuth/fusionauth-jwt)")
+	    		.GET();
 
-	        if (consumer != null) {
-	            consumer.accept(builder);
-	        }
+	    	if (consumer != null) {
+	    		consumer.accept(builder);
+	    	}
 
-	        return builder.build();
+	    	return builder.build();
 	    } catch (Exception e) {
 	        throw new JSONWebKeySetHelper.JSONWebKeySetException(
-	            "Failed to build connection to [" + endpoint + "].", e);
+	        	"Failed to build connection to [" + endpoint + "].", e);
 	    }
 	}	
 	
