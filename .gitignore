@@ -4,3 +4,6 @@ build
 target
 .DS_Store
 .savant/cache
+/.classpath
+/.project
+/.settings/
