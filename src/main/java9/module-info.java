@@ -12,7 +12,7 @@ module io.fusionauth {
 	exports io.fusionauth.pem;
 	exports io.fusionauth.security;
 
-	requires tools.jackson.databind.annotation;
+	requires com.fasterxml.jackson.annotation;
 	requires tools.jackson.core;
-	requires com.fasterxml.jackson.databind;
+	requires tools.jackson.databind;
 }
