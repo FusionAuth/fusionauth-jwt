@@ -33,7 +33,7 @@ import java.util.function.Function;
  */
 public abstract class AbstractHttpHelper {
 
-	private static volatile HttpClient HTTP_CLIENT = HttpClient.newBuilder().connectTimeout(Duration.ofMillis(10000)).build();
+	private static volatile HttpClient HTTP_CLIENT = HttpClient.newBuilder().connectTimeout(Duration.ofMillis(10_000)).build();
 
 	public static void setHttpClient(HttpClient client) {
 		HTTP_CLIENT = client;
