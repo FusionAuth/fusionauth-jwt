@@ -20,8 +20,9 @@ import io.fusionauth.http.AbstractHttpHelper;
 import io.fusionauth.jwt.json.Mapper;
 import io.fusionauth.oauth2.domain.AuthorizationServerMetaData;
 
-import java.net.HttpURLConnection;
+import java.net.http.HttpRequest;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * @author Daniel DeGroff
@@ -45,11 +46,11 @@ public class ServerMetaDataHelper extends AbstractHttpHelper {
   /**
    * Retrieve OAuth2 Authorization Server Metadata. Use this method if you know the well-known meta data URL and you want to build your own HTTP URL Connection.
    *
-   * @param httpURLConnection the HTTP URL Connection that will be used to connect to the Authorization Server Metadata well known discovery endpoint.
+   * @param request the HTTP request that will be used to connect to the Authorization Server Metadata well known discovery endpoint.
    * @return the authorization server metadata.
    */
-  public static AuthorizationServerMetaData retrieveFromWellKnownConfiguration(HttpURLConnection httpURLConnection) {
-    return get(httpURLConnection,
+  public static AuthorizationServerMetaData retrieveFromWellKnownConfiguration(HttpRequest request) {
+    return get(request,
         is -> Mapper.deserialize(is, AuthorizationServerMetaData.class),
         ServerMetaDataException::new);
   }
@@ -61,7 +62,12 @@ public class ServerMetaDataHelper extends AbstractHttpHelper {
    * @return the authorization server metadata.
    */
   public static AuthorizationServerMetaData retrieveFromWellKnownConfiguration(String endpoint) {
-    return retrieveFromWellKnownConfiguration(buildURLConnection(endpoint));
+    return retrieveFromWellKnownConfiguration(endpoint,null);
+  }
+  
+  public static AuthorizationServerMetaData retrieveFromWellKnownConfiguration(String endpoint,Consumer<HttpRequest.Builder> consumer) {
+	HttpRequest request = buildRequest(endpoint, consumer);
+    return retrieveFromWellKnownConfiguration(request);
   }
 
   public static class ServerMetaDataException extends RuntimeException {

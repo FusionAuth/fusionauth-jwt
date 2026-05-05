@@ -17,13 +17,12 @@
 package io.fusionauth.jwt.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import io.fusionauth.jwt.InvalidJWTException;
 
-import java.io.IOException;
+import io.fusionauth.jwt.InvalidJWTException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import java.io.InputStream;
 
 /**
@@ -32,12 +31,12 @@ import java.io.InputStream;
  * @author Daniel DeGroff
  */
 public class Mapper {
-  private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private final static ObjectMapper OBJECT_MAPPER;
 
   public static <T> T deserialize(byte[] bytes, Class<T> type) throws InvalidJWTException {
     try {
       return OBJECT_MAPPER.readValue(bytes, type);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new InvalidJWTException("The JWT could not be de-serialized.", e);
     }
   }
@@ -45,7 +44,7 @@ public class Mapper {
   public static <T> T deserialize(InputStream is, Class<T> type) throws InvalidJWTException {
     try {
       return OBJECT_MAPPER.readValue(is, type);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new InvalidJWTException("The input stream could not be de-serialized.", e);
     }
   }
@@ -53,7 +52,7 @@ public class Mapper {
   public static byte[] prettyPrint(Object object) throws InvalidJWTException {
     try {
       return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsBytes(object);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new InvalidJWTException("The object could not be serialized.", e);
     }
   }
@@ -61,16 +60,22 @@ public class Mapper {
   public static byte[] serialize(Object object) throws InvalidJWTException {
     try {
       return OBJECT_MAPPER.writeValueAsBytes(object);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new InvalidJWTException("The JWT could not be serialized.", e);
     }
   }
 
   static {
-    OBJECT_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        .configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
-        .configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true)
-        .configure(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS, true)
-        .registerModule(new JacksonModule());
+    OBJECT_MAPPER = JsonMapper.builder()
+		    .changeDefaultPropertyInclusion(incl ->
+		        incl.withValueInclusion(JsonInclude.Include.NON_NULL)
+		            .withContentInclusion(JsonInclude.Include.NON_NULL)) 
+		    // DeserializationFeatures
+		    .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+		    .enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)
+		    // Module
+		    .addModule(new JacksonModule())
+		    .build();
+  
   }
 }
