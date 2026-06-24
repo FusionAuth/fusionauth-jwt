@@ -1,326 +1,293 @@
-## FusionAuth JWT ![semver 2.0.0 compliant](https://img.shields.io/badge/semver-2.0.0-brightgreen.svg?style=flat-square) [![Tests](https://github.com/FusionAuth/fusionauth-jwt/actions/workflows/test.yml/badge.svg)](https://github.com/FusionAuth/fusionauth-jwt/actions/workflows/test.yml)
-FusionAuth JWT is intended to be fast and easy to use. FusionAuth JWT has a single external dependency on Jackson, no Bouncy Castle, Apache Commons or Guava.
+# FusionAuth JWT
 
-## Security disclosures
-If you find a vulnerability or other security related bug, [please report the vulnerability here](https://fusionauth.io/security) before opening a GitHub issue. This will allow us to assess the disclosure and prepare a fix prior to a public disclosure.
+[![Build Status](#)](#)
+[![Maven Central](#)](#)
+[![License](#)](#)
 
-We are very interested in compensating anyone that can identify a security related bug or vulnerability and properly disclose it to us.
+A **fast, lightweight, and dependency-minimal** Java library for working with JSON Web Tokens (JWT).
 
-## Features
- - JWT signing using the following algorithms
-   - `HS256`, `HS384`, `HS512`, `RS256`, `RS384`, `RS512`, `ES256`, `ES384`, `ES512`, `PS256`, `PS384`, `PS512`, `Ed25519`, `Ed448`
-     - In order to use the OpenID Connect hashing functions for `at_hash` or `c_hash` with the `Ed448` algorithm, you must register a provider to add support for the `SHAKE256` message digest, such as BouncyCastle as this algorithm is not provided in the default JCA.
-     - When using `Ed25519` or `Ed448`, the `alg` JWT header and the JWK `alg` property will be equal to the algorithm name. The legacy `EdDSA` value has been deprecated in JOSE in favor of the fully-specified algorithm names `Ed25519` and `Ed448`. In practice this means that this library will be unable to accept a JWT using the `EdDSA` value for the `alg` in the JWT header.
-       - https://www.iana.org/assignments/jose/jose.xhtml#web-signature-encryption-algorithms
- - Support for Bouncy Castle JCE or other third party providers.   
- - PEM decoding / encoding
-   - Decode PEM files to PrivateKey or PublicKey
-     - Decode private EC keys un-encapsulated in PKCS#8, returned PEM will be in PKCS#8 form.
-     - Both public and private keys will be returned when encoded in the private PEM
-   - Encode PrivateKey or PublicKey to PEM
- - JSON Web Key 
-   - Build JWK from Private Key
-   - Build JWK from Public Key
-   - Build JWK from PEM
-   - Parse public keys from a JSON Web Key
-   - Retrieve JWK from JWKS endpoints
- - Helpers
-   - Generate RSA Key Pairs in `2048`, `3072` or `4096` bit sizes
-   - Generate RSA PSS Key Pairs in `2048`, `3072` or `4096` bit sizes
-   - Generate EC Key Pairs in `256`, `384` and `521` bit sizes
-   - Generate EdDSA Key Pairs for `Ed2559` and `Ed448` curves
-   - Generate `x5t` and `x5t#256` values from X.509 Certificates
-   - Generate JWK thumbprint using `SHA-1` or `SHA-256` 
-   - Generate ideal HMAC secret lengths for `SHA-256`, `SHA-384` and `SHA-512`
-   - Generate the `at_hash` and `c_hash` claims for OpenID Connect
+FusionAuth JWT is designed with simplicity and performance in mind:
 
-## Get it
+* ✅ **Only one dependency**: Jackson
+* 🚫 No Bouncy Castle, Apache Commons, or Guava required
+* ⚡ Optimized for speed and minimal footprint
+
+---
+
+## 📚 Table of Contents
+
+* [Security Disclosures](#-security-disclosures)
+* [Features](#-features)
+* [Supported Algorithms](#-supported-algorithms)
+* [Installation](#-installation)
+* [Usage](#-usage)
+
+  * [HMAC Operations](#hmac-operations)
+  * [RSA Operations](#rsa-operations)
+  * [EC Operations](#ec-operations)
+  * [Clock Skew & Time Machine](#clock-skew--time-machine)
+  * [JCE Providers](#jce-providers)
+  * [JSON Web Keys (JWK)](#json-web-keys-jwk)
+* [Building](#-building)
+* [Contributing](#-contributing)
+
+---
+
+## 🔐 Security Disclosures
+
+> ⚠️ **Important for Security Researchers**
+>
+> If you discover a vulnerability or security-related issue:
+>
+> * **DO NOT open a public GitHub issue**
+> * Instead, report it privately to the maintainers
+>
+> This allows time to assess and fix the issue before disclosure.
+>
+> 💡 Responsible disclosures may be eligible for compensation.
+
+---
+
+## ✨ Features
+
+### JWT Support
+
+* Sign and verify JWTs
+* Minimal dependencies (Jackson only)
+* High-performance encoding/decoding
+
+### PEM Utilities
+
+* Decode PEM → `PrivateKey` / `PublicKey`
+* Encode keys → PEM
+* Supports PKCS#8 conversion
+
+### JSON Web Keys (JWK)
+
+* Build JWK from keys or PEM
+* Parse public keys from JWK
+* Retrieve keys from JWKS endpoints
+
+### Helper Utilities
+
+* RSA, EC, EdDSA key generation
+* JWK thumbprints (SHA-1 / SHA-256)
+* OpenID Connect helpers (`at_hash`, `c_hash`)
+* HMAC secret generation
+
+---
+
+## 🔑 Supported Algorithms
+
+| Category       | Algorithms          |
+| -------------- | ------------------- |
+| HMAC           | HS256, HS384, HS512 |
+| RSA            | RS256, RS384, RS512 |
+| RSA-PSS        | PS256, PS384, PS512 |
+| Elliptic Curve | ES256, ES384, ES512 |
+| Edwards Curve  | Ed25519, Ed448      |
+
+📌 Full reference: https://www.iana.org/assignments/jose/jose.xhtml#web-signature-encryption-algorithms
+
+> ⚠️ Note:
+>
+> * `EdDSA` is deprecated → use `Ed25519` or `Ed448`
+> * `Ed448` requires SHAKE256 support (e.g., Bouncy Castle)
+
+---
+
+## 📦 Installation
 
 ### Maven
- ```xml
+
+```xml
 <dependency>
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
   <version>6.0.0</version>
 </dependency>
- ```
+```
 
 ### Gradle
+
 ```groovy
 implementation 'io.fusionauth:fusionauth-jwt:6.0.0'
 ```
 
-### Gradle Kotlin
+### Gradle (Kotlin)
+
 ```kotlin
 implementation("io.fusionauth:fusionauth-jwt:6.0.0")
 ```
 
-### Savant 
+### Savant
+
 ```groovy
 dependency(id: "io.fusionauth:fusionauth-jwt:6.0.0")
 ```
 
-For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/4.0.1/jar).
- 
-## Example Code:
+More options: https://search.maven.org
 
-### JWT Signing and Verifying
+---
 
-#### Sign and encode a JWT using HMAC
+## 🚀 Usage
+
+### HMAC Operations
+
+#### Sign a JWT
+
 ```java
-// Build an HMAC signer using a SHA-256 hash
 Signer signer = HMACSigner.newSHA256Signer("too many secrets");
 
-// Build a new JWT with an issuer(iss), issued at(iat), subject(sub) and expiration(exp)
-JWT jwt = new JWT().setIssuer("www.acme.com")
-                   .setIssuedAt(ZonedDateTime.now(ZoneOffset.UTC))
-                   .setSubject("f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3")
-                   .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60));
-                       
-// Sign and encode the JWT to a JSON string representation
+JWT jwt = new JWT()
+    .setIssuer("www.acme.com")
+    .setIssuedAt(ZonedDateTime.now(ZoneOffset.UTC))
+    .setSubject("f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3")
+    .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60));
+
 String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 ```
 
-A higher strength hash can be used by changing the signer. The encoding and decoding steps are not affected.
-```java
-// Build an HMAC signer using a SHA-384 hash
-Signer signer384 = HMACSigner.newSHA384Signer("too many secrets");
+#### Verify a JWT
 
-// Build an HMAC signer using a SHA-512 hash
-Signer signer512 = HMACSigner.newSHA512Signer("too many secrets");
-```
-
-#### Verify and decode a JWT using HMAC
 ```java
-// Build an HMC verifier using the same secret that was used to sign the JWT
 Verifier verifier = HMACVerifier.newVerifier("too many secrets");
 
-// Verify and decode the encoded string JWT to a rich object
 JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
 
-// Assert the subject of the JWT is as expected
-assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
+assertEquals("f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3", jwt.subject);
 ```
 
-#### Sign and encode a JWT using RSA
-```java
-// Build an RSA signer using a SHA-256 hash. A signer may also be built using the PrivateKey object.
-Signer signer = RSASigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
+---
 
-// Build a new JWT with an issuer(iss), issued at(iat), subject(sub) and expiration(exp)
-JWT jwt = new JWT().setIssuer("www.acme.com")
-                   .setIssuedAt(ZonedDateTime.now(ZoneOffset.UTC))
-                   .setSubject("f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3")
-                   .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60));
-        
-// Sign and encode the JWT to a JSON string representation
+### RSA Operations
+
+#### Sign
+
+```java
+Signer signer = RSASigner.newSHA256Signer(
+    new String(Files.readAllBytes(Paths.get("private_key.pem")))
+);
+
 String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 ```
 
-A higher strength hash can be used by changing the signer. The encoding and decoding steps are not affected.
-```java
-// Build an RSA signer using a SHA-384 hash
-Signer signer = RSASigner.newSHA384Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
+#### Verify
 
-// Build an RSA signer using a SHA5124 hash
-Signer signer = RSASigner.newSHA512Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
-```
-
-#### Verify and decode a JWT using RSA
 ```java
-// Build an RSA verifier using an RSA Public Key. A verifier may also be built using the PublicKey object.
 Verifier verifier = RSAVerifier.newVerifier(Paths.get("public_key.pem"));
 
-// Verify and decode the encoded string JWT to a rich object
 JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
-
-// Assert the subject of the JWT is as expected
-assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 ```
 
-#### Sign and encode a JWT using EC
-```java
-// Build an EC signer using a SHA-256 hash. A signer may also be built using the PrivateKey object.
-Signer signer = ECSigner.newSHA256Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
+---
 
-// Build a new JWT with an issuer(iss), issued at(iat), subject(sub) and expiration(exp)
-JWT jwt = new JWT().setIssuer("www.acme.com")
-                   .setIssuedAt(ZonedDateTime.now(ZoneOffset.UTC))
-                   .setSubject("f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3")
-                   .setExpiration(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(60));
-        
-// Sign and encode the JWT to a JSON string representation
+### EC Operations
+
+#### Sign
+
+```java
+Signer signer = ECSigner.newSHA256Signer(
+    new String(Files.readAllBytes(Paths.get("private_key.pem")))
+);
+
 String encodedJWT = JWT.getEncoder().encode(jwt, signer);
 ```
 
-A higher strength hash can be used by changing the signer. The encoding and decoding steps are not affected.
-```java
-// Build an EC signer using a SHA-384 hash
-Signer signer = ECSigner.newSHA384Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
+#### Verify
 
-// Build an EC signer using a SHA-512 hash
-Signer signer = ECSigner.newSHA512Signer(new String(Files.readAllBytes(Paths.get("private_key.pem"))));
-```
-
-#### Verify and decode a JWT using EC
 ```java
-// Build an EC verifier using an EC Public Key. A verifier may also be built using the PublicKey object.
 Verifier verifier = ECVerifier.newVerifier(Paths.get("public_key.pem"));
 
-// Verify and decode the encoded string JWT to a rich object
 JWT jwt = JWT.getDecoder().decode(encodedJWT, verifier);
-
-// Assert the subject of the JWT is as expected
-assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
 ```
 
-#### Verify a JWT adjusting for Clock Skew
+---
+
+### Clock Skew & Time Machine
+
+#### Allow Clock Skew
+
 ```java
-// Build an EC verifier using an EC Public Key
-Verifier verifier = ECVerifier.newVerifier(Paths.get("public_key.pem"));
-
-// Verify and decode the encoded string JWT to a rich object and allow up to 60 seconds
-// of clock skew when asserting the 'exp' and 'nbf' claims if they exist.
-JWT jwt = JWT.getDecoder().withClockSkew(60).decode(encodedJWT, verifier);
-
-// Assert the subject of the JWT is as expected
-assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
+JWT jwt = JWT.getDecoder()
+    .withClockSkew(60)
+    .decode(encodedJWT, verifier);
 ```
 
-#### Verify an expired JWT by going back in time
-In a scenario where you may have a hard coded JWT in a test case that you wish to validate, you may use the time machine JWT decoder. Ideally you would not hard code JWTs in your tests and instead generate a new one each time so that the JWT would pass the expiration check. If this is not possible, this option is provided.
+#### Time Machine (Testing Only)
+
 ```java
-// Build an EC verifier using an EC Public Key
-Verifier verifier = ECVerifier.newVerifier(Paths.get("public_key.pem"));
+ZonedDateTime past = ZonedDateTime.of(
+    2019, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC
+);
 
-// Using the time machine decoder, you may adjust 'now' to any point in the past, or future.
-// Note, this is only provided for testing, and should not be used in production.
-ZonedDateTime thePast = ZonedDateTime.of(2019, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC) 
-JWT jwt = JWT.getTimeMachineDecoder(thePast).decode(encodedJWT, verifier);
-
-// Assert the subject of the JWT is as expected
-assertEquals(jwt.subject, "f1e33ab3-027f-47c5-bb07-8dd8ab37a2d3");
+JWT jwt = JWT.getTimeMachineDecoder(past)
+    .decode(encodedJWT, verifier);
 ```
 
+---
 
-### Enable a third party JCE provider sucha s Bouncy Castle
+### JCE Providers
 
-Once you have enabled an additional provider no change should be necessary to your code. 
- 
 ```java
-// Insert the provider ahead of the JCA.
 Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);
 ```
 
-## JSON Web Keys
+---
 
-### Retrieve JSON Web Keys from a JWKS endpoint
+### JSON Web Keys (JWK)
+
+#### Retrieve Keys
 
 ```java
-// Retrieve JSON Web Keys using a known JWKS endpoint
-// - You may optionally provide a HttpURLConnection to this method instead of a string if you want to build your own connection.
-List<JSONWebKey> keys = JSONWebKeySetHelper.retrieveKeysFromJWKS("https://www.googleapis.com/oauth2/v3/certs");
-
-// Retrieve JSON Web Keys using a well known OpenID Connect configuration endpoint
-// - You may optionally provide a HttpURLConnection to this method instead of a string if you want to build your own connection.
-List<JSONWebKey> keys = JSONWebKeySetHelper.retrieveKeysFromWellKnownConfiguration("https://accounts.google.com/.well-known/openid-configuration");
-
-// Retrieve JSON Web Keys using an OpenID Connect issuer endpoint
-List<JSONWebKey> keys = JSONWebKeySetHelper.retrieveKeysFromIssuer("https://accounts.google.com");
+List<JSONWebKey> keys =
+    JSONWebKeySetHelper.retrieveKeysFromJWKS(
+        "https://www.googleapis.com/oauth2/v3/certs"
+    );
 ```
 
-### Convert a Public Key to JWK
+#### Convert Public Key → JWK
 
 ```java
 JSONWebKey jwk = JSONWebKey.build(publicKey);
 String json = jwk.toJSON();
 ```
 
-```json
-{
-  "e": "AQAB",
-  "kty": "RSA",
-  "n": "Auchby3lZKHbiAZrTkJh79hJvgC3W7STSS4y6UZEhhxx3m3W2hD8qCyw6BEyrciPpwou-vmeDN7qBSk2QKqTTjlg5Pkf8O4z8d9HAlBTUDg4p98qLFOF2EFWWTiFbQwAP2qODOIv9WCAM2rkXEPwGiF962XAoOwiSmldeDu7Uo5A-bnTi0z3oNu4qm_48kv90o9CMiELszE9jsfoH32WE71HDqhsRjVNddDJ81e5zxBN8UEmaR-gmWqa63laON2KANPugJP7PrYJ_PC9ilQfV3F1rDpqbvlFQkshohJ39VrVpEtSRmJ12nqTFuspXLApekOyic3J9jo6ZI7o3IdQmy3bpnJIT_U",
-  "use": "sig"
-}
-```
-
-### Extract the Public Key from a JWK
-
-```json
-{
-  "e": "AQAB",
-  "kty": "RSA",
-  "n": "Auchby3lZKHbiAZrTkJh79hJvgC3W7STSS4y6UZEhhxx3m3W2hD8qCyw6BEyrciPpwou-vmeDN7qBSk2QKqTTjlg5Pkf8O4z8d9HAlBTUDg4p98qLFOF2EFWWTiFbQwAP2qODOIv9WCAM2rkXEPwGiF962XAoOwiSmldeDu7Uo5A-bnTi0z3oNu4qm_48kv90o9CMiELszE9jsfoH32WE71HDqhsRjVNddDJ81e5zxBN8UEmaR-gmWqa63laON2KANPugJP7PrYJ_PC9ilQfV3F1rDpqbvlFQkshohJ39VrVpEtSRmJ12nqTFuspXLApekOyic3J9jo6ZI7o3IdQmy3bpnJIT_U",
-  "use": "sig"
-}
-```
+#### Parse JWK → Public Key
 
 ```java
-String json = { ... example above ... }
 byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+
 JSONWebKey jwk = Mapper.deserialize(bytes, JSONWebKey.class);
 PublicKey publicKey = JSONWebKey.parse(jwk);
 ```
 
-### Convert a Private Key to JWK
-
-```java
-JSONWebKey jwk = JSONWebKey.build(privateKey);
-String json = jwk.toJSON();
-```
-
-```json
-{
-  "p": "9dy6wUxA0eOHopUP-E5QjDzuW8rXdaQMR566oDJ1qL0iD0koQAB9X3hboB-2Rru0aATu6WDW-jd4mgtYnXO8ow",
-  "kty": "RSA",
-  "q": "6Nfc6c8meTRkVRAHCF24LB5GLfsjoMB0tOeEO9w9Ous1a4o-D24bAePMUImAp3woFoNDRfWtlNktOqLel5Pjew",
-  "d": "C0G3QGI6OQ6tvbCNYGCqq043YI_8MiBl7C5dqbGZmx1ewdJBhMNJPStuckhskURaDwk4-8VBW9SlvcfSJJrnZhgFMjOYSSsBtPGBIMIdM5eSKbenCCjO8Tg0BUh_xa3CHST1W4RQ5rFXadZ9AeNtaGcWj2acmXNO3DVETXAX3x0",
-  "e": "AQAB",
-  "use": "sig",
-  "qi": "XLE5O360x-MhsdFXx8Vwz4304-MJg-oGSJXCK_ZWYOB_FGXFRTfebxCsSYi0YwJo-oNu96bvZCuMplzRI1liZw",
-  "dp": "32QGgDmjr9GX3N6p2wh1YWa_gMHmUSqUScLseUA_7eijeNYU70pCoCtAvVXzDYPhoJ3S4lQuIL2kI_tpMe8GFw",
-  "dq": "21tJjqeN-k-mWhCwX2xTbpTSzsyy4uWMzUTy6aXxtUkTWY2yK70yClS-Df2MS70G0za0MPtjnUAAgSYhB7HWcw",
-  "n": "359ZykLITko_McOOKAtpJRVkjS5itwZxzjQidW2X6tBEOYCH4LZbwfj8fGGvlUtzpyuwnYuIlNX8TvZLTenOk45pphXr5PMCMKi7YZgkhd6_t_oeHnXY-4bnDLF1r9OUFKwj6C-mFFM-woKc-62tuK6QJiuc-5bFfn9wRL15K1E"
-}
-```
-
-### Add a custom property to a JWK
+#### Add Custom Fields
 
 ```java
 JSONWebKey jwk = JSONWebKey.build(privateKey)
-                           .add("boom", "goes the dynamite")
-                           .add("more", "cowbell");
+    .add("custom", "value");
+
 String json = jwk.toJSON();
 ```
 
-```json
-{
-  "alg" : "ES256",
-  "boom" : "goes the dynamite",
-  "crv" : "P-256",
-  "kty" : "EC",
-  "more" : "cowbell",
-  "use" : "sig",
-  "x" : "NIWpsIea0qzB22S0utDG8dGFYqEInv9C7ZgZuKtwjno",
-  "y" : "iVFFtTgiInz_fjh-n1YqbibnUb2vtBZFs3wPpQw3mc0"
-}
-```
+---
 
-## Building
- 
+## 🛠️ Building
+
 ### Maven
- ```bash
- $ mvn install
- ```
+
+```bash
+mvn install
+```
 
 ### Savant
 
 ```bash
-$ sb int
+sb int
 ```
 
-**Note:** If you do not yet have Savant build tool installed, use the following instructions.
+### Install Savant
 
 ```bash
 mkdir ~/savant
@@ -331,4 +298,21 @@ ln -s ./savant-2.0.2 current
 export PATH=$PATH:~/savant/current/bin/
 ```
 
-For more information, checkout [savantbuild.org](http://savantbuild.org/).
+---
+
+## 🤝 Contributing
+
+Contributions are welcome!
+Please follow standard GitHub workflows:
+
+1. Fork the repository
+2. Create a feature branch
+3. Submit a Pull Request
+
+---
+
+## 📄 License
+
+See the LICENSE file for details.
+
+---
