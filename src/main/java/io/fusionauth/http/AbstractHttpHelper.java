@@ -6,7 +6,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -44,13 +44,13 @@ public abstract class AbstractHttpHelper {
 
   protected static HttpURLConnection buildURLConnection(String endpoint) {
     try {
-      HttpURLConnection urlConnection = (HttpURLConnection) new URL(endpoint).openConnection();
+      HttpURLConnection urlConnection = (HttpURLConnection) URI.create(endpoint).toURL().openConnection();
       urlConnection.setDoOutput(true);
       urlConnection.setConnectTimeout(10_000);
       urlConnection.setReadTimeout(10_000);
       urlConnection.addRequestProperty("User-Agent", "fusionauth-jwt (https://github.com/FusionAuth/fusionauth-jwt)");
       return urlConnection;
-    } catch (IOException e) {
+    } catch (IllegalArgumentException | IOException e) {
       throw new JSONWebKeySetHelper.JSONWebKeySetException("Failed to build connection to [" + endpoint + "].", e);
     }
   }

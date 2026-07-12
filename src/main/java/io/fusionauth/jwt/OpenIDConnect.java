@@ -75,7 +75,7 @@ public class OpenIDConnect {
       case Ed448 -> {
         // Ed448 uses a 114 byte SHAKE256 hash. The recommended hash length here is the same, see discussion thread:
         // - https://bitbucket.org/openid/connect/issues/1125
-        // The JCA does not ship with SHAKE256, expect this to exception if you have not registered a provider with support for this algorithm (such as BC)
+        // SHAKE256 is provided by the default JCA since Java 25 (also available via third-party providers such as Bouncy Castle).
         messageDigest = getDigest("SHAKE256");
         yield 456; // 114 * 8 / 2 = 456
       }

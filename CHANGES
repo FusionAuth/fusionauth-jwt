@@ -1,5 +1,9 @@
 FusionAuth JWT Changes
 
+Changes in 7.0.0
+ * Move to Java 25 LTS as the minimum requirement.
+ * OpenID Connect `at_hash` / `c_hash` for Ed448 no longer requires a third-party provider for SHAKE256; the default JCA provides it on Java 25+.
+
 Changes in 6.1.0
  * Add parsePrivate() to JSONWebKey and JSONWebKeyParser
 
