@@ -22,7 +22,7 @@ import io.fusionauth.oauth2.domain.AuthorizationServerMetaData;
 import org.testng.annotations.Test;
 
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.nio.file.Paths;
 
 import static org.testng.Assert.assertEquals;
@@ -44,7 +44,7 @@ public class ServerMetaDataTest extends BaseTest {
 
     AuthorizationServerMetaData metaData1 = ServerMetaDataHelper.retrieveFromIssuer("http://localhost:4242");
     AuthorizationServerMetaData metaData2 = ServerMetaDataHelper.retrieveFromWellKnownConfiguration("http://localhost:4242/.well-known/oauth-authorization-server");
-    AuthorizationServerMetaData metaData3 = ServerMetaDataHelper.retrieveFromWellKnownConfiguration((HttpURLConnection) new URL("http://localhost:4242/.well-known/oauth-authorization-server").openConnection());
+    AuthorizationServerMetaData metaData3 = ServerMetaDataHelper.retrieveFromWellKnownConfiguration((HttpURLConnection) URI.create("http://localhost:4242/.well-known/oauth-authorization-server").toURL().openConnection());
 
     assertEquals(metaData1, metaData2);
     assertEquals(metaData2, metaData3);

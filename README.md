@@ -9,7 +9,7 @@ We are very interested in compensating anyone that can identify a security relat
 ## Features
  - JWT signing using the following algorithms
    - `HS256`, `HS384`, `HS512`, `RS256`, `RS384`, `RS512`, `ES256`, `ES384`, `ES512`, `PS256`, `PS384`, `PS512`, `Ed25519`, `Ed448`
-     - In order to use the OpenID Connect hashing functions for `at_hash` or `c_hash` with the `Ed448` algorithm, you must register a provider to add support for the `SHAKE256` message digest, such as BouncyCastle as this algorithm is not provided in the default JCA.
+     - The OpenID Connect hashing functions for `at_hash` or `c_hash` with the `Ed448` algorithm use the `SHAKE256` message digest, which is provided by the default JCA starting with Java 25.
      - When using `Ed25519` or `Ed448`, the `alg` JWT header and the JWK `alg` property will be equal to the algorithm name. The legacy `EdDSA` value has been deprecated in JOSE in favor of the fully-specified algorithm names `Ed25519` and `Ed448`. In practice this means that this library will be unable to accept a JWT using the `EdDSA` value for the `alg` in the JWT header.
        - https://www.iana.org/assignments/jose/jose.xhtml#web-signature-encryption-algorithms
  - Support for Bouncy Castle JCE or other third party providers.   
@@ -41,23 +41,23 @@ We are very interested in compensating anyone that can identify a security relat
 <dependency>
   <groupId>io.fusionauth</groupId>
   <artifactId>fusionauth-jwt</artifactId>
-  <version>6.0.0</version>
+  <version>7.0.0</version>
 </dependency>
  ```
 
 ### Gradle
 ```groovy
-implementation 'io.fusionauth:fusionauth-jwt:6.0.0'
+implementation 'io.fusionauth:fusionauth-jwt:7.0.0'
 ```
 
 ### Gradle Kotlin
 ```kotlin
-implementation("io.fusionauth:fusionauth-jwt:6.0.0")
+implementation("io.fusionauth:fusionauth-jwt:7.0.0")
 ```
 
 ### Savant 
 ```groovy
-dependency(id: "io.fusionauth:fusionauth-jwt:6.0.0")
+dependency(id: "io.fusionauth:fusionauth-jwt:7.0.0")
 ```
 
 For others see [https://search.maven.org](https://search.maven.org/artifact/io.fusionauth/fusionauth-jwt/4.0.1/jar).
