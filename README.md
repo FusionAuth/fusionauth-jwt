@@ -307,6 +307,12 @@ String json = jwk.toJSON();
 }
 ```
 
+## Limitations
+
+This library should work with any version of Java equal to or newer than Java 8.
+
+It has a dependency on the Base64 class, which was added in [Android API 26](https://developer.android.com/reference/java/util/Base64).
+
 ## Building
  
 ### Maven
