@@ -1,5 +1,14 @@
 FusionAuth JWT Changes
 
+Changes in 7.1.0
+ * Support custom JSON serialize/deserialize via the new `JSONMapper` SPI.
+   * `Mapper` remains the public facade and defaults to `JacksonJSONMapper`.
+   * Register an alternate implementation with `Mapper.setMapper(...)` (for example a Gson-backed mapper).
+   * Call `Mapper.resetMapper()` to restore the default Jackson mapper.
+   * Domain types still carry Jackson annotations for the default mapper; custom mappers must handle
+     property renaming and claim conversion themselves.
+   Resolves https://github.com/FusionAuth/fusionauth-jwt/issues/6
+
 Changes in 7.0.0
  * Move to Java 25 LTS as the minimum requirement.
  * OpenID Connect `at_hash` / `c_hash` for Ed448 no longer requires a third-party provider for SHAKE256; the default JCA provides it on Java 25+.

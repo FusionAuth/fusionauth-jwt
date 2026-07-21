@@ -33,6 +33,7 @@ We are very interested in compensating anyone that can identify a security relat
    - Generate JWK thumbprint using `SHA-1` or `SHA-256` 
    - Generate ideal HMAC secret lengths for `SHA-256`, `SHA-384` and `SHA-512`
    - Generate the `at_hash` and `c_hash` claims for OpenID Connect
+ - Pluggable JSON serialize/deserialize (`JSONMapper`) with Jackson as the default
 
 ## Get it
 
@@ -307,12 +308,35 @@ String json = jwk.toJSON();
 }
 ```
 
+## Custom JSON mapper
+
+By default FusionAuth JWT uses Jackson via `Mapper` / `JacksonJSONMapper`. If your application already uses another
+JSON library (for example Gson), you can register a custom implementation of `JSONMapper`:
+
+```java
+import io.fusionauth.jwt.json.JSONMapper;
+import io.fusionauth.jwt.json.Mapper;
+
+// Register once at application startup (process-wide).
+Mapper.setMapper(new MyGsonJSONMapper());
+
+// Later, restore the default Jackson implementation if needed.
+Mapper.resetMapper();
+```
+
+Your implementation must correctly serialize and deserialize JWT headers, payloads, JWKs, and OAuth2 metadata
+(property names such as `alg` / `jti`, additional claims maps, and numeric epoch-second date claims). Domain types
+still include Jackson annotations for the default mapper; a custom mapper is responsible for applying the same
+conventions.
+
+See `JSONMapper` and `Mapper` for the SPI contract.
+
 ## Building
- 
+
 ### Maven
- ```bash
- $ mvn install
- ```
+```bash
+$ mvn install
+```
 
 ### Savant
 

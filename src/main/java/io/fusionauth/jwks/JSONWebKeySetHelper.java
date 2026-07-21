@@ -16,13 +16,13 @@
 
 package io.fusionauth.jwks;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.fusionauth.http.AbstractHttpHelper;
 import io.fusionauth.jwks.domain.JSONWebKey;
 import io.fusionauth.jwt.json.Mapper;
 
 import java.net.HttpURLConnection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -65,14 +65,16 @@ public class JSONWebKeySetHelper extends AbstractHttpHelper {
   public static List<JSONWebKey> retrieveKeysFromWellKnownConfiguration(HttpURLConnection httpURLConnection) {
     return get(httpURLConnection,
         is -> {
-          JsonNode response = Mapper.deserialize(is, JsonNode.class);
-          JsonNode jwksURI = response.at("/jwks_uri");
-          if (jwksURI.isMissingNode()) {
+          // Use Map so custom JSONMapper implementations (e.g. Gson) work without Jackson JsonNode.
+          @SuppressWarnings("unchecked")
+          Map<String, Object> response = Mapper.deserialize(is, Map.class);
+          Object jwksURI = response != null ? response.get("jwks_uri") : null;
+          if (jwksURI == null || jwksURI.toString().isEmpty()) {
             String endpoint = httpURLConnection.getURL().toString();
             throw new JSONWebKeySetException("The well-known endpoint [" + endpoint + "] has not defined a JSON Web Key Set endpoint. Missing the [jwks_uri] property.");
           }
 
-          return retrieveKeysFromJWKS(jwksURI.asText());
+          return retrieveKeysFromJWKS(jwksURI.toString());
         },
         JSONWebKeyBuilderException::new);
   }
