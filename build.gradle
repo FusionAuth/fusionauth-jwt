@@ -50,6 +50,8 @@ tasks.withType(Javadoc).configureEach {
   options.addStringOption("Xdoclint:none", "-quiet")
 }
 
+// This library is released to Maven Central by the Maven build (pom.xml), so there is deliberately no remote publishing
+// repository here: CodeArtifact is only used to resolve dependencies (see settings.gradle).
 publishing {
   publications {
     mavenJava(MavenPublication) {
@@ -64,20 +66,11 @@ publishing {
       }
     }
   }
-  repositories {
-    maven {
-      url = gradle.codeArtifactUrl
-      credentials {
-        username = "aws"
-        password = gradle.codeArtifactToken.get()
-      }
-    }
-  }
 }
 
 // Published artifacts must be signed with a local gpg key. The key name is personal config: set
 // signing.gnupg.keyName=<fingerprint> in ~/.gradle/gradle.properties (never in this repo) and unlock the key in gpg-agent first.
-// Signing is only required for a remote publish; build, test and publishToMavenLocal work without a key configured.
+// Signing is only required for a remote publish (none is configured here); build, test and publishToMavenLocal work without a key.
 signing {
   setRequired { gradle.taskGraph.allTasks.any { it instanceof PublishToMavenRepository } }
   if (project.hasProperty("signing.gnupg.keyName")) {
