@@ -4,3 +4,4 @@ build
 target
 .DS_Store
 .savant/cache
+.gradle

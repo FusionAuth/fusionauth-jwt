@@ -1,0 +1,16 @@
+apply from: "gradle/codeArtifactTokenFetcher.groovy"
+
+dependencyResolutionManagement {
+  repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
+  repositories {
+    maven {
+      url = gradle.codeArtifactUrl
+      credentials {
+        username = "aws"
+        password = gradle.codeArtifactToken.get()
+      }
+    }
+  }
+}
+
+rootProject.name = "fusionauth-jwt"

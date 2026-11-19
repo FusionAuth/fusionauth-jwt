@@ -1,0 +1,13 @@
+[versions]
+bc-fips = "2.1.2"
+jackson = "2.15.4"
+slf4j = "1.7.36"
+testng = "7.9.0"
+
+[libraries]
+bc-fips = { module = "org.bouncycastle:bc-fips", version.ref = "bc-fips" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+slf4j-nop = { module = "org.slf4j:slf4j-nop", version.ref = "slf4j" }
+testng = { module = "org.testng:testng", version.ref = "testng" }

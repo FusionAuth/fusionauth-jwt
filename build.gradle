@@ -1,0 +1,87 @@
+plugins {
+  id "java-library"
+  id "maven-publish"
+  id "signing"
+}
+
+group = "io.fusionauth"
+version = "7.0.0"
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(25)
+  }
+  withSourcesJar()
+  withJavadocJar()
+}
+
+dependencies {
+  api libs.jackson.annotations
+  api libs.jackson.core
+  api libs.jackson.databind
+
+  // slf4j-nop gets rid of the SLF4J warnings on test runs:
+  //   SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+  testImplementation libs.bc.fips
+  testImplementation libs.slf4j.nop
+  testImplementation libs.testng
+}
+
+// The tests run twice, like the Savant test target did: against the JCA providers (`test`) and against BC FIPS (`testFips`).
+tasks.named("test") {
+  useTestNG()
+  systemProperty "test.fips", "false"
+}
+
+tasks.register("testFips", Test) {
+  description = "Runs the tests with -Dtest.fips=true"
+  group = "verification"
+  testClassesDirs = sourceSets.test.output.classesDirs
+  classpath = sourceSets.test.runtimeClasspath
+  useTestNG()
+  systemProperty "test.fips", "true"
+}
+
+tasks.named("check") {
+  dependsOn "testFips"
+}
+
+tasks.withType(Javadoc).configureEach {
+  options.addStringOption("Xdoclint:none", "-quiet")
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      pom {
+        licenses {
+          license {
+            name = "ApacheV2_0"
+            url = "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        }
+      }
+    }
+  }
+  repositories {
+    maven {
+      url = gradle.codeArtifactUrl
+      credentials {
+        username = "aws"
+        password = gradle.codeArtifactToken.get()
+      }
+    }
+  }
+}
+
+// Published artifacts must be signed with a local gpg key. The key name is personal config: set
+// signing.gnupg.keyName=<fingerprint> in ~/.gradle/gradle.properties (never in this repo) and unlock the key in gpg-agent first.
+// Signing is only required for a remote publish; build, test and publishToMavenLocal work without a key configured.
+signing {
+  setRequired { gradle.taskGraph.allTasks.any { it instanceof PublishToMavenRepository } }
+  if (project.hasProperty("signing.gnupg.keyName")) {
+    useGpgCmd()
+  }
+  sign publishing.publications.mavenJava
+}
